@@ -7,17 +7,15 @@ import (
 )
 
 func NewBroadcastClient(factories ...broadcast.BroadcastFactory) broadcast.Broadcaster {
+	if len(factories) == 1 {
+		return factories[0]()
+	}
+
 	return broadcast.NewCompositeBroadcaster(config.DefaultStrategy, factories...)
 }
 
 func WithArc(config config.ArcClientConfig) broadcast.BroadcastFactory {
 	return func() broadcast.Broadcaster {
 		return arc.NewArcClient(config)
-	}
-}
-
-func WithMultiminers(factories ...broadcast.BroadcastFactory) broadcast.BroadcastFactory {
-	return func() broadcast.Broadcaster {
-		return broadcast.NewCompositeBroadcaster(config.DefaultStrategy, factories...)
 	}
 }
