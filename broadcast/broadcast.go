@@ -2,16 +2,19 @@ package broadcast
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/bitcoin-sv/go-broadcast-client/models"
 )
 
 type BroadcastFactory func() Broadcaster
 
 type Broadcaster interface {
-	BestQuoter
+	// BestQuoter
 	// FastestQuoter
 	// FeeQuoter
 	// PolicyQuoter
-	// TransactionQuerier
+	TransactionQuerier
 	// TransactionSubmitter
 	// TransactionsSubmitter
 }
@@ -32,12 +35,23 @@ func NewCompositeBroadcaster(strategy Strategy, factories ...BroadcastFactory) B
 	}
 }
 
-func (c *compositeBroadcaster) BestQuote(ctx context.Context, feeCategory, feeType string) error {
-	executionFuncs := make([]func(context.Context) error, len(c.broadcasters))
+func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string) (*models.QueryTxResponse, error) {
+	executionFuncs := make([]ExecutionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
-		executionFuncs[i] = func(ctx context.Context) error {
-			return broadcaster.BestQuote(ctx, feeCategory, feeType)
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+			return broadcaster.QueryTransaction(ctx, txID)
 		}
 	}
-	return c.strategy.Execute(ctx, executionFuncs)
+	result, err := c.strategy.Execute(ctx, executionFuncs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert result to QueryTxResponse
+	queryTxResponse, ok := result.(*models.QueryTxResponse)
+	if !ok {
+		return nil, fmt.Errorf("unexpected result type: %T", result)
+	}
+
+	return queryTxResponse, nil
 }

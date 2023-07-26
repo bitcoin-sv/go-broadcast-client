@@ -2,7 +2,8 @@ package broadcast
 
 import (
 	"context"
-	"fmt"
+
+	errors "github.com/bitcoin-sv/go-broadcast-client"
 )
 
 type StrategyName string
@@ -11,31 +12,33 @@ const (
 	OneByOneStrategy StrategyName = "OneByOneStrategy"
 )
 
-type ExecutionFunc func(context.Context, []func(context.Context) error) error
+type Result interface{}
+
+type ExecutionFunc func(context.Context) (Result, error)
+type StrategyExecutionFunc func(context.Context, []ExecutionFunc) (Result, error)
 
 type Strategy struct {
 	name          StrategyName
-	executionFunc ExecutionFunc
+	executionFunc StrategyExecutionFunc
 }
 
-func New(name StrategyName, executionFunc ExecutionFunc) *Strategy {
+func New(name StrategyName, executionFunc StrategyExecutionFunc) *Strategy {
 	return &Strategy{name: name, executionFunc: executionFunc}
 }
 
-func (s *Strategy) Execute(ctx context.Context, executionFuncs []func(context.Context) error) error {
+func (s *Strategy) Execute(ctx context.Context, executionFuncs []ExecutionFunc) (Result, error) {
 	return s.executionFunc(ctx, executionFuncs)
 }
 
 var (
-	OneByOne = New(OneByOneStrategy, func(ctx context.Context, executionFuncs []func(context.Context) error) error {
+	OneByOne = New(OneByOneStrategy, func(ctx context.Context, executionFuncs []ExecutionFunc) (Result, error) {
 		for _, executionFunc := range executionFuncs {
-			err := executionFunc(ctx)
+			result, err := executionFunc(ctx)
 			if err != nil {
 				continue
 			}
-			return nil
+			return result, nil
 		}
-		// return factory.ErrAllBroadcastersFailed
-		return fmt.Errorf("all broadcasters failed")
+		return nil, errors.ErrAllBroadcastersFailed
 	})
 )

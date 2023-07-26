@@ -2,39 +2,29 @@ package broadcast
 
 import (
 	"context"
+
+	"github.com/bitcoin-sv/go-broadcast-client/models"
 )
 
 type BestQuoter interface {
-	// BestQuote(ctx context.Context, feeCategory, feeType string) (*FeeQuoteResponse, error)
-	BestQuote(ctx context.Context, feeCategory, feeType string) error
 }
 
-// type FastestQuoter interface {
-// 	// FastestQuote(ctx context.Context, timeout time.Duration) (*FeeQuoteResponse, error)
-// 	FastestQuote(ctx context.Context, timeout time.Duration) error
-// }
+type FastestQuoter interface {
+}
 
-// type FeeQuoter interface {
-// 	// FeeQuote(ctx context.Context, miner *Miner) (*FeeQuoteResponse, error)
-// 	FeeQuote(ctx context.Context) error
-// }
+type FeeQuoter interface {
+}
 
-// type PolicyQuoter interface {
-// 	// PolicyQuote(ctx context.Context, miner *Miner) (*PolicyQuoteResponse, error)
-// 	PolicyQuote(ctx context.Context) error
-// }
+type PolicyQuoter interface {
+}
 
-// type TransactionQuerier interface {
-// 	// // QueryTransaction(ctx context.Context, miner *Miner, txID string, opts ...QueryTransactionOptFunc) (*QueryTransactionResponse, error)
-// 	QueryTransaction(ctx context.Context, txID string) error
-// }
+type TransactionQuerier interface {
+	// Think about adding TransactionQueryOpts here if clients implement handling it in future
+	QueryTransaction(ctx context.Context, txID string) (*models.QueryTxResponse, error)
+}
 
-// type TransactionSubmitter interface {
-// 	// SubmitTransaction(ctx context.Context, miner *Miner, tx *Transaction) (*SubmitTransactionResponse, error)
-// 	SubmitTransaction(ctx context.Context) error
-// }
+type TransactionSubmitter interface {
+}
 
-// type TransactionsSubmitter interface {
-// 	// SubmitTransactions(ctx context.Context, miner *Miner, txs []Transaction) (*SubmitTransactionsResponse, error)
-// 	SubmitTransactions(ctx context.Context) error
-// }
+type TransactionsSubmitter interface {
+}
