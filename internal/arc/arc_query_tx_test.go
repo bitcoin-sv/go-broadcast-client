@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bitcoin-sv/go-broadcast-client/common"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
 	"github.com/bitcoin-sv/go-broadcast-client/models"
 	"github.com/stretchr/testify/assert"
@@ -39,13 +40,13 @@ func TestQueryTransaction(t *testing.T) {
 				Body: ioutil.NopCloser(bytes.NewBufferString(`
 					{
 						"blockHash": "abc123",
-						"txStatus": "confirmed"
+						"txStatus": "CONFIRMED"
 					}
 					`)),
 			},
 			expectedResult: &models.QueryTxResponse{
 				BlockHash: "abc123",
-				TxStatus:  "confirmed",
+				TxStatus:  common.Confirmed,
 			},
 		},
 		{
@@ -59,7 +60,7 @@ func TestQueryTransaction(t *testing.T) {
 				StatusCode: http.StatusOK,
 				Body: ioutil.NopCloser(bytes.NewBufferString(`
 					{
-						"txStatus": "confirmed"
+						"txStatus": "CONFIRMED"
 					}
 					`)),
 			},

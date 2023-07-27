@@ -60,7 +60,7 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*mode
 
 func decodeQueryTxBody(body io.ReadCloser) (*models.QueryTxResponse, error) {
 	model := &models.QueryTxResponse{}
-	err := json.NewDecoder(body).Decode(body)
+	err := json.NewDecoder(body).Decode(model)
 
 	if err != nil || model == nil {
 		return nil, err
