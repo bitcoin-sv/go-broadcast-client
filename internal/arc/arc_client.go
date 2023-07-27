@@ -9,7 +9,7 @@ import (
 type ArcClient struct {
 	apiURL     string
 	token      string
-	httpClient httpclient.HTTPInterface
+	HTTPClient httpclient.HTTPInterface
 }
 
 func NewArcClient(config config.ArcClientConfig) broadcast.Broadcaster {
@@ -18,6 +18,6 @@ func NewArcClient(config config.ArcClientConfig) broadcast.Broadcaster {
 	return &ArcClient{
 		apiURL:     config.APIUrl,
 		token:      config.Token,
-		httpClient: httpClient,
+		HTTPClient: httpClient,
 	}
 }

@@ -82,7 +82,7 @@ func TestSubmitTransaction(t *testing.T) {
 
 			// use mock in the arc client
 			client := &ArcClient{
-				httpClient: mockHttpClient,
+				HTTPClient: mockHttpClient,
 				apiURL:     "http://example.com",
 				token:      "someToken",
 			}

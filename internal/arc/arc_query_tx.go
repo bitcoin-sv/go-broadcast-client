@@ -41,7 +41,7 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*mode
 		nil,
 	)
 
-	resp, err := arc.httpClient.DoRequest(
+	resp, err := arc.HTTPClient.DoRequest(
 		ctx,
 		pld,
 	)

@@ -48,7 +48,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *common.Transacti
 	)
 	appendSubmitTxHeaders(&pld, tx)
 
-	resp, err := arc.httpClient.DoRequest(
+	resp, err := arc.HTTPClient.DoRequest(
 		ctx,
 		pld,
 	)
