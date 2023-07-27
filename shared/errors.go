@@ -1,6 +1,8 @@
-package errors
+package shared
 
-import "errors"
+import (
+	"errors"
+)
 
 var ErrClientUndefined = errors.New("client is undefined")
 
@@ -10,4 +12,6 @@ var ErrURLEmpty = errors.New("url is empty")
 
 var ErrBroadcasterFailed = errors.New("broadcaster failed")
 
-var ErrUnableToParseResponse = errors.New("unable to parse response")
+var ErrUnableToDecodeResponse = errors.New("unable to decode response")
+
+var ErrMissingStatus = errors.New("missing tx status")

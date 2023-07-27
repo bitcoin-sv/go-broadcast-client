@@ -3,7 +3,7 @@ package broadcast
 import (
 	"context"
 
-	errors "github.com/bitcoin-sv/go-broadcast-client"
+	"github.com/bitcoin-sv/go-broadcast-client/shared"
 )
 
 type StrategyName string
@@ -39,6 +39,6 @@ var (
 			}
 			return result, nil
 		}
-		return nil, errors.ErrAllBroadcastersFailed
+		return nil, shared.ErrAllBroadcastersFailed
 	})
 )

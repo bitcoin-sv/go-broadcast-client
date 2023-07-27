@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	errors "github.com/bitcoin-sv/go-broadcast-client"
+	"github.com/bitcoin-sv/go-broadcast-client/shared"
 )
 
 type HttpMethod string
@@ -60,17 +60,18 @@ func NewHttpClient() HTTPInterface {
 func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPPayload) (*http.Response, error) {
 	var bodyReader io.Reader
 
-	if pld.Data != nil && (pld.Method == POST || pld.Method == PUT) {
-		bodyReader = bytes.NewBuffer(pld.Data)
-	}
-
 	if pld.URL == "" {
-		return nil, errors.ErrURLEmpty
+		return nil, shared.ErrURLEmpty
 	}
 
 	req, err := http.NewRequestWithContext(ctx, string(pld.Method), pld.URL, bodyReader)
 	if err != nil {
 		return nil, err
+	}
+
+	if pld.Data != nil && (pld.Method == POST || pld.Method == PUT) {
+		bodyReader = bytes.NewBuffer(pld.Data)
+		req.Header.Set("Content-Type", "application/json")
 	}
 
 	if pld.Token != "" {

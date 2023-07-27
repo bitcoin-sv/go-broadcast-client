@@ -2,24 +2,23 @@ package arc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
 
-	errors "github.com/bitcoin-sv/go-broadcast-client"
 	"github.com/bitcoin-sv/go-broadcast-client/config"
+	"github.com/bitcoin-sv/go-broadcast-client/internal/decoder"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
 	"github.com/bitcoin-sv/go-broadcast-client/models"
+	"github.com/bitcoin-sv/go-broadcast-client/shared"
 )
 
 var ErrMissingHash = fmt.Errorf("missing tx hash")
-var ErrMissingStatus = fmt.Errorf("missing tx status")
 
 func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*models.QueryTxResponse, error) {
 
 	if a == nil {
-		return nil, errors.ErrClientUndefined
+		return nil, shared.ErrClientUndefined
 	}
 
 	result, err := queryTransaction(ctx, a, txID)
@@ -35,7 +34,7 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*mode
 	sb := strings.Builder{}
 	sb.WriteString(arc.apiURL + config.ArcQueryTxRoute + txHash)
 
-	payload := httpclient.NewPayload(
+	pld := httpclient.NewPayload(
 		httpclient.GET,
 		sb.String(),
 		arc.token,
@@ -44,7 +43,7 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*mode
 
 	resp, err := arc.httpClient.DoRequest(
 		ctx,
-		payload,
+		pld,
 	)
 	if err != nil {
 		return nil, err
@@ -64,14 +63,13 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*mode
 }
 
 func decodeQueryTxBody(body io.ReadCloser) (*models.QueryTxResponse, error) {
-	model := &models.QueryTxResponse{}
-	err := json.NewDecoder(body).Decode(model)
+	result, err := decoder.NewDecoder[models.QueryTxResponse](body).Result()
 
-	if err != nil || model == nil {
-		return nil, err
+	if err != nil || &result == nil {
+		return nil, shared.ErrUnableToDecodeResponse
 	}
 
-	return model, nil
+	return &result, nil
 }
 
 func validateQueryTxResponse(model *models.QueryTxResponse) error {
@@ -81,7 +79,7 @@ func validateQueryTxResponse(model *models.QueryTxResponse) error {
 	}
 
 	if model.TxStatus == "" {
-		return ErrMissingStatus
+		return shared.ErrMissingStatus
 	}
 
 	return nil

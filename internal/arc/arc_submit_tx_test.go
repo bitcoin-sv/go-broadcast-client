@@ -9,62 +9,59 @@ import (
 	"testing"
 
 	"github.com/bitcoin-sv/go-broadcast-client/common"
+	"github.com/bitcoin-sv/go-broadcast-client/config"
+	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
 	"github.com/bitcoin-sv/go-broadcast-client/models"
 	"github.com/bitcoin-sv/go-broadcast-client/shared"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-func TestQueryTransaction(t *testing.T) {
+func TestSubmitTransaction(t *testing.T) {
 	testCases := []struct {
 		name           string
+		transaction    *common.Transaction
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult *models.QueryTxResponse
+		expectedResult *models.SubmitTxResponse
 		expectedError  error
 	}{
 		{
 			name: "successful request",
+			transaction: &common.Transaction{
+				RawTx: "abc123",
+			},
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
 				Body: ioutil.NopCloser(bytes.NewBufferString(`
-					{
-						"blockHash": "abc123",
-						"txStatus": "CONFIRMED"
-					}
-					`)),
+                    {
+                        "txStatus": "CONFIRMED"
+                    }
+                    `)),
 			},
-			expectedResult: &models.QueryTxResponse{
-				BlockHash: "abc123",
-				TxStatus:  common.Confirmed,
+			expectedResult: &models.SubmitTxResponse{
+				TxStatus: common.Confirmed,
 			},
 		},
 		{
-			name:          "error in HTTP request",
+			name: "error in HTTP request",
+			transaction: &common.Transaction{
+				RawTx: "abc123",
+			},
 			httpError:     errors.New("some error"),
 			expectedError: errors.New("some error"),
 		},
 		{
-			name: "missing blockHash in response",
-			httpResponse: &http.Response{
-				StatusCode: http.StatusOK,
-				Body: ioutil.NopCloser(bytes.NewBufferString(`
-					{
-						"txStatus": "CONFIRMED"
-					}
-					`)),
-			},
-			expectedError: ErrMissingHash,
-		},
-		{
 			name: "missing txStatus in response",
+			transaction: &common.Transaction{
+				RawTx: "abc123",
+			},
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
 				Body: ioutil.NopCloser(bytes.NewBufferString(`
-					{
-						"blockHash": "abc123"
-					}
-					`)),
+                    {
+                        "dummyField": "dummyValue"
+                    }
+                    `)),
 			},
 			expectedError: shared.ErrMissingStatus,
 		},
@@ -74,8 +71,13 @@ func TestQueryTransaction(t *testing.T) {
 			// Given
 			mockHttpClient := new(MockHttpClient)
 
+			// create expected payload
+			body, _ := createSubmitTxBody(tc.transaction)
+			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+config.ArcSubmitTxRoute, "someToken", body)
+			appendSubmitTxHeaders(&expectedPayload, tc.transaction)
+
 			// define behavior of the mock
-			mockHttpClient.On("DoRequest", context.Background(), mock.Anything).
+			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).
 				Return(tc.httpResponse, tc.httpError).Once()
 
 			// use mock in the arc client
@@ -86,7 +88,7 @@ func TestQueryTransaction(t *testing.T) {
 			}
 
 			// When
-			result, err := client.QueryTransaction(context.Background(), "abc123")
+			result, err := client.SubmitTransaction(context.Background(), tc.transaction)
 
 			// Then
 			assert.Equal(t, tc.expectedResult, result)
