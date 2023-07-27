@@ -1,6 +1,8 @@
 package httpclient
 
 import (
+	"bytes"
+	"context"
 	"io"
 	"net/http"
 
@@ -21,7 +23,32 @@ type HTTPClient struct {
 }
 
 type HTTPInterface interface {
-	DoRequest(method HttpMethod, url, token string, body io.Reader) (*http.Response, error)
+	DoRequest(ctx context.Context, pld HTTPPayload) (*http.Response, error)
+}
+
+type HTTPPayload struct {
+	Method  HttpMethod
+	URL     string
+	Token   string
+	Data    []byte
+	Headers map[string]string
+}
+
+func (pld *HTTPPayload) AddHeader(key, value string) {
+	if pld.Headers == nil {
+		pld.Headers = make(map[string]string)
+	}
+
+	pld.Headers[key] = value
+}
+
+func NewPayload(method HttpMethod, url, token string, data []byte) HTTPPayload {
+	return HTTPPayload{
+		Method: method,
+		URL:    url,
+		Token:  token,
+		Data:   data,
+	}
 }
 
 func NewHttpClient() HTTPInterface {
@@ -30,18 +57,24 @@ func NewHttpClient() HTTPInterface {
 	}
 }
 
-func (hc *HTTPClient) DoRequest(method HttpMethod, url, token string, body io.Reader) (*http.Response, error) {
-	if url == "" {
+func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPPayload) (*http.Response, error) {
+	var bodyReader io.Reader
+
+	if pld.Data != nil && (pld.Method == POST || pld.Method == PUT) {
+		bodyReader = bytes.NewBuffer(pld.Data)
+	}
+
+	if pld.URL == "" {
 		return nil, errors.ErrURLEmpty
 	}
 
-	req, err := http.NewRequest(string(method), url, body)
+	req, err := http.NewRequestWithContext(ctx, string(pld.Method), pld.URL, bodyReader)
 	if err != nil {
 		return nil, err
 	}
 
-	if token != "" {
-		req.Header.Add("Authorization", token)
+	if pld.Token != "" {
+		req.Header.Add("Authorization", pld.Token)
 	}
 
 	resp, err := hc.Client.Do(req)

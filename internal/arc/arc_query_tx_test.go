@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -20,8 +19,8 @@ type MockHttpClient struct {
 	mock.Mock
 }
 
-func (m *MockHttpClient) DoRequest(method httpclient.HttpMethod, url string, token string, body io.Reader) (*http.Response, error) {
-	args := m.Called(method, url, token, body)
+func (m *MockHttpClient) DoRequest(ctx context.Context, pld httpclient.HTTPPayload) (*http.Response, error) {
+	args := m.Called(ctx, pld)
 	return args.Get(0).(*http.Response), args.Error(1)
 }
 
@@ -79,13 +78,13 @@ func TestQueryTransaction(t *testing.T) {
 			expectedError: ErrMissingStatus,
 		},
 	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			// Given
 			mockHttpClient := new(MockHttpClient)
 
 			// define behavior of the mock
-			mockHttpClient.On("DoRequest", httpclient.GET, mock.AnythingOfType("string"), mock.AnythingOfType("string"), nil).
+			mockHttpClient.On("DoRequest", context.Background(), mock.Anything).
 				Return(tc.httpResponse, tc.httpError).Once()
 
 			// use mock in the arc client
@@ -95,8 +94,10 @@ func TestQueryTransaction(t *testing.T) {
 				token:      "someToken",
 			}
 
+			// When
 			result, err := client.QueryTransaction(context.Background(), "abc123")
 
+			// Then
 			assert.Equal(t, tc.expectedResult, result)
 			assert.Equal(t, tc.expectedError, err)
 

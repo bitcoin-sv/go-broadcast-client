@@ -35,11 +35,16 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*mode
 	sb := strings.Builder{}
 	sb.WriteString(arc.apiURL + config.ArcQueryTxRoute + txHash)
 
-	resp, err := arc.httpClient.DoRequest(
+	payload := httpclient.NewPayload(
 		httpclient.GET,
 		sb.String(),
 		arc.token,
 		nil,
+	)
+
+	resp, err := arc.httpClient.DoRequest(
+		ctx,
+		payload,
 	)
 	if err != nil {
 		return nil, err
