@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/bitcoin-sv/go-broadcast-client/common"
 	"github.com/bitcoin-sv/go-broadcast-client/models"
 )
 
@@ -15,7 +16,7 @@ type Broadcaster interface {
 	// FeeQuoter
 	// PolicyQuoter
 	TransactionQuerier
-	// TransactionSubmitter
+	TransactionSubmitter
 	// TransactionsSubmitter
 }
 
@@ -54,4 +55,25 @@ func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string
 	}
 
 	return queryTxResponse, nil
+}
+
+func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *common.Transaction) (*models.SubmitTxResponse, error) {
+	executionFuncs := make([]ExecutionFunc, len(c.broadcasters))
+	for i, broadcaster := range c.broadcasters {
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+			return broadcaster.SubmitTransaction(ctx, tx)
+		}
+	}
+	result, err := c.strategy.Execute(ctx, executionFuncs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert result to QueryTxResponse
+	submitTxResponse, ok := result.(*models.SubmitTxResponse)
+	if !ok {
+		return nil, fmt.Errorf("unexpected result type: %T", result)
+	}
+
+	return submitTxResponse, nil
 }

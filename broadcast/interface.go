@@ -3,6 +3,7 @@ package broadcast
 import (
 	"context"
 
+	"github.com/bitcoin-sv/go-broadcast-client/common"
 	"github.com/bitcoin-sv/go-broadcast-client/models"
 )
 
@@ -24,6 +25,7 @@ type TransactionQuerier interface {
 }
 
 type TransactionSubmitter interface {
+	SubmitTransaction(ctx context.Context, tx *common.Transaction) (*models.SubmitTxResponse, error)
 }
 
 type TransactionsSubmitter interface {
