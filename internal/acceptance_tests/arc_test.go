@@ -19,25 +19,15 @@ import (
 
 var firstSuccessfulResponse = `
 {
-    "transaction_id": "txID",
-    "status": "success",
-    "data": {
-        "value": 10.5,
-        "currency": "USD",
-        "timestamp": "2023-07-27T12:34:56Z"
-    }
+    "blockHash": "hash",
+    "txStatus": "MINED",
 }
 `
 
 var secondSuccessfulResponse = `
 {
-    "transaction_id": "txID",
-    "status": "success",
-    "data": {
-        "value": 15.2,
-        "currency": "EUR",
-        "timestamp": "2023-07-27T12:34:56Z"
-    }
+    "blockHash": "hash",
+    "txStatus": "CONFIRMED",
 }
 `
 
