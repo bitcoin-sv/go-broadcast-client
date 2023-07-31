@@ -38,21 +38,37 @@ func (s TxStatus) String() string {
 
 // MapTxStatusToInt maps the TxStatus to an int value
 func MapTxStatusToInt(status TxStatus) (int, bool) {
-	waitForStatusMap := map[TxStatus]int{
-		Unknown:            0,
-		Queued:             1,
-		Received:           2,
-		Stored:             3,
-		AnnouncedToNetwork: 4,
-		RequestedByNetwork: 5,
-		SentToNetwork:      6,
-		AcceptedByNetwork:  7,
-		SeenOnNetwork:      8,
-		Mined:              9,
-		Confirmed:          108,
-		Rejected:           109,
+	var value int
+	var ok bool = true
+
+	switch status {
+	case Unknown:
+		value = 0
+	case Queued:
+		value = 1
+	case Received:
+		value = 2
+	case Stored:
+		value = 3
+	case AnnouncedToNetwork:
+		value = 4
+	case RequestedByNetwork:
+		value = 5
+	case SentToNetwork:
+		value = 6
+	case AcceptedByNetwork:
+		value = 7
+	case SeenOnNetwork:
+		value = 8
+	case Mined:
+		value = 9
+	case Confirmed:
+		value = 108
+	case Rejected:
+		value = 109
+	default:
+		ok = false
 	}
 
-	value, ok := waitForStatusMap[status]
 	return value, ok
 }

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -26,7 +26,7 @@ func TestQueryTransaction(t *testing.T) {
 			name: "successful request",
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
-				Body: ioutil.NopCloser(bytes.NewBufferString(`
+				Body: io.NopCloser(bytes.NewBufferString(`
 					{
 						"blockHash": "abc123",
 						"txStatus": "CONFIRMED"
@@ -47,7 +47,7 @@ func TestQueryTransaction(t *testing.T) {
 			name: "missing blockHash in response",
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
-				Body: ioutil.NopCloser(bytes.NewBufferString(`
+				Body: io.NopCloser(bytes.NewBufferString(`
 					{
 						"txStatus": "CONFIRMED"
 					}
@@ -59,7 +59,7 @@ func TestQueryTransaction(t *testing.T) {
 			name: "missing txStatus in response",
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
-				Body: ioutil.NopCloser(bytes.NewBufferString(`
+				Body: io.NopCloser(bytes.NewBufferString(`
 					{
 						"blockHash": "abc123"
 					}
@@ -70,28 +70,26 @@ func TestQueryTransaction(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// Given
+			// given
 			mockHttpClient := new(MockHttpClient)
 
-			// define behavior of the mock
 			mockHttpClient.On("DoRequest", context.Background(), mock.Anything).
 				Return(tc.httpResponse, tc.httpError).Once()
 
-			// use mock in the arc client
 			client := &ArcClient{
 				HTTPClient: mockHttpClient,
 				apiURL:     "http://example.com",
 				token:      "someToken",
 			}
 
-			// When
+			// when
 			result, err := client.QueryTransaction(context.Background(), "abc123")
 
-			// Then
+			// then
 			assert.Equal(t, tc.expectedResult, result)
 			assert.Equal(t, tc.expectedError, err)
 
-			// Assert Expectations on the mock
+			// assert Expectations on the mock
 			mockHttpClient.AssertExpectations(t)
 		})
 	}

@@ -12,12 +12,13 @@ type ArcClient struct {
 	HTTPClient httpclient.HTTPInterface
 }
 
-func NewArcClient(config config.ArcClientConfig) broadcast.Broadcaster {
-	httpClient := httpclient.NewHttpClient()
-
+func NewArcClient(config config.ArcClientConfig, client httpclient.HTTPInterface) broadcast.Broadcaster {
+	if client == nil {
+		client = httpclient.NewHttpClient()
+	}
 	return &ArcClient{
 		apiURL:     config.APIUrl,
 		token:      config.Token,
-		HTTPClient: httpClient,
+		HTTPClient: client,
 	}
 }
