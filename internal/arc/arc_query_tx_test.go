@@ -8,8 +8,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/bitcoin-sv/go-broadcast-client/common"
-	"github.com/bitcoin-sv/go-broadcast-client/models"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/shared"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,7 +19,7 @@ func TestQueryTransaction(t *testing.T) {
 		name           string
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult *models.QueryTxResponse
+		expectedResult *broadcast.QueryTxResponse
 		expectedError  error
 	}{
 		{
@@ -34,9 +33,9 @@ func TestQueryTransaction(t *testing.T) {
 					}
 					`)),
 			},
-			expectedResult: &models.QueryTxResponse{
+			expectedResult: &broadcast.QueryTxResponse{
 				BlockHash: "abc123",
-				TxStatus:  common.Confirmed,
+				TxStatus:  broadcast.Confirmed,
 			},
 		},
 		{

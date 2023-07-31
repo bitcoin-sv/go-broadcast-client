@@ -23,10 +23,10 @@ type HTTPClient struct {
 }
 
 type HTTPInterface interface {
-	DoRequest(ctx context.Context, pld HTTPPayload) (*http.Response, error)
+	DoRequest(ctx context.Context, pld HTTPRequest) (*http.Response, error)
 }
 
-type HTTPPayload struct {
+type HTTPRequest struct {
 	Method  HttpMethod
 	URL     string
 	Token   string
@@ -34,7 +34,7 @@ type HTTPPayload struct {
 	Headers map[string]string
 }
 
-func (pld *HTTPPayload) AddHeader(key, value string) {
+func (pld *HTTPRequest) AddHeader(key, value string) {
 	if pld.Headers == nil {
 		pld.Headers = make(map[string]string)
 	}
@@ -42,8 +42,8 @@ func (pld *HTTPPayload) AddHeader(key, value string) {
 	pld.Headers[key] = value
 }
 
-func NewPayload(method HttpMethod, url, token string, data []byte) HTTPPayload {
-	return HTTPPayload{
+func NewPayload(method HttpMethod, url, token string, data []byte) HTTPRequest {
+	return HTTPRequest{
 		Method: method,
 		URL:    url,
 		Token:  token,
@@ -57,7 +57,7 @@ func NewHttpClient() HTTPInterface {
 	}
 }
 
-func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPPayload) (*http.Response, error) {
+func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPRequest) (*http.Response, error) {
 	var bodyReader io.Reader
 
 	if pld.URL == "" {

@@ -1,4 +1,4 @@
-package common
+package broadcast
 
 // Transaction is the body contents in the "submit transaction" request
 type Transaction struct {

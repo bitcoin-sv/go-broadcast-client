@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
-	"github.com/bitcoin-sv/go-broadcast-client/common"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/config"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
-	"github.com/bitcoin-sv/go-broadcast-client/models"
 	"github.com/bitcoin-sv/go-broadcast-client/shared"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,32 +18,32 @@ import (
 func TestSubmitTransaction(t *testing.T) {
 	testCases := []struct {
 		name           string
-		transaction    *common.Transaction
+		transaction    *broadcast.Transaction
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult *models.SubmitTxResponse
+		expectedResult *broadcast.SubmitTxResponse
 		expectedError  error
 	}{
 		{
 			name: "successful request",
-			transaction: &common.Transaction{
+			transaction: &broadcast.Transaction{
 				RawTx: "abc123",
 			},
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
-				Body: ioutil.NopCloser(bytes.NewBufferString(`
+				Body: io.NopCloser(bytes.NewBufferString(`
                     {
                         "txStatus": "CONFIRMED"
                     }
                     `)),
 			},
-			expectedResult: &models.SubmitTxResponse{
-				TxStatus: common.Confirmed,
+			expectedResult: &broadcast.SubmitTxResponse{
+				TxStatus: broadcast.Confirmed,
 			},
 		},
 		{
 			name: "error in HTTP request",
-			transaction: &common.Transaction{
+			transaction: &broadcast.Transaction{
 				RawTx: "abc123",
 			},
 			httpError:     errors.New("some error"),
@@ -52,12 +51,12 @@ func TestSubmitTransaction(t *testing.T) {
 		},
 		{
 			name: "missing txStatus in response",
-			transaction: &common.Transaction{
+			transaction: &broadcast.Transaction{
 				RawTx: "abc123",
 			},
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
-				Body: ioutil.NopCloser(bytes.NewBufferString(`
+				Body: io.NopCloser(bytes.NewBufferString(`
                     {
                         "dummyField": "dummyValue"
                     }
@@ -71,7 +70,6 @@ func TestSubmitTransaction(t *testing.T) {
 			// Given
 			mockHttpClient := new(MockHttpClient)
 
-			// create expected payload
 			body, _ := createSubmitTxBody(tc.transaction)
 			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+config.ArcSubmitTxRoute, "someToken", body)
 			appendSubmitTxHeaders(&expectedPayload, tc.transaction)

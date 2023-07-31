@@ -12,7 +12,7 @@ type MockHttpClient struct {
 	mock.Mock
 }
 
-func (m *MockHttpClient) DoRequest(ctx context.Context, pld httpclient.HTTPPayload) (*http.Response, error) {
+func (m *MockHttpClient) DoRequest(ctx context.Context, pld httpclient.HTTPRequest) (*http.Response, error) {
 	args := m.Called(ctx, pld)
 	return args.Get(0).(*http.Response), args.Error(1)
 }

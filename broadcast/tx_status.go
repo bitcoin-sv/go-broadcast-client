@@ -1,4 +1,4 @@
-package common
+package broadcast
 
 // TxStatus is the status of the transaction
 type TxStatus string
@@ -33,26 +33,7 @@ const (
 
 // String returns the string representation of the TxStatus
 func (s TxStatus) String() string {
-	statuses := map[TxStatus]string{
-		Unknown:            "UNKNOWN",
-		Queued:             "QUEUED",
-		Received:           "RECEIVED",
-		Stored:             "STORED",
-		AnnouncedToNetwork: "ANNOUNCED_TO_NETWORK",
-		RequestedByNetwork: "REQUESTED_BY_NETWORK",
-		SentToNetwork:      "SENT_TO_NETWORK",
-		AcceptedByNetwork:  "ACCEPTED_BY_NETWORK",
-		SeenOnNetwork:      "SEEN_ON_NETWORK",
-		Mined:              "MINED",
-		Confirmed:          "CONFIRMED",
-		Rejected:           "REJECTED",
-	}
-
-	if status, ok := statuses[s]; ok {
-		return status
-	}
-
-	return "Can't parse status"
+	return string(s)
 }
 
 // MapTxStatusToInt maps the TxStatus to an int value

@@ -3,22 +3,19 @@ package arc
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"strconv"
-	"strings"
 
-	"github.com/bitcoin-sv/go-broadcast-client/common"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/config"
-	"github.com/bitcoin-sv/go-broadcast-client/internal/decoder"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
-	"github.com/bitcoin-sv/go-broadcast-client/models"
 	"github.com/bitcoin-sv/go-broadcast-client/shared"
 )
 
-var ErrSubmitTxMarshal = fmt.Errorf("error while marshalling submit tx body")
+var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
-func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *common.Transaction) (*models.SubmitTxResponse, error) {
+func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
 		return nil, shared.ErrClientUndefined
 	}
@@ -28,13 +25,15 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *common.Transactio
 		return nil, err
 	}
 
+	if err := validateSubmitTxResponse(result); err != nil {
+		return nil, err
+	}
+
 	return result, nil
 }
 
-func submitTransaction(ctx context.Context, arc *ArcClient, tx *common.Transaction) (*models.SubmitTxResponse, error) {
-	sb := strings.Builder{}
-	sb.WriteString(arc.apiURL + config.ArcSubmitTxRoute)
-
+func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
+	url := arc.apiURL + config.ArcSubmitTxRoute
 	data, err := createSubmitTxBody(tx)
 	if err != nil {
 		return nil, err
@@ -42,7 +41,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *common.Transacti
 
 	pld := httpclient.NewPayload(
 		httpclient.POST,
-		sb.String(),
+		url,
 		arc.token,
 		data,
 	)
@@ -61,14 +60,10 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *common.Transacti
 		return nil, err
 	}
 
-	if err := validateSubmitTxResponse(model); err != nil {
-		return nil, err
-	}
-
 	return model, nil
 }
 
-func createSubmitTxBody(tx *common.Transaction) ([]byte, error) {
+func createSubmitTxBody(tx *broadcast.Transaction) ([]byte, error) {
 	body := map[string]string{
 		"rawtx": tx.RawTx,
 	}
@@ -80,7 +75,7 @@ func createSubmitTxBody(tx *common.Transaction) ([]byte, error) {
 	return data, nil
 }
 
-func appendSubmitTxHeaders(pld *httpclient.HTTPPayload, tx *common.Transaction) {
+func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, tx *broadcast.Transaction) {
 	if tx.MerkleProof {
 		pld.AddHeader("X-MerkleProof", "true")
 	}
@@ -93,22 +88,23 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPPayload, tx *common.Transaction) 
 		pld.AddHeader("X-CallbackToken", tx.CallBackToken)
 	}
 
-	if statusCode, ok := common.MapTxStatusToInt(tx.WaitForStatus); ok {
+	if statusCode, ok := broadcast.MapTxStatusToInt(tx.WaitForStatus); ok {
 		pld.AddHeader("X-WaitForStatus", strconv.Itoa(statusCode))
 	}
 }
 
-func decodeSubmitTxBody(body io.ReadCloser) (*models.SubmitTxResponse, error) {
-	result, err := decoder.NewDecoder[models.SubmitTxResponse](body).Result()
+func decodeSubmitTxBody(body io.ReadCloser) (*broadcast.SubmitTxResponse, error) {
+	model := broadcast.SubmitTxResponse{}
+	err := json.NewDecoder(body).Decode(&model)
 
-	if err != nil || &result == nil {
+	if err != nil {
 		return nil, shared.ErrUnableToDecodeResponse
 	}
 
-	return &result, nil
+	return &model, nil
 }
 
-func validateSubmitTxResponse(model *models.SubmitTxResponse) error {
+func validateSubmitTxResponse(model *broadcast.SubmitTxResponse) error {
 	if model.TxStatus == "" {
 		return shared.ErrMissingStatus
 	}

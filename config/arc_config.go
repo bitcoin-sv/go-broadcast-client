@@ -1,9 +1,11 @@
 package config
 
-var ArcQueryTxRoute = "/v1/tx/"
-var ArcPolicyQuoteRoute = "/v1/policy"
-var ArcSubmitTxRoute = "/v1/tx"
-var ArcSubmitTxsRoute = "/v1/txs"
+const (
+	ArcQueryTxRoute     = "/v1/tx/"
+	ArcPolicyQuoteRoute = "/v1/policy"
+	ArcSubmitTxRoute    = "/v1/tx"
+	ArcSubmitTxsRoute   = "/v1/txs"
+)
 
 type ArcClientConfig struct {
 	APIUrl string
