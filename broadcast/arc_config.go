@@ -1,4 +1,4 @@
-package config
+package broadcast
 
 const (
 	ArcQueryTxRoute     = "/v1/tx/"

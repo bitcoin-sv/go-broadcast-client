@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/config"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
 	"github.com/bitcoin-sv/go-broadcast-client/shared"
 	"github.com/stretchr/testify/assert"
@@ -71,7 +70,7 @@ func TestSubmitTransaction(t *testing.T) {
 			mockHttpClient := new(MockHttpClient)
 
 			body, _ := createSubmitTxBody(tc.transaction)
-			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+config.ArcSubmitTxRoute, "someToken", body)
+			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+broadcast.ArcSubmitTxRoute, "someToken", body)
 			appendSubmitTxHeaders(&expectedPayload, tc.transaction)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).

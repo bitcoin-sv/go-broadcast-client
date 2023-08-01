@@ -2,7 +2,6 @@ package arc
 
 import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/config"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
 )
 
@@ -12,7 +11,7 @@ type ArcClient struct {
 	HTTPClient httpclient.HTTPInterface
 }
 
-func NewArcClient(config config.ArcClientConfig, client httpclient.HTTPInterface) broadcast.Broadcaster {
+func NewArcClient(config broadcast.ArcClientConfig, client httpclient.HTTPInterface) broadcast.Broadcaster {
 	if client == nil {
 		client = httpclient.NewHttpClient()
 	}

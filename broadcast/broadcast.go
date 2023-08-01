@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var DefaultStrategy Strategy = *OneByOne
+
 type BroadcastFactory func() Broadcaster
 
 type Broadcaster interface {
@@ -34,7 +36,7 @@ func NewCompositeBroadcaster(strategy Strategy, factories ...BroadcastFactory) B
 }
 
 func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string) (*QueryTxResponse, error) {
-	executionFuncs := make([]ExecutionFunc, len(c.broadcasters))
+	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
 			return broadcaster.QueryTransaction(ctx, txID)
@@ -55,7 +57,7 @@ func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string
 }
 
 func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *Transaction) (*SubmitTxResponse, error) {
-	executionFuncs := make([]ExecutionFunc, len(c.broadcasters))
+	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
 			return broadcaster.SubmitTransaction(ctx, tx)

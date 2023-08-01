@@ -7,7 +7,6 @@ import (
 	"io"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/config"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
 	"github.com/bitcoin-sv/go-broadcast-client/shared"
 )
@@ -34,7 +33,7 @@ func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadca
 
 // queryTransaction will fire the HTTP request to retrieve the tx status and details
 func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broadcast.QueryTxResponse, error) {
-	url := arc.apiURL + config.ArcQueryTxRoute + txHash
+	url := arc.apiURL + broadcast.ArcQueryTxRoute + txHash
 	pld := httpclient.NewPayload(
 		httpclient.GET,
 		url,

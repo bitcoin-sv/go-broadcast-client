@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/config"
 	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
 	"github.com/bitcoin-sv/go-broadcast-client/shared"
 )
@@ -33,7 +32,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 }
 
 func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
-	url := arc.apiURL + config.ArcSubmitTxRoute
+	url := arc.apiURL + broadcast.ArcSubmitTxRoute
 	data, err := createSubmitTxBody(tx)
 	if err != nil {
 		return nil, err
