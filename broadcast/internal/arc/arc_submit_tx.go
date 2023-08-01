@@ -63,7 +63,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 
 func createSubmitTxBody(tx *broadcast.Transaction) ([]byte, error) {
 	body := map[string]string{
-		"rawtx": tx.RawTx,
+		"rawTx": tx.RawTx,
 	}
 	data, err := json.Marshal(body)
 	if err != nil {

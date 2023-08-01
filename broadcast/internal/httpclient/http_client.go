@@ -71,6 +71,7 @@ func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPRequest) (*http.Res
 
 	if pld.Data != nil && (pld.Method == POST || pld.Method == PUT) {
 		bodyReader = bytes.NewBuffer(pld.Data)
+		req.Body = io.NopCloser(bodyReader)
 		req.Header.Set("Content-Type", "application/json")
 	}
 

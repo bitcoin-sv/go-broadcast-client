@@ -69,9 +69,10 @@ func decodeQueryTxBody(body io.ReadCloser) (*broadcast.QueryTxResponse, error) {
 
 func validateQueryTxResponse(model *broadcast.QueryTxResponse) error {
 
-	if model.BlockHash == "" {
-		return ErrMissingHash
-	}
+	// TODO: uncomment this when the API is fixed - currently it returns an empty string
+	// if model.BlockHash == "" {
+	// 	return ErrMissingHash
+	// }
 
 	if model.TxStatus == "" {
 		return broadcast.ErrMissingStatus
