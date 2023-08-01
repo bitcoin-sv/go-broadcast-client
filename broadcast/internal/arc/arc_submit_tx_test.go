@@ -9,8 +9,7 @@ import (
 	"testing"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
-	"github.com/bitcoin-sv/go-broadcast-client/shared"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -61,7 +60,7 @@ func TestSubmitTransaction(t *testing.T) {
                     }
                     `)),
 			},
-			expectedError: shared.ErrMissingStatus,
+			expectedError: broadcast.ErrMissingStatus,
 		},
 	}
 	for _, tc := range testCases {
@@ -70,7 +69,7 @@ func TestSubmitTransaction(t *testing.T) {
 			mockHttpClient := new(MockHttpClient)
 
 			body, _ := createSubmitTxBody(tc.transaction)
-			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+broadcast.ArcSubmitTxRoute, "someToken", body)
+			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+arcSubmitTxRoute, "someToken", body)
 			appendSubmitTxHeaders(&expectedPayload, tc.transaction)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).

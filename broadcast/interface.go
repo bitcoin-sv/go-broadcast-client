@@ -27,3 +27,13 @@ type TransactionSubmitter interface {
 
 type TransactionsSubmitter interface {
 }
+
+type Client interface {
+	BestQuoter
+	FastestQuoter
+	FeeQuoter
+	PolicyQuoter
+	TransactionQuerier
+	TransactionSubmitter
+	TransactionsSubmitter
+}

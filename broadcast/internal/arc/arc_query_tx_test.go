@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/shared"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -65,7 +64,7 @@ func TestQueryTransaction(t *testing.T) {
 					}
 					`)),
 			},
-			expectedError: shared.ErrMissingStatus,
+			expectedError: broadcast.ErrMissingStatus,
 		},
 	}
 	for _, tc := range testCases {

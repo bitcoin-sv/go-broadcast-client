@@ -8,15 +8,14 @@ import (
 	"strconv"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
-	"github.com/bitcoin-sv/go-broadcast-client/shared"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
 func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
-		return nil, shared.ErrClientUndefined
+		return nil, broadcast.ErrClientUndefined
 	}
 
 	result, err := submitTransaction(ctx, a, tx)
@@ -32,7 +31,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 }
 
 func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
-	url := arc.apiURL + broadcast.ArcSubmitTxRoute
+	url := arc.apiURL + arcSubmitTxRoute
 	data, err := createSubmitTxBody(tx)
 	if err != nil {
 		return nil, err
@@ -97,7 +96,7 @@ func decodeSubmitTxBody(body io.ReadCloser) (*broadcast.SubmitTxResponse, error)
 	err := json.NewDecoder(body).Decode(&model)
 
 	if err != nil {
-		return nil, shared.ErrUnableToDecodeResponse
+		return nil, broadcast.ErrUnableToDecodeResponse
 	}
 
 	return &model, nil
@@ -105,7 +104,7 @@ func decodeSubmitTxBody(body io.ReadCloser) (*broadcast.SubmitTxResponse, error)
 
 func validateSubmitTxResponse(model *broadcast.SubmitTxResponse) error {
 	if model.TxStatus == "" {
-		return shared.ErrMissingStatus
+		return broadcast.ErrMissingStatus
 	}
 
 	return nil

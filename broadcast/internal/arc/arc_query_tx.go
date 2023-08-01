@@ -7,15 +7,14 @@ import (
 	"io"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
-	"github.com/bitcoin-sv/go-broadcast-client/shared"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
 var ErrMissingHash = errors.New("missing tx hash")
 
 func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	if a == nil {
-		return nil, shared.ErrClientUndefined
+		return nil, broadcast.ErrClientUndefined
 	}
 
 	result, err := queryTransaction(ctx, a, txID)
@@ -33,7 +32,7 @@ func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadca
 
 // queryTransaction will fire the HTTP request to retrieve the tx status and details
 func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broadcast.QueryTxResponse, error) {
-	url := arc.apiURL + broadcast.ArcQueryTxRoute + txHash
+	url := arc.apiURL + arcQueryTxRoute + txHash
 	pld := httpclient.NewPayload(
 		httpclient.GET,
 		url,
@@ -62,7 +61,7 @@ func decodeQueryTxBody(body io.ReadCloser) (*broadcast.QueryTxResponse, error) {
 	err := json.NewDecoder(body).Decode(&model)
 
 	if err != nil {
-		return nil, shared.ErrUnableToDecodeResponse
+		return nil, broadcast.ErrUnableToDecodeResponse
 	}
 
 	return &model, nil
@@ -75,7 +74,7 @@ func validateQueryTxResponse(model *broadcast.QueryTxResponse) error {
 	}
 
 	if model.TxStatus == "" {
-		return shared.ErrMissingStatus
+		return broadcast.ErrMissingStatus
 	}
 
 	return nil

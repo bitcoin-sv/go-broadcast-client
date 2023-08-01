@@ -1,31 +1,27 @@
-package broadcast
+package composite
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
-var DefaultStrategy Strategy = *OneByOne
+var DefaultStrategy = *OneByOne
 
-type BroadcastFactory func() Broadcaster
-
-type Broadcaster interface {
-	// BestQuoter
-	// FastestQuoter
-	// FeeQuoter
-	// PolicyQuoter
-	TransactionQuerier
-	TransactionSubmitter
-	// TransactionsSubmitter
-}
+type BroadcastFactory func() broadcast.Client
 
 type compositeBroadcaster struct {
-	broadcasters []Broadcaster
+	broadcasters []broadcast.Client
 	strategy     Strategy
 }
 
-func NewCompositeBroadcaster(strategy Strategy, factories ...BroadcastFactory) Broadcaster {
-	var broadcasters []Broadcaster
+func NewBroadcasterWithDefaultStrategy(factories ...BroadcastFactory) broadcast.Client {
+	return NewBroadcaster(DefaultStrategy, factories...)
+}
+
+func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.Client {
+	var broadcasters []broadcast.Client
 	for _, factory := range factories {
 		broadcasters = append(broadcasters, factory())
 	}
@@ -35,7 +31,7 @@ func NewCompositeBroadcaster(strategy Strategy, factories ...BroadcastFactory) B
 	}
 }
 
-func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string) (*QueryTxResponse, error) {
+func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
@@ -48,7 +44,7 @@ func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string
 	}
 
 	// Convert result to QueryTxResponse
-	queryTxResponse, ok := result.(*QueryTxResponse)
+	queryTxResponse, ok := result.(*broadcast.QueryTxResponse)
 	if !ok {
 		return nil, fmt.Errorf("unexpected result type: %T", result)
 	}
@@ -56,7 +52,7 @@ func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string
 	return queryTxResponse, nil
 }
 
-func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *Transaction) (*SubmitTxResponse, error) {
+func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
@@ -69,7 +65,7 @@ func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *Transa
 	}
 
 	// Convert result to QueryTxResponse
-	submitTxResponse, ok := result.(*SubmitTxResponse)
+	submitTxResponse, ok := result.(*broadcast.SubmitTxResponse)
 	if !ok {
 		return nil, fmt.Errorf("unexpected result type: %T", result)
 	}
