@@ -1,4 +1,4 @@
-package broadcast_api
+package broadcast
 
 import (
 	"context"

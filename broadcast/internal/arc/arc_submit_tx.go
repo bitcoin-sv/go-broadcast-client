@@ -7,15 +7,15 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
-func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast_api.Transaction) (*broadcast_api.SubmitTxResponse, error) {
+func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
-		return nil, broadcast_api.ErrClientUndefined
+		return nil, broadcast.ErrClientUndefined
 	}
 
 	result, err := submitTransaction(ctx, a, tx)
@@ -30,7 +30,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast_api.Tra
 	return result, nil
 }
 
-func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast_api.Transaction) (*broadcast_api.SubmitTxResponse, error) {
+func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
 	url := arc.apiURL + arcSubmitTxRoute
 	data, err := createSubmitTxBody(tx)
 	if err != nil {
@@ -61,7 +61,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast_api.Tr
 	return model, nil
 }
 
-func createSubmitTxBody(tx *broadcast_api.Transaction) ([]byte, error) {
+func createSubmitTxBody(tx *broadcast.Transaction) ([]byte, error) {
 	body := map[string]string{
 		"rawtx": tx.RawTx,
 	}
@@ -73,7 +73,7 @@ func createSubmitTxBody(tx *broadcast_api.Transaction) ([]byte, error) {
 	return data, nil
 }
 
-func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, tx *broadcast_api.Transaction) {
+func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, tx *broadcast.Transaction) {
 	if tx.MerkleProof {
 		pld.AddHeader("X-MerkleProof", "true")
 	}
@@ -86,25 +86,25 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, tx *broadcast_api.Transa
 		pld.AddHeader("X-CallbackToken", tx.CallBackToken)
 	}
 
-	if statusCode, ok := broadcast_api.MapTxStatusToInt(tx.WaitForStatus); ok {
+	if statusCode, ok := broadcast.MapTxStatusToInt(tx.WaitForStatus); ok {
 		pld.AddHeader("X-WaitForStatus", strconv.Itoa(statusCode))
 	}
 }
 
-func decodeSubmitTxBody(body io.ReadCloser) (*broadcast_api.SubmitTxResponse, error) {
-	model := broadcast_api.SubmitTxResponse{}
+func decodeSubmitTxBody(body io.ReadCloser) (*broadcast.SubmitTxResponse, error) {
+	model := broadcast.SubmitTxResponse{}
 	err := json.NewDecoder(body).Decode(&model)
 
 	if err != nil {
-		return nil, broadcast_api.ErrUnableToDecodeResponse
+		return nil, broadcast.ErrUnableToDecodeResponse
 	}
 
 	return &model, nil
 }
 
-func validateSubmitTxResponse(model *broadcast_api.SubmitTxResponse) error {
+func validateSubmitTxResponse(model *broadcast.SubmitTxResponse) error {
 	if model.TxStatus == "" {
-		return broadcast_api.ErrMissingStatus
+		return broadcast.ErrMissingStatus
 	}
 
 	return nil

@@ -6,15 +6,15 @@ import (
 	"errors"
 	"io"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
 var ErrMissingHash = errors.New("missing tx hash")
 
-func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast_api.QueryTxResponse, error) {
+func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	if a == nil {
-		return nil, broadcast_api.ErrClientUndefined
+		return nil, broadcast.ErrClientUndefined
 	}
 
 	result, err := queryTransaction(ctx, a, txID)
@@ -31,7 +31,7 @@ func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadca
 }
 
 // queryTransaction will fire the HTTP request to retrieve the tx status and details
-func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broadcast_api.QueryTxResponse, error) {
+func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broadcast.QueryTxResponse, error) {
 	url := arc.apiURL + arcQueryTxRoute + txHash
 	pld := httpclient.NewPayload(
 		httpclient.GET,
@@ -56,25 +56,25 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 	return model, nil
 }
 
-func decodeQueryTxBody(body io.ReadCloser) (*broadcast_api.QueryTxResponse, error) {
-	model := broadcast_api.QueryTxResponse{}
+func decodeQueryTxBody(body io.ReadCloser) (*broadcast.QueryTxResponse, error) {
+	model := broadcast.QueryTxResponse{}
 	err := json.NewDecoder(body).Decode(&model)
 
 	if err != nil {
-		return nil, broadcast_api.ErrUnableToDecodeResponse
+		return nil, broadcast.ErrUnableToDecodeResponse
 	}
 
 	return &model, nil
 }
 
-func validateQueryTxResponse(model *broadcast_api.QueryTxResponse) error {
+func validateQueryTxResponse(model *broadcast.QueryTxResponse) error {
 
 	if model.BlockHash == "" {
 		return ErrMissingHash
 	}
 
 	if model.TxStatus == "" {
-		return broadcast_api.ErrMissingStatus
+		return broadcast.ErrMissingStatus
 	}
 
 	return nil

@@ -1,4 +1,4 @@
-package broadcast
+package broadcast_client
 
 type ArcClientConfig struct {
 	APIUrl string

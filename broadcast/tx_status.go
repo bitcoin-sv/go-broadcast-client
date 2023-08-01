@@ -1,4 +1,4 @@
-package broadcast_api
+package broadcast
 
 // TxStatus is the status of the transaction
 type TxStatus string

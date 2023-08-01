@@ -3,7 +3,7 @@ package composite
 import (
 	"context"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
 type StrategyName string
@@ -39,6 +39,6 @@ var (
 			}
 			return result, nil
 		}
-		return nil, broadcast_api.ErrAllBroadcastersFailed
+		return nil, broadcast.ErrAllBroadcastersFailed
 	})
 )

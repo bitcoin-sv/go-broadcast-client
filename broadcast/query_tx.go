@@ -1,4 +1,4 @@
-package broadcast_api
+package broadcast
 
 type QueryTxResponse struct {
 	BlockHash   string   `json:"blockHash,omitempty"`

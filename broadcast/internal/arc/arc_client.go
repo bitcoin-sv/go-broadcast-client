@@ -1,7 +1,7 @@
 package arc
 
 import (
-	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
+	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,15 +16,15 @@ import (
 func TestSubmitTransaction(t *testing.T) {
 	testCases := []struct {
 		name           string
-		transaction    *broadcast_api.Transaction
+		transaction    *broadcast.Transaction
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult *broadcast_api.SubmitTxResponse
+		expectedResult *broadcast.SubmitTxResponse
 		expectedError  error
 	}{
 		{
 			name: "successful request",
-			transaction: &broadcast_api.Transaction{
+			transaction: &broadcast.Transaction{
 				RawTx: "abc123",
 			},
 			httpResponse: &http.Response{
@@ -35,13 +35,13 @@ func TestSubmitTransaction(t *testing.T) {
                     }
                     `)),
 			},
-			expectedResult: &broadcast_api.SubmitTxResponse{
-				TxStatus: broadcast_api.Confirmed,
+			expectedResult: &broadcast.SubmitTxResponse{
+				TxStatus: broadcast.Confirmed,
 			},
 		},
 		{
 			name: "error in HTTP request",
-			transaction: &broadcast_api.Transaction{
+			transaction: &broadcast.Transaction{
 				RawTx: "abc123",
 			},
 			httpError:     errors.New("some error"),
@@ -49,7 +49,7 @@ func TestSubmitTransaction(t *testing.T) {
 		},
 		{
 			name: "missing txStatus in response",
-			transaction: &broadcast_api.Transaction{
+			transaction: &broadcast.Transaction{
 				RawTx: "abc123",
 			},
 			httpResponse: &http.Response{
@@ -60,7 +60,7 @@ func TestSubmitTransaction(t *testing.T) {
                     }
                     `)),
 			},
-			expectedError: broadcast_api.ErrMissingStatus,
+			expectedError: broadcast.ErrMissingStatus,
 		},
 	}
 	for _, tc := range testCases {
