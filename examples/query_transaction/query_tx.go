@@ -18,7 +18,7 @@ func main() {
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(cfg).
+		WithArc(cfg, nil).
 		Build()
 
 	result, err := client.QueryTransaction(context.Background(), hex)

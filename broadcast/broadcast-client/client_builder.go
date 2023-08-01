@@ -4,6 +4,7 @@ import (
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/composite"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
 type builder struct {
@@ -14,9 +15,9 @@ func Builder() *builder {
 	return &builder{}
 }
 
-func (cb *builder) WithArc(config ArcClientConfig) *builder {
+func (cb *builder) WithArc(config ArcClientConfig, client httpclient.HTTPInterface) *builder {
 	cb.factories = append(cb.factories, func() broadcast_api.Client {
-		return arc.NewArcClient(&config, nil)
+		return arc.NewArcClient(&config, client)
 	})
 	return cb
 }
