@@ -1,4 +1,4 @@
-package broadcast
+package broadcast_api
 
 import (
 	"context"
@@ -26,4 +26,14 @@ type TransactionSubmitter interface {
 }
 
 type TransactionsSubmitter interface {
+}
+
+type Client interface {
+	BestQuoter
+	FastestQuoter
+	FeeQuoter
+	PolicyQuoter
+	TransactionQuerier
+	TransactionSubmitter
+	TransactionsSubmitter
 }

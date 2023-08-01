@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/bitcoin-sv/go-broadcast-client/shared"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
 )
 
 type HttpMethod string
@@ -61,7 +61,7 @@ func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPRequest) (*http.Res
 	var bodyReader io.Reader
 
 	if pld.URL == "" {
-		return nil, shared.ErrURLEmpty
+		return nil, broadcast_api.ErrURLEmpty
 	}
 
 	req, err := http.NewRequestWithContext(ctx, string(pld.Method), pld.URL, bodyReader)

@@ -8,24 +8,23 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/internal/httpclient"
-	"github.com/bitcoin-sv/go-broadcast-client/shared"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSubmitTransaction(t *testing.T) {
 	testCases := []struct {
 		name           string
-		transaction    *broadcast.Transaction
+		transaction    *broadcast_api.Transaction
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult *broadcast.SubmitTxResponse
+		expectedResult *broadcast_api.SubmitTxResponse
 		expectedError  error
 	}{
 		{
 			name: "successful request",
-			transaction: &broadcast.Transaction{
+			transaction: &broadcast_api.Transaction{
 				RawTx: "abc123",
 			},
 			httpResponse: &http.Response{
@@ -36,13 +35,13 @@ func TestSubmitTransaction(t *testing.T) {
                     }
                     `)),
 			},
-			expectedResult: &broadcast.SubmitTxResponse{
-				TxStatus: broadcast.Confirmed,
+			expectedResult: &broadcast_api.SubmitTxResponse{
+				TxStatus: broadcast_api.Confirmed,
 			},
 		},
 		{
 			name: "error in HTTP request",
-			transaction: &broadcast.Transaction{
+			transaction: &broadcast_api.Transaction{
 				RawTx: "abc123",
 			},
 			httpError:     errors.New("some error"),
@@ -50,7 +49,7 @@ func TestSubmitTransaction(t *testing.T) {
 		},
 		{
 			name: "missing txStatus in response",
-			transaction: &broadcast.Transaction{
+			transaction: &broadcast_api.Transaction{
 				RawTx: "abc123",
 			},
 			httpResponse: &http.Response{
@@ -61,7 +60,7 @@ func TestSubmitTransaction(t *testing.T) {
                     }
                     `)),
 			},
-			expectedError: shared.ErrMissingStatus,
+			expectedError: broadcast_api.ErrMissingStatus,
 		},
 	}
 	for _, tc := range testCases {
@@ -70,7 +69,7 @@ func TestSubmitTransaction(t *testing.T) {
 			mockHttpClient := new(MockHttpClient)
 
 			body, _ := createSubmitTxBody(tc.transaction)
-			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+broadcast.ArcSubmitTxRoute, "someToken", body)
+			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+arcSubmitTxRoute, "someToken", body)
 			appendSubmitTxHeaders(&expectedPayload, tc.transaction)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).

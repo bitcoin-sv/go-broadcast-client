@@ -1,4 +1,4 @@
-package broadcast
+package broadcast_api
 
 // Transaction is the body contents in the "submit transaction" request
 type Transaction struct {

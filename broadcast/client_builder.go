@@ -1,9 +1,13 @@
 package broadcast
 
-import "github.com/bitcoin-sv/go-broadcast-client/internal/arc"
+import (
+	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-api"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/composite"
+)
 
 type ClientBuilder struct {
-	factories []BroadcastFactory
+	factories []composite.BroadcastFactory
 }
 
 func NewClientBuilder() *ClientBuilder {
@@ -11,15 +15,15 @@ func NewClientBuilder() *ClientBuilder {
 }
 
 func (cb *ClientBuilder) WithArc(config ArcClientConfig) *ClientBuilder {
-	cb.factories = append(cb.factories, func() Broadcaster {
-		return arc.NewArcClient(config, nil)
+	cb.factories = append(cb.factories, func() broadcast_api.Client {
+		return arc.NewArcClient(&config, nil)
 	})
 	return cb
 }
 
-func (cb *ClientBuilder) Build() Broadcaster {
+func (cb *ClientBuilder) Build() broadcast_api.Client {
 	if len(cb.factories) == 1 {
 		return cb.factories[0]()
 	}
-	return NewCompositeBroadcaster(DefaultStrategy, cb.factories...)
+	return composite.NewBroadcasterWithDefaultStrategy(cb.factories...)
 }

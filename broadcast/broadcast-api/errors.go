@@ -1,4 +1,4 @@
-package shared
+package broadcast_api
 
 import (
 	"errors"
