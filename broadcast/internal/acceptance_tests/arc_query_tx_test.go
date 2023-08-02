@@ -36,8 +36,9 @@ func TestQueryTransaction(t *testing.T) {
 		// given
 		httpClientMock := &arc.MockHttpClient{}
 		broadcaster := broadcast_client.Builder().
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, httpClientMock).
+			WithHttpClient(httpClientMock).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}).
 			Build()
 
 		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(firstSuccessfulResponse))}
@@ -57,8 +58,9 @@ func TestQueryTransaction(t *testing.T) {
 		// given
 		httpClientMock := &arc.MockHttpClient{}
 		broadcaster := broadcast_client.Builder().
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, httpClientMock).
+			WithHttpClient(httpClientMock).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}).
 			Build()
 
 		httpResponse := &http.Response{}
@@ -77,7 +79,8 @@ func TestQueryTransaction(t *testing.T) {
 		// given
 		httpClientMock := &arc.MockHttpClient{}
 		broadcaster := broadcast_client.Builder().
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, httpClientMock).
+			WithHttpClient(httpClientMock).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
 			Build()
 
 		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(firstSuccessfulResponse))}
@@ -96,7 +99,8 @@ func TestQueryTransaction(t *testing.T) {
 		httpClientMock := &arc.MockHttpClient{}
 		httpResponse := &http.Response{}
 		broadcaster := broadcast_client.Builder().
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, httpClientMock).
+			WithHttpClient(httpClientMock).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
 			Build()
 
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()

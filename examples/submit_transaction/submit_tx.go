@@ -19,7 +19,7 @@ func main() {
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(cfg, nil).
+		WithArc(cfg).
 		Build()
 
 	result, err := client.SubmitTransaction(context.Background(), &tx)

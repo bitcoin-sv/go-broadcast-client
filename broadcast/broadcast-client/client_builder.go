@@ -9,15 +9,21 @@ import (
 
 type builder struct {
 	factories []composite.BroadcastFactory
+	client    httpclient.HTTPInterface
 }
 
 func Builder() *builder {
 	return &builder{}
 }
 
-func (cb *builder) WithArc(config ArcClientConfig, client httpclient.HTTPInterface) *builder {
+func (cb *builder) WithHttpClient(client httpclient.HTTPInterface) *builder {
+	cb.client = client
+	return cb
+}
+
+func (cb *builder) WithArc(config ArcClientConfig) *builder {
 	cb.factories = append(cb.factories, func() broadcast_api.Client {
-		return arc.NewArcClient(&config, client)
+		return arc.NewArcClient(&config, cb.client)
 	})
 	return cb
 }
