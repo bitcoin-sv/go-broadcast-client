@@ -27,6 +27,7 @@ func main() {
 	}
 
 	log.Printf("hash: %s", result.BlockHash)
+	log.Printf("txID: %s", result.TxID)
 	log.Printf("status: %s", result.TxStatus)
 	log.Printf("block height: %d", result.BlockHeight)
 }

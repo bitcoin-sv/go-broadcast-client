@@ -10,7 +10,7 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
-var ErrMissingHash = errors.New("missing tx hash")
+var ErrMissingTxID = errors.New("missing tx id")
 
 func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	if a == nil {
@@ -68,14 +68,8 @@ func decodeQueryTxBody(body io.ReadCloser) (*broadcast.QueryTxResponse, error) {
 }
 
 func validateQueryTxResponse(model *broadcast.QueryTxResponse) error {
-
-	// TODO: uncomment this when the API is fixed - currently it returns an empty string
-	// if model.BlockHash == "" {
-	// 	return ErrMissingHash
-	// }
-
-	if model.TxStatus == "" {
-		return broadcast.ErrMissingStatus
+	if model.TxID == "" {
+		return ErrMissingTxID
 	}
 
 	return nil

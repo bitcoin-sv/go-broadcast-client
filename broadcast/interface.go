@@ -17,7 +17,6 @@ type PolicyQuoter interface {
 }
 
 type TransactionQuerier interface {
-	// Think about adding TransactionQueryOpts here if clients implement handling it in future
 	QueryTransaction(ctx context.Context, txID string) (*QueryTxResponse, error)
 }
 

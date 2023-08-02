@@ -18,7 +18,8 @@ import (
 var firstSuccessfulResponse = `
 {
     "blockHash": "hash",
-    "txStatus": "MINED"
+    "txStatus": "MINED",
+	"txid": "abc123"
 }
 `
 
@@ -26,6 +27,7 @@ var secondSuccessfulResponse = `
 {
     "blockHash": "hash",
     "txStatus": "CONFIRMED"
+	"txid": "abc123"
 }
 `
 

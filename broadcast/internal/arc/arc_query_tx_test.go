@@ -28,13 +28,15 @@ func TestQueryTransaction(t *testing.T) {
 				Body: io.NopCloser(bytes.NewBufferString(`
 					{
 						"blockHash": "abc123",
-						"txStatus": "CONFIRMED"
+						"txStatus": "CONFIRMED",
+						"txid": "abc123"
 					}
 					`)),
 			},
 			expectedResult: &broadcast.QueryTxResponse{
 				BlockHash: "abc123",
 				TxStatus:  broadcast.Confirmed,
+				TxID:      "abc123",
 			},
 		},
 		{
@@ -42,21 +44,8 @@ func TestQueryTransaction(t *testing.T) {
 			httpError:     errors.New("some error"),
 			expectedError: errors.New("some error"),
 		},
-		// TODO: uncomment this test when we have a way to handle this error (API error)
-		// {
-		// 	name: "missing blockHash in response",
-		// 	httpResponse: &http.Response{
-		// 		StatusCode: http.StatusOK,
-		// 		Body: io.NopCloser(bytes.NewBufferString(`
-		// 			{
-		// 				"txStatus": "CONFIRMED"
-		// 			}
-		// 			`)),
-		// 	},
-		// 	expectedError: ErrMissingHash,
-		// },
 		{
-			name: "missing txStatus in response",
+			name: "missing txID in response",
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
 				Body: io.NopCloser(bytes.NewBufferString(`
@@ -65,7 +54,7 @@ func TestQueryTransaction(t *testing.T) {
 					}
 					`)),
 			},
-			expectedError: broadcast.ErrMissingStatus,
+			expectedError: ErrMissingTxID,
 		},
 	}
 	for _, tc := range testCases {
