@@ -15,3 +15,5 @@ var ErrBroadcasterFailed = errors.New("broadcaster failed")
 var ErrUnableToDecodeResponse = errors.New("unable to decode response")
 
 var ErrMissingStatus = errors.New("missing tx status")
+
+var ErrStrategyUnkown = errors.New("unknown strategy")

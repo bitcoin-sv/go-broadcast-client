@@ -22,8 +22,13 @@ type Strategy struct {
 	executionFunc StrategyExecutionFunc
 }
 
-func New(name StrategyName, executionFunc StrategyExecutionFunc) *Strategy {
-	return &Strategy{name: name, executionFunc: executionFunc}
+func New(name StrategyName) (*Strategy, error) {
+	switch name {
+	case OneByOneStrategy:
+		return &Strategy{name: name, executionFunc: OneByOne.executionFunc}, nil
+	default:
+		return nil, broadcast.ErrStrategyUnkown
+	}
 }
 
 func (s *Strategy) Execute(ctx context.Context, executionFuncs []executionFunc) (Result, error) {
@@ -31,7 +36,7 @@ func (s *Strategy) Execute(ctx context.Context, executionFuncs []executionFunc) 
 }
 
 var (
-	OneByOne = New(OneByOneStrategy, func(ctx context.Context, executionFuncs []executionFunc) (Result, error) {
+	OneByOne = &Strategy{name: OneByOneStrategy, executionFunc: func(ctx context.Context, executionFuncs []executionFunc) (Result, error) {
 		for _, executionFunc := range executionFuncs {
 			result, err := executionFunc(ctx)
 			if err != nil {
@@ -40,5 +45,5 @@ var (
 			return result, nil
 		}
 		return nil, broadcast.ErrAllBroadcastersFailed
-	})
+	}}
 )
