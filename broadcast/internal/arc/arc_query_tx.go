@@ -2,11 +2,10 @@ package arc
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"io"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
+	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
@@ -48,20 +47,10 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 		return nil, err
 	}
 
-	model, err := decodeQueryTxBody(resp.Body)
+	model := broadcast.QueryTxResponse{}
+	err = arc_utils.DecodeResponseBody(resp.Body, &model)
 	if err != nil {
 		return nil, err
-	}
-
-	return model, nil
-}
-
-func decodeQueryTxBody(body io.ReadCloser) (*broadcast.QueryTxResponse, error) {
-	model := broadcast.QueryTxResponse{}
-	err := json.NewDecoder(body).Decode(&model)
-
-	if err != nil {
-		return nil, broadcast.ErrUnableToDecodeResponse
 	}
 
 	return &model, nil
