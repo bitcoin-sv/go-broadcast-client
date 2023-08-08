@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	arcQueryTxRoute     = "/v1/tx/"
-	arcPolicyQuoteRoute = "/v1/policy"
-	arcSubmitTxRoute    = "/v1/tx"
-	arcSubmitTxsRoute   = "/v1/txs"
+	arcQueryTxRoute        = "/v1/tx/"
+	arcPolicyQuoteRoute    = "/v1/policy"
+	arcSubmitTxRoute       = "/v1/tx"
+	arcSubmitBatchTxsRoute = "/v1/txs"
 )
 
 type Config interface {

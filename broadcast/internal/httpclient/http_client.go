@@ -3,6 +3,7 @@ package httpclient
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -84,5 +85,13 @@ func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPRequest) (*http.Res
 		return nil, err
 	}
 
-	return resp, nil
+	if hasSuccessCode(resp) {
+		return resp, nil
+	}
+
+	return resp, errors.New("server responded with no-success code")
+}
+
+func hasSuccessCode(resp *http.Response) bool {
+	return resp.StatusCode >= 200 && resp.StatusCode < 300
 }
