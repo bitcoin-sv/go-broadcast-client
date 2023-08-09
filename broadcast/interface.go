@@ -25,6 +25,7 @@ type TransactionSubmitter interface {
 }
 
 type TransactionsSubmitter interface {
+	SubmitBatchTransactions(ctx context.Context, tx []*Transaction) ([]*SubmitTxResponse, error)
 }
 
 type Client interface {

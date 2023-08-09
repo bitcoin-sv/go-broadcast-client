@@ -93,3 +93,96 @@ func TestSubmitTransaction(t *testing.T) {
 		})
 	}
 }
+
+func TestSubmitBatchTransactions(t *testing.T) {
+	testCases := []struct {
+		name           string
+		transactions   []*broadcast.Transaction
+		httpResponse   *http.Response
+		httpError      error
+		expectedResult []*broadcast.SubmitTxResponse
+		expectedError  error
+	}{
+		{
+			name: "successful request",
+			transactions: []*broadcast.Transaction{
+				{RawTx: "abc123"},
+				{RawTx: "cba321"},
+			},
+			httpResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(bytes.NewBufferString(`
+					[
+						{
+							"txStatus": "CONFIRMED"
+						},
+						{
+							"txStatus": "CONFIRMED"
+						}
+					]`)),
+			},
+			expectedResult: []*broadcast.SubmitTxResponse{
+				{TxStatus: broadcast.Confirmed},
+				{TxStatus: broadcast.Confirmed},
+			},
+		},
+		{
+			name: "error in HTTP request",
+			transactions: []*broadcast.Transaction{
+				{RawTx: "abc123"},
+				{RawTx: "cba321"},
+			},
+			httpError:     errors.New("some error"),
+			expectedError: errors.New("some error"),
+		},
+		{
+			name: "missing txStatus in response",
+			transactions: []*broadcast.Transaction{
+				{RawTx: "abc123"},
+				{RawTx: "cba321"},
+			},
+			httpResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(bytes.NewBufferString(`
+					[
+						{
+							"dummyField": "dummyValue"
+						},
+						{
+							"txStatus": "CONFIRMED"
+						}
+					]`)),
+			},
+			expectedError: broadcast.ErrMissingStatus,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// given
+			mockHttpClient := new(MockHttpClient)
+
+			body, _ := createSubmitBatchTxsBody(tc.transactions)
+			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+arcSubmitBatchTxsRoute, "someToken", body)
+			appendSubmitTxHeaders(&expectedPayload, tc.transactions[0])
+
+			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).
+				Return(tc.httpResponse, tc.httpError).Once()
+
+			client := &ArcClient{
+				HTTPClient: mockHttpClient,
+				apiURL:     "http://example.com",
+				token:      "someToken",
+			}
+
+			// when
+			result, err := client.SubmitBatchTransactions(context.Background(), tc.transactions)
+
+			// then
+			assert.Equal(t, tc.expectedResult, result)
+			assert.Equal(t, tc.expectedError, err)
+
+			// assert Expectations on the mock
+			mockHttpClient.AssertExpectations(t)
+		})
+	}
+}

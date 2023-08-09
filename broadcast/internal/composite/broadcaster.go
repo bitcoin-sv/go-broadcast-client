@@ -64,8 +64,30 @@ func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *broadc
 		return nil, err
 	}
 
-	// Convert result to QueryTxResponse
+	// Convert result to SubmitTxResponse
 	submitTxResponse, ok := result.(*broadcast.SubmitTxResponse)
+	if !ok {
+		return nil, fmt.Errorf("unexpected result type: %T", result)
+	}
+
+	return submitTxResponse, nil
+}
+
+func (c *compositeBroadcaster) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction) ([]*broadcast.SubmitTxResponse, error) {
+	executionFuncs := make([]executionFunc, len(c.broadcasters))
+	for i, broadcaster := range c.broadcasters {
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+			return broadcaster.SubmitBatchTransactions(ctx, txs)
+		}
+	}
+
+	result, err := c.strategy.Execute(ctx, executionFuncs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert result to []SubmitTxResponse
+	submitTxResponse, ok := result.([]*broadcast.SubmitTxResponse)
 	if !ok {
 		return nil, fmt.Errorf("unexpected result type: %T", result)
 	}
