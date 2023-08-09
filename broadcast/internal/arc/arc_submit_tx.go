@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strconv"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
@@ -76,7 +75,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 		pld,
 	)
 	if err != nil {
-		return nil, handleHttpError(resp, err)
+		return nil, arc_utils.HandleHttpError(err)
 	}
 
 	model := broadcast.SubmitTxResponse{}
@@ -108,7 +107,7 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		pld,
 	)
 	if err != nil {
-		return nil, handleHttpError(resp, err)
+		return nil, arc_utils.HandleHttpError(err)
 	}
 
 	var model []*broadcast.SubmitTxResponse
@@ -179,28 +178,4 @@ func validateSubmitTxResponse(model *broadcast.SubmitTxResponse) error {
 	}
 
 	return nil
-}
-
-func handleHttpError(response *http.Response, httpClientError error) error {
-	if response != nil { // client respond with code different than 2xx
-		var err error
-
-		switch response.StatusCode {
-		case 400:
-			err = arc_utils.DecodeArcError(response.Body)
-		case 422: // 	Unprocessable entity - with IETF RFC 7807 Error object
-			err = arc_utils.DecodeArcError(response.Body)
-		case 465: // 	Fee too low
-			err = arc_utils.DecodeArcError(response.Body)
-		case 466: // 	Conflicting transaction found
-			err = arc_utils.DecodeArcError(response.Body)
-
-		default:
-			err = errors.New(response.Status)
-		}
-
-		return err
-	}
-
-	return httpClientError // http client internal error
 }

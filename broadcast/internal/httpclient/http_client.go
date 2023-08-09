@@ -3,7 +3,7 @@ package httpclient
 import (
 	"bytes"
 	"context"
-	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -33,6 +33,15 @@ type HTTPRequest struct {
 	Token   string
 	Data    []byte
 	Headers map[string]string
+}
+
+type HttpClientError struct {
+	Response *http.Response
+}
+
+func (err HttpClientError) Error() string {
+	body, _ := io.ReadAll(err.Response.Body)
+	return fmt.Sprintf("server responded with no-success code. details: { statusCode: %d, body: %s }", err.Response.StatusCode, body)
 }
 
 func (pld *HTTPRequest) AddHeader(key, value string) {
@@ -89,7 +98,7 @@ func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPRequest) (*http.Res
 		return resp, nil
 	}
 
-	return resp, errors.New("server responded with no-success code")
+	return nil, HttpClientError{resp}
 }
 
 func hasSuccessCode(resp *http.Response) bool {
