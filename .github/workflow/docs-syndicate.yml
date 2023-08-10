@@ -1,0 +1,25 @@
+name: Docs Syndicate
+on:
+  create:
+    tags:
+      - '*'
+jobs:
+  syndicate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.20
+
+    - name: Sync with GoDocs using Makefile
+      run: make godocs
+      env:
+        GIT_DOMAIN: ${{ secrets.GIT_DOMAIN }}
+        REPO_OWNER: ${{ secrets.REPO_OWNER }}
+        REPO_NAME: ${{ secrets.REPO_NAME }}
+        VERSION_SHORT: ${{ github.ref }}
