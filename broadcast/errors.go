@@ -20,6 +20,8 @@ var ErrMissingStatus = errors.New("missing tx status")
 
 var ErrStrategyUnkown = errors.New("unknown strategy")
 
+var ErrNoMinerResponse = errors.New("failed to get reponse from any miner")
+
 type ArcError struct {
 	Type      string `json:"type"`
 	Title     string `json:"title"`
