@@ -5,29 +5,29 @@ type TxStatus string
 
 // List of statuses available here: https://github.com/bitcoin-sv/arc
 const (
-	// The transaction has been sent to metamorph, but no processing has taken place. This should never be the case, unless something goes wrong.
+	// Unknown status means that transaction has been sent to metamorph, but no processing has taken place. This should never be the case, unless something goes wrong.
 	Unknown TxStatus = "UNKNOWN" // 0
-	// The transaction has been queued for processing.
+	// Queued status means that transaction has been queued for processing.
 	Queued TxStatus = "QUEUED" // 1
-	// The transaction has been properly received by the metamorph processor.
+	// Received status means that transaction has been properly received by the metamorph processor.
 	Received TxStatus = "RECEIVED" // 2
-	// The transaction has been stored in the metamorph store. This should ensure the transaction will be processed and retried if not picked up immediately by a mining node.
+	// Stored status means that transaction has been stored in the metamorph store. This should ensure the transaction will be processed and retried if not picked up immediately by a mining node.
 	Stored TxStatus = "STORED" // 3
-	// The transaction has been announced (INV message) to the Bitcoin network.
+	// AnnouncedToNetwork status means that transaction has been announced (INV message) to the Bitcoin network.
 	AnnouncedToNetwork TxStatus = "ANNOUNCED_TO_NETWORK" // 4
-	// The transaction has been requested from metamorph by a Bitcoin node.
+	// RequestedByNetwork status means that transaction has been requested from metamorph by a Bitcoin node.
 	RequestedByNetwork TxStatus = "REQUESTED_BY_NETWORK" // 5
-	// The transaction has been sent to at least 1 Bitcoin node.
+	// SentToNetwork status means that transaction has been sent to at least 1 Bitcoin node.
 	SentToNetwork TxStatus = "SENT_TO_NETWORK" // 6
-	// The transaction has been accepted by a connected Bitcoin node on the ZMQ interface. If metamorph is not connected to ZQM, this status will never by set.
+	// AcceptedByNetwork status means that transaction has been accepted by a connected Bitcoin node on the ZMQ interface. If metamorph is not connected to ZQM, this status will never by set.
 	AcceptedByNetwork TxStatus = "ACCEPTED_BY_NETWORK" // 7
-	// The transaction has been seen on the Bitcoin network and propagated to other nodes. This status is set when metamorph receives an INV message for the transaction from another node than it was sent to.
+	// SeenOnNetwork status means that transaction has been seen on the Bitcoin network and propagated to other nodes. This status is set when metamorph receives an INV message for the transaction from another node than it was sent to.
 	SeenOnNetwork TxStatus = "SEEN_ON_NETWORK" // 8
-	// The transaction has been mined into a block by a mining node.
+	// Mined status means that transaction has been mined into a block by a mining node.
 	Mined TxStatus = "MINED" // 9
-	// The transaction is marked as confirmed when it is in a block with 100 blocks built on top of that block.
+	// Confirmed status means that transaction is marked as confirmed when it is in a block with 100 blocks built on top of that block.
 	Confirmed TxStatus = "CONFIRMED" // 108
-	// The transaction has been rejected by the Bitcoin network.
+	// Rejected status means that transaction has been rejected by the Bitcoin network.
 	Rejected TxStatus = "REJECTED" // 109
 )
 

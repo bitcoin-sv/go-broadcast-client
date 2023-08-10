@@ -20,27 +20,29 @@ func (m *MockBroadcastFactory) Create() broadcast.Client {
 	return &MockClient{}
 }
 
+// TestNewBroadcasterWithDefaultStrategy tests the NewBroadcasterWithDefaultStrategy function.
 func TestNewBroadcasterWithDefaultStrategy(t *testing.T) {
-	// Given
+	// given
 	mockFactory := &MockBroadcastFactory{}
 
-	// When
+	// when
 	broadcaster := NewBroadcasterWithDefaultStrategy(mockFactory.Create)
 
-	// Then
+	// then
 	assert.NotNil(t, broadcaster)
 	_, ok := broadcaster.(*compositeBroadcaster)
 	assert.True(t, ok, "Expected broadcaster to be of type *compositeBroadcaster")
 }
 
+// TestNewBroadcaster tests the NewBroadcaster function.
 func TestNewBroadcaster(t *testing.T) {
-	// Given
+	// given
 	mockFactory := &MockBroadcastFactory{}
 
-	// When
+	// when
 	broadcaster := NewBroadcaster(*OneByOne, mockFactory.Create)
 
-	// Then
+	// then
 	assert.NotNil(t, broadcaster)
 	_, ok := broadcaster.(*compositeBroadcaster)
 	assert.True(t, ok, "Expected broadcaster to be of type *compositeBroadcaster")

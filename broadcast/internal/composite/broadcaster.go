@@ -1,3 +1,4 @@
+// Package composite provides a composite broadcaster that can be used to broadcast transactions to multiple broadcasters.
 package composite
 
 import (
@@ -9,8 +10,10 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
+// DefaultStrategy is the default strategy used by the composite broadcaster.
 var DefaultStrategy = *OneByOne
 
+// BroadcastFactory is a factory function that creates a broadcast client.
 type BroadcastFactory func() broadcast.Client
 
 type compositeBroadcaster struct {
@@ -18,10 +21,12 @@ type compositeBroadcaster struct {
 	strategy     Strategy
 }
 
+// NewBroadcasterWithDefaultStrategy creates a new composite broadcaster with the default strategy.
 func NewBroadcasterWithDefaultStrategy(factories ...BroadcastFactory) broadcast.Client {
 	return NewBroadcaster(DefaultStrategy, factories...)
 }
 
+// NewBroadcaster creates a new composite broadcaster with the given strategy.
 func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.Client {
 	var broadcasters []broadcast.Client
 	for _, factory := range factories {
@@ -75,6 +80,7 @@ func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) (*broadcast.FeeQ
 	return feeQuote, nil
 }
 
+// GetBestQuote: ...
 func (c *compositeBroadcaster) GetBestQuote(ctx context.Context) (*broadcast.FeeQuote, error) {
 	fees := make(chan *broadcast.FeeQuote, len(c.broadcasters))
 	var wg sync.WaitGroup
@@ -114,6 +120,7 @@ func (c *compositeBroadcaster) GetBestQuote(ctx context.Context) (*broadcast.Fee
 	return bestQuote, nil
 }
 
+// GetFastestQuote: ...
 func (c *compositeBroadcaster) GetFastestQuote(ctx context.Context, timeout time.Duration) (*broadcast.FeeQuote, error) {
 	if timeout.Seconds() == 0 {
 		timeout = broadcast.DefaultFastestQuoteTimeout
@@ -150,6 +157,7 @@ func (c *compositeBroadcaster) GetFastestQuote(ctx context.Context, timeout time
 	return fastQuote, nil
 }
 
+// QueryTransaction is a function that queries a transaction using OneByOne strategy.
 func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
@@ -171,6 +179,7 @@ func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string
 	return queryTxResponse, nil
 }
 
+// SubmitTransaction is a function that submits a transaction using OneByOne strategy.
 func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
@@ -192,6 +201,7 @@ func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *broadc
 	return submitTxResponse, nil
 }
 
+// SubmitBatchTransactions is a function that submits a batch of transactions using OneByOne strategy.
 func (c *compositeBroadcaster) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction) ([]*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {

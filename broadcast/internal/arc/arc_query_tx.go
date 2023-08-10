@@ -5,12 +5,14 @@ import (
 	"errors"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
+	arcutils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
+// ErrMissingTxID is the error returned when the tx id is missing from the query tx response.
 var ErrMissingTxID = errors.New("missing tx id")
 
+// QueryTransaction will fire the HTTP request to retrieve the tx status and details.
 func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.ErrClientUndefined
@@ -48,7 +50,7 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 	}
 
 	model := broadcast.QueryTxResponse{}
-	err = arc_utils.DecodeResponseBody(resp.Body, &model)
+	err = arcutils.DecodeResponseBody(resp.Body, &model)
 	if err != nil {
 		return nil, err
 	}

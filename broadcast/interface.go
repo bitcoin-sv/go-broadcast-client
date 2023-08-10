@@ -21,18 +21,22 @@ type PolicyQuoter interface {
 	GetPolicyQuote(ctx context.Context) (*PolicyQuoteResponse, error)
 }
 
+// TransactionQuerier is the interface that wraps the QueryTransaction method.
 type TransactionQuerier interface {
 	QueryTransaction(ctx context.Context, txID string) (*QueryTxResponse, error)
 }
 
+// TransactionSubmitter is the interface that wraps the SubmitTransaction method.
 type TransactionSubmitter interface {
 	SubmitTransaction(ctx context.Context, tx *Transaction) (*SubmitTxResponse, error)
 }
 
+// TransactionsSubmitter is the interface that wraps the SubmitBatchTransactions method.
 type TransactionsSubmitter interface {
 	SubmitBatchTransactions(ctx context.Context, tx []*Transaction) ([]*SubmitTxResponse, error)
 }
 
+// Client is the interface that wraps the methods of the broadcast client.
 type Client interface {
 	BestQuoter
 	FastestQuoter

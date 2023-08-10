@@ -14,10 +14,12 @@ type mockExecutionFunc struct {
 	err    error
 }
 
+// Execute mock execution func.
 func (m mockExecutionFunc) Execute(_ context.Context) (Result, error) {
 	return m.result, m.err
 }
 
+// TestStrategy_Execute tests the Execute function.
 func TestStrategy_Execute(t *testing.T) {
 	// given
 	errFunc := mockExecutionFunc{

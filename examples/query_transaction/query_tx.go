@@ -7,6 +7,7 @@ import (
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
 )
 
+// This example shows how to query a transaction by its hex.
 func main() {
 	token := ""
 	apiURL := "https://tapi.taal.com/arc"

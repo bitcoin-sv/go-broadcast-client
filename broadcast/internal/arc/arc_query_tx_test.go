@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// TestQueryTransaction tests the QueryTransaction function.
 func TestQueryTransaction(t *testing.T) {
 	testCases := []struct {
 		name           string

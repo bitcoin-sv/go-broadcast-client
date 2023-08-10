@@ -1,4 +1,5 @@
-package arc_utils
+// Package arcutils provides utility functions for the arc package.
+package arcutils
 
 import (
 	"bytes"
@@ -9,6 +10,7 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
+// HandleHttpError handles http client errors and returns a proper error.
 func HandleHttpError(httpClientError error) error {
 	noSuccessResponseErr, ok := httpClientError.(httpclient.HttpClientError)
 
@@ -35,6 +37,7 @@ func HandleHttpError(httpClientError error) error {
 	return httpClientError // http client internal error
 }
 
+// DecodeResponseBody decodes the response body into the resultOutput.
 func DecodeResponseBody(body io.ReadCloser, resultOutput any) error {
 	err := json.NewDecoder(body).Decode(resultOutput)
 	if err != nil {
@@ -51,6 +54,7 @@ func decodeArcError(httpErr httpclient.HttpClientError) error {
 	bodyReader := io.TeeReader(response.Body, &buffer)
 
 	resultError := broadcast.ArcError{}
+	// nolint:errcheck
 	json.NewDecoder(bodyReader).Decode(&resultError) // ignore decoding error
 
 	if resultError.Title != "" {

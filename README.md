@@ -9,7 +9,7 @@
   - [x] [Query Transaction Status](https://bitcoin-sv.github.io/arc/api.html#/Arc/GET%20transaction%20status)
   - [x] [Submit Transaction](https://bitcoin-sv.github.io/arc/api.html#/Arc/POST%20transaction)
   - [ ] Quote Services -> WORK IN PROGRESS
-  - [ ] Submit Batch Transactions -> WORK IN PROGRESS
+  - [x] [Submit Batch Transactions](https://bitcoin-sv.github.io/arc/api.html#/Arc/POST%20transactions)
 
 # What is library doing?
 It is a wrapper around the [Bitcoin SV Overlay API](https://bitcoin-sv.github.io/arc/api.html) that allows you to interact with the API in a more convenient way by providing a set of

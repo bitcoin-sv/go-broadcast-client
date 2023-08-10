@@ -33,6 +33,7 @@ var successfulSubmitBatchResponse = `
 ]
 `
 
+// TestSubmitTransaction tests submitting a transaction to the ARC API.
 func TestSubmitTransaction(t *testing.T) {
 	t.Run("Should successfully submit transaction using first of two ArcClients", func(t *testing.T) {
 		// given
@@ -132,6 +133,7 @@ func TestSubmitTransaction(t *testing.T) {
 	})
 }
 
+// TestSubmitBatchTransactions tests submitting batch of transactions.
 func TestSubmitBatchTransactions(t *testing.T) {
 	t.Run("Should successfully submit batch of transactions using first of few ArcClients", func(t *testing.T) {
 		// given
