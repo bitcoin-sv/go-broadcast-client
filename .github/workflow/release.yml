@@ -1,8 +1,10 @@
 name: release
+
 on:
   create:
     tags:
       - '*'
+
 jobs:
   syndicate:
     runs-on: ubuntu-latest
@@ -13,8 +15,8 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: 1.20
-    - name: Sync with GoDocs using Makefile
-      run: make godocs
+    - name: Sync with GoDocs using Taskfile
+      run: task godocs
       env:
         GIT_DOMAIN: ${{ secrets.GIT_DOMAIN }}
         REPO_OWNER: ${{ secrets.REPO_OWNER }}
