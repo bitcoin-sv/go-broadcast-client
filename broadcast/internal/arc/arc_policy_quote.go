@@ -2,10 +2,9 @@ package arc
 
 import (
 	"context"
-	"encoding/json"
-	"io"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
+	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
@@ -35,22 +34,13 @@ func getPolicyQuote(ctx context.Context, arc *ArcClient) (*broadcast.PolicyQuote
 
 	resp, err := arc.HTTPClient.DoRequest(ctx, pld)
 	if err != nil {
-		return nil, err
+		return nil, arc_utils.HandleHttpError(err)
 	}
 
-	model, err := decodeQueryPolicyBody(resp.Body)
+	model := &broadcast.PolicyQuoteResponse{}
+	err = arc_utils.DecodeResponseBody(resp.Body, model)
 	if err != nil {
 		return nil, err
 	}
 	return model, nil
-}
-
-func decodeQueryPolicyBody(body io.ReadCloser) (*broadcast.PolicyQuoteResponse, error) {
-	model := broadcast.PolicyQuoteResponse{}
-	err := json.NewDecoder(body).Decode(&model)
-	if err != nil {
-		return nil, broadcast.ErrUnableToDecodeResponse
-	}
-
-	return &model, nil
 }

@@ -77,36 +77,39 @@ func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) (*broadcast.FeeQ
 }
 
 func (c *compositeBroadcaster) GetBestQuote(ctx context.Context) (*broadcast.FeeQuote, error) {
-    fees := make([]*broadcast.FeeQuote, len(c.broadcasters))
-    for i, broadcaster := range c.broadcasters {
-        feeQuote, err := broadcaster.GetFeeQuote(ctx)
-        if err != nil {
-            fees[i] = nil
-        } else {
-            fees[i] = feeQuote
-        }
+    fees := make(chan *broadcast.FeeQuote, len(c.broadcasters))
+	var wg sync.WaitGroup
+
+    for _, broadcaster := range c.broadcasters {
+        wg.Add(1)
+        go func(ctx context.Context, b broadcast.Client) {
+            defer wg.Done()
+            feeQuote, err := b.GetFeeQuote(ctx)
+            if err == nil {
+                fees <- feeQuote
+            }
+        }(ctx, broadcaster)
     }
+
+    wg.Wait()
+    close(fees)
 
     var bestQuote *broadcast.FeeQuote = nil
-    for _, feeQuote := range fees {
-        if feeQuote != nil {
-            bestQuote = feeQuote
-            break
+    for fee := range fees {
+        if bestQuote == nil {
+            bestQuote = fee
+        } else {
+            feePer1000Bytes := (1000 / fee.MiningFee.Bytes) * fee.MiningFee.Satoshis
+            bestFeePer1000Bytes := (1000 / bestQuote.MiningFee.Bytes) * bestQuote.MiningFee.Satoshis
+
+            if feePer1000Bytes < bestFeePer1000Bytes {
+                bestQuote = fee
+            }
         }
-    }
-    if bestQuote == nil {
-        return nil, errors.New("failed to get reponse from any miner")
     }
 
-    for _, feeQuote := range fees {
-        if feeQuote == nil {
-            continue
-        }
-        feePer1000Bytes := (1000 / feeQuote.MiningFee.Bytes) * feeQuote.MiningFee.Satoshis
-        bestFeePer1000Bytes := (1000 / bestQuote.MiningFee.Bytes) * bestQuote.MiningFee.Satoshis
-        if feePer1000Bytes < bestFeePer1000Bytes {
-            bestQuote = feeQuote
-        }
+    if bestQuote == nil {
+        return nil, broadcast.ErrNoMinerResponse
     }
 
     return bestQuote, nil

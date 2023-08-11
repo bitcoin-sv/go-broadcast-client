@@ -3,5 +3,5 @@ package broadcast
 import "time"
 
 const (
-	DefaultFastestQuoteTimeout = 20 * time.Second
+	DefaultFastestQuoteTimeout = 10 * time.Second
 )
