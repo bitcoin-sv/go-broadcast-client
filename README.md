@@ -129,32 +129,6 @@ When you created your own client, you can use the method `QueryTx` to query the 
     // ...
 ```
 
-```go
-func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
- if a == nil {
-  return nil, broadcast.ErrClientUndefined
- }
-
- result, err := queryTransaction(ctx, a, txID)
- if err != nil {
-  return nil, err
- }
-
- err = validateQueryTxResponse(result)
- if err != nil {
-  return nil, err
- }
-
- return result, nil
-}
-```
-
-1. The method `QueryTransaction` is calling the function `queryTransaction` that is trying to query the status of the transaction from the node. It uses the HTTP GET protocol to do so.
-
-2. Then we validate the response from the node using the function `validateQueryTxResponse`. This function is checking if the response is valid and if the status code is 200.
-
-3. If everything is ok, we return the response to the user.
-
 ### SubmitTx Method
 
 Having your client created, you can use the method `SubmitTx` to submit a single transaction to the node.
@@ -169,30 +143,7 @@ Having your client created, you can use the method `SubmitTx` to submit a single
     // ...
 ```
 
-```go
-func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
- if a == nil {
-  return nil, broadcast.ErrClientUndefined
- }
-
- result, err := submitTransaction(ctx, a, tx)
- if err != nil {
-  return nil, err
- }
-
- if err := validateSubmitTxResponse(result); err != nil {
-  return nil, err
- }
-
- return result, nil
-}
-```
-
 You need to pass the [transaction](#transaction) as a parameter to the method `SubmitTransaction`.
-
-1. The method `SubmitTransaction` is calling the function `submitTransaction` that is trying to submit the transaction to the node. It uses the HTTP POST protocol to do so.
-
-Setting up the headers and the body of the request:
 
 ```go
  if tx.MerkleProof {
@@ -213,10 +164,6 @@ Setting up the headers and the body of the request:
 ```
 
 > If the tx parameters are set propely the request will be sent with the headers set as above.
-
-2. Then we validate the response from the node using the function `validateSubmitTxResponse`. This function is checking if the response is valid and if the status code is 200.
-
-3. If everything is ok, we return the response to the user.
 
 ### SubmitBatchTx Method
 
