@@ -93,6 +93,7 @@ We can also call multiple times the method `WithArc` to set multiple nodes.
 What is the call order if we have multiple nodes configured?
 
 We use the **strategy** to define the order of the calls. The default strategy is `OneByOne` in RoundRobin algorith that will call the nodes in the order they were set.
+  **Only if all of them fail, we will return the error to the user.**
 
 ### WithHTTPClient Method
 
@@ -113,7 +114,6 @@ type HTTPInterface interface {
 }
 ```
 
-**Only if all of them fail, we will return the error to the user.**
 
 ## ARC Client Methods
 
