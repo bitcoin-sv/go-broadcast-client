@@ -1,4 +1,4 @@
-name: release
+name: bump-version
 on:
   push:
     branches:
