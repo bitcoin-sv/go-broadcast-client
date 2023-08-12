@@ -21,6 +21,8 @@ type executionFunc func(context.Context) (Result, error)
 
 type StrategyExecutionFunc func(context.Context, []executionFunc) (Result, error)
 
+// Strategy is a component designed to offer flexibility in selecting a communication approach
+// for interacting with multiple broadcasting services, such as multiple Arc services.
 type Strategy struct {
 	name          StrategyName
 	executionFunc StrategyExecutionFunc
