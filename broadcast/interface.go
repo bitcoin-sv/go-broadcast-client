@@ -43,7 +43,7 @@ type TransactionsSubmitter interface {
 	SubmitBatchTransactions(ctx context.Context, tx []*Transaction) ([]*SubmitTxResponse, error)
 }
 
-// Client is the interface that wraps the methods of the broadcast client.
+// Client is a grouping interface that represents the entire exposed functionality of the broadcast client.
 type Client interface {
 	BestQuoter
 	FastestQuoter
