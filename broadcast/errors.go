@@ -34,6 +34,10 @@ var ErrUnableToDecodeResponse = errors.New("unable to decode response")
 var ErrMissingStatus = errors.New("missing tx status")
 
 // ErrStrategyUnkown is returned when the strategy provided is unknown.
+// Example:
+//
+// func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.Client
+// Calling NewBroadcaster we need to provide a strategy, if the strategy is unknown (we don't have an implementation for that) we return ErrStrategyUnkown.
 var ErrStrategyUnkown = errors.New("unknown strategy")
 
 // ErrNoMinerResponse is returned when no response is received from any miner.
