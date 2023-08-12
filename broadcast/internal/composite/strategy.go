@@ -9,6 +9,9 @@ import (
 type StrategyName string
 
 const (
+	// OneByOneStrategy is a strategy that executes the execution funcs one by one until one of them succeeds.
+	// If all execution funcs fail, then the strategy returns an error.
+	// The error is: ErrAllBroadcastersFailed.
 	OneByOneStrategy StrategyName = "OneByOneStrategy"
 )
 
