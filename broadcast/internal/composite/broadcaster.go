@@ -2,7 +2,6 @@ package composite
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -34,85 +33,85 @@ func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.
 	}
 }
 
-func (c *compositeBroadcaster) GetPolicyQuote(ctx context.Context) (*broadcast.PolicyQuoteResponse, error){
-    executionFuncs := make([]executionFunc, len(c.broadcasters))
-    for i, broadcaster := range c.broadcasters {
-        executionFuncs[i] = func(ctx context.Context) (Result, error) {
-            return broadcaster.GetPolicyQuote(ctx)
-        }
-    }
+func (c *compositeBroadcaster) GetPolicyQuote(ctx context.Context) (*broadcast.PolicyQuoteResponse, error) {
+	executionFuncs := make([]executionFunc, len(c.broadcasters))
+	for i, broadcaster := range c.broadcasters {
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+			return broadcaster.GetPolicyQuote(ctx)
+		}
+	}
 
-    result, err := c.strategy.Execute(ctx, executionFuncs)
-    if err != nil {
-        return nil, err
-    }
+	result, err := c.strategy.Execute(ctx, executionFuncs)
+	if err != nil {
+		return nil, err
+	}
 
-    policyQuoteResponse, ok := result.(*broadcast.PolicyQuoteResponse)
-    if !ok {
-        return nil, fmt.Errorf("unexpected result type: %T", result)
-    }
+	policyQuoteResponse, ok := result.(*broadcast.PolicyQuoteResponse)
+	if !ok {
+		return nil, fmt.Errorf("unexpected result type: %T", result)
+	}
 
-    return policyQuoteResponse, nil
+	return policyQuoteResponse, nil
 }
 
-func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) (*broadcast.FeeQuote, error){
-    executionFuncs := make([]executionFunc, len(c.broadcasters))
-    for i, broadcaster := range c.broadcasters {
-        executionFuncs[i] = func(ctx context.Context) (Result, error) {
-            return broadcaster.GetFeeQuote(ctx)
-        }
-    }
+func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) (*broadcast.FeeQuote, error) {
+	executionFuncs := make([]executionFunc, len(c.broadcasters))
+	for i, broadcaster := range c.broadcasters {
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+			return broadcaster.GetFeeQuote(ctx)
+		}
+	}
 
-    result, err := c.strategy.Execute(ctx, executionFuncs)
-    if err != nil {
-        return nil, err
-    }
+	result, err := c.strategy.Execute(ctx, executionFuncs)
+	if err != nil {
+		return nil, err
+	}
 
-    feeQuote, ok := result.(*broadcast.FeeQuote)
-    if !ok {
-        return nil, fmt.Errorf("unexpected result type: %T", result)
-    }
+	feeQuote, ok := result.(*broadcast.FeeQuote)
+	if !ok {
+		return nil, fmt.Errorf("unexpected result type: %T", result)
+	}
 
-    return feeQuote, nil
+	return feeQuote, nil
 }
 
 func (c *compositeBroadcaster) GetBestQuote(ctx context.Context) (*broadcast.FeeQuote, error) {
-    fees := make(chan *broadcast.FeeQuote, len(c.broadcasters))
+	fees := make(chan *broadcast.FeeQuote, len(c.broadcasters))
 	var wg sync.WaitGroup
 
-    for _, broadcaster := range c.broadcasters {
-        wg.Add(1)
-        go func(ctx context.Context, b broadcast.Client) {
-            defer wg.Done()
-            feeQuote, err := b.GetFeeQuote(ctx)
-            if err == nil {
-                fees <- feeQuote
-            }
-        }(ctx, broadcaster)
-    }
+	for _, broadcaster := range c.broadcasters {
+		wg.Add(1)
+		go func(ctx context.Context, b broadcast.Client) {
+			defer wg.Done()
+			feeQuote, err := b.GetFeeQuote(ctx)
+			if err == nil {
+				fees <- feeQuote
+			}
+		}(ctx, broadcaster)
+	}
 
-    wg.Wait()
-    close(fees)
+	wg.Wait()
+	close(fees)
 
-    var bestQuote *broadcast.FeeQuote = nil
-    for fee := range fees {
-        if bestQuote == nil {
-            bestQuote = fee
-        } else {
-            feePer1000Bytes := (1000 / fee.MiningFee.Bytes) * fee.MiningFee.Satoshis
-            bestFeePer1000Bytes := (1000 / bestQuote.MiningFee.Bytes) * bestQuote.MiningFee.Satoshis
+	var bestQuote *broadcast.FeeQuote = nil
+	for fee := range fees {
+		if bestQuote == nil {
+			bestQuote = fee
+		} else {
+			feePer1000Bytes := (1000 / fee.MiningFee.Bytes) * fee.MiningFee.Satoshis
+			bestFeePer1000Bytes := (1000 / bestQuote.MiningFee.Bytes) * bestQuote.MiningFee.Satoshis
 
-            if feePer1000Bytes < bestFeePer1000Bytes {
-                bestQuote = fee
-            }
-        }
-    }
+			if feePer1000Bytes < bestFeePer1000Bytes {
+				bestQuote = fee
+			}
+		}
+	}
 
-    if bestQuote == nil {
-        return nil, broadcast.ErrNoMinerResponse
-    }
+	if bestQuote == nil {
+		return nil, broadcast.ErrNoMinerResponse
+	}
 
-    return bestQuote, nil
+	return bestQuote, nil
 }
 
 func (c *compositeBroadcaster) GetFastestQuote(ctx context.Context, timeout time.Duration) (*broadcast.FeeQuote, error) {
@@ -123,32 +122,32 @@ func (c *compositeBroadcaster) GetFastestQuote(ctx context.Context, timeout time
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-    feeChannel := make(chan *broadcast.FeeQuote, len(c.broadcasters))
+	feeChannel := make(chan *broadcast.FeeQuote, len(c.broadcasters))
 
 	var wg sync.WaitGroup
-    for _, broadcaster := range c.broadcasters {
-        wg.Add(1)
-        go func (ctxWithTimeout context.Context, broadcaster broadcast.Client)  {
-            defer wg.Done()
-            feeQuote, err := broadcaster.GetFeeQuote(ctxWithTimeout)
-            if err == nil {
-                feeChannel <- feeQuote
-            }
-        } (ctxWithTimeout, broadcaster)
-    }
+	for _, broadcaster := range c.broadcasters {
+		wg.Add(1)
+		go func(ctxWithTimeout context.Context, broadcaster broadcast.Client) {
+			defer wg.Done()
+			feeQuote, err := broadcaster.GetFeeQuote(ctxWithTimeout)
+			if err == nil {
+				feeChannel <- feeQuote
+			}
+		}(ctxWithTimeout, broadcaster)
+	}
 
-    go func() {
-        wg.Wait()
-        close(feeChannel)
-    }()
+	go func() {
+		wg.Wait()
+		close(feeChannel)
+	}()
 
-    fastQuote := <-feeChannel
+	fastQuote := <-feeChannel
 
-    if fastQuote == nil {
-        return nil, broadcast.ErrNoMinerResponse
-    }
+	if fastQuote == nil {
+		return nil, broadcast.ErrNoMinerResponse
+	}
 
-    return fastQuote, nil
+	return fastQuote, nil
 }
 
 func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
