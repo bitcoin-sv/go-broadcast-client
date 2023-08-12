@@ -12,7 +12,7 @@ type builder struct {
 	client    httpclient.HTTPInterface
 }
 
-// Builder is a builder func for the broadcast client.
+// Builder is used to prepare the broadcast client. It is recommended to use that builder for creating the broadcast client.
 func Builder() *builder {
 	return &builder{}
 }
