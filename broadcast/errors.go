@@ -8,6 +8,14 @@ import (
 )
 
 // ErrClientUndefined is returned when the client is undefined.
+// Example:
+//
+//	func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
+//		if a == nil {
+//			return nil, broadcast.ErrClientUndefined
+//		}
+//
+// It should be returned for all defined clients in the future.
 var ErrClientUndefined = errors.New("client is undefined")
 
 // ErrAllBroadcastersFailed is returned when all configured broadcasters failed to broadcast the transaction.
