@@ -6,29 +6,23 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
-// StrategyName is the name of the strategy.
 type StrategyName string
 
 const (
-	// OneByOneStrategy is the name of the one by one strategy.
 	OneByOneStrategy StrategyName = "OneByOneStrategy"
 )
 
-// Result is the interface for the result of an execution func.
 type Result interface{}
 
 type executionFunc func(context.Context) (Result, error)
 
-// StrategyExecutionFunc is the function that executes the strategy.
 type StrategyExecutionFunc func(context.Context, []executionFunc) (Result, error)
 
-// Strategy is the composite strategy.
 type Strategy struct {
 	name          StrategyName
 	executionFunc StrategyExecutionFunc
 }
 
-// New creates a new composite strategy.
 func New(name StrategyName) (*Strategy, error) {
 	switch name {
 	case OneByOneStrategy:
@@ -38,7 +32,6 @@ func New(name StrategyName) (*Strategy, error) {
 	}
 }
 
-// Execute executes the strategy.
 func (s *Strategy) Execute(ctx context.Context, executionFuncs []executionFunc) (Result, error) {
 	return s.executionFunc(ctx, executionFuncs)
 }

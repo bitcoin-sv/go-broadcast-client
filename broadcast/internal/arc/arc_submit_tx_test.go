@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestSubmitTransaction tests the SubmitTransaction function.
 func TestSubmitTransaction(t *testing.T) {
 	testCases := []struct {
 		name           string
@@ -95,7 +94,6 @@ func TestSubmitTransaction(t *testing.T) {
 	}
 }
 
-// TestSubmitBatchTransactions tests the SubmitBatchTransactions function.
 func TestSubmitBatchTransactions(t *testing.T) {
 	testCases := []struct {
 		name           string

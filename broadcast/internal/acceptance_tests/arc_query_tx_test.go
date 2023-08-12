@@ -1,4 +1,3 @@
-// Pacakge acceptancetests contains acceptance tests for the broadcast package.
 package acceptancetests
 
 import (
@@ -32,7 +31,6 @@ var secondSuccessfulResponse = `
 }
 `
 
-// TestQueryTransaction tests the QueryTransaction method.
 func TestQueryTransaction(t *testing.T) {
 	t.Run("Should successfully query from multiple ArcClients", func(t *testing.T) {
 		// given

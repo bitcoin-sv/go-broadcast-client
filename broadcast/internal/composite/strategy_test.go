@@ -14,12 +14,10 @@ type mockExecutionFunc struct {
 	err    error
 }
 
-// Execute mock execution func.
 func (m mockExecutionFunc) Execute(_ context.Context) (Result, error) {
 	return m.result, m.err
 }
 
-// TestStrategy_Execute tests the Execute function.
 func TestStrategy_Execute(t *testing.T) {
 	// given
 	errFunc := mockExecutionFunc{
@@ -72,7 +70,6 @@ func TestStrategy_Execute(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	// Test case: Default OneByOne strategy
 	t.Run("should return correct strategy for OneByOneStrategy", func(t *testing.T) {
 		// given
 		expectedStrategyName := OneByOneStrategy
@@ -85,7 +82,6 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, expectedStrategyName, actualStrategy.name)
 	})
 
-	// Test case: Unknown strategy
 	t.Run("should return error for unknown strategy name", func(t *testing.T) {
 		// given
 		unknownStrategyName := StrategyName("Unknown")

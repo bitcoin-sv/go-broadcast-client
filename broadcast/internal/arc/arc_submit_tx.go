@@ -11,15 +11,12 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
-// SubmitTxRequest is the request body for the submit tx endpoint.
 type SubmitTxRequest struct {
 	RawTx string `json:"rawTx"`
 }
 
-// ErrSubmitTxMarshal is the error returned when the submit tx request body cannot be marshalled.
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
-// SumitTransaction will fire the HTTP request to submit the tx to the network.
 func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.ErrClientUndefined
@@ -37,7 +34,6 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 	return result, nil
 }
 
-// SubmitBatchTransactions will fire the HTTP request to submit the txs to the network.
 func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction) ([]*broadcast.SubmitTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.ErrClientUndefined

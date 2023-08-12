@@ -7,20 +7,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// MockClient to mock broadcast client
 type MockClient struct {
 	broadcast.Client
 }
 
-// MockBroadcastFactory to mock broadcast factory
 type MockBroadcastFactory struct{}
 
-// Create mock client
 func (m *MockBroadcastFactory) Create() broadcast.Client {
 	return &MockClient{}
 }
 
-// TestNewBroadcasterWithDefaultStrategy tests the NewBroadcasterWithDefaultStrategy function.
 func TestNewBroadcasterWithDefaultStrategy(t *testing.T) {
 	// given
 	mockFactory := &MockBroadcastFactory{}
@@ -34,7 +30,6 @@ func TestNewBroadcasterWithDefaultStrategy(t *testing.T) {
 	assert.True(t, ok, "Expected broadcaster to be of type *compositeBroadcaster")
 }
 
-// TestNewBroadcaster tests the NewBroadcaster function.
 func TestNewBroadcaster(t *testing.T) {
 	// given
 	mockFactory := &MockBroadcastFactory{}
