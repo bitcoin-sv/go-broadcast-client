@@ -145,25 +145,14 @@ Having your client created, you can use the method `SubmitTx` to submit a single
 
 You need to pass the [transaction](#transaction) as a parameter to the method `SubmitTransaction`.
 
-```go
- if tx.MerkleProof {
-  pld.AddHeader("X-MerkleProof", "true")
- }
+Setting tx.MerkleProof to true will add the header `X-MerkleProof` to the request.
+MerkleProof while broadcasting will handle the merkle proof capability of the node.
 
- if tx.CallBackURL != "" {
-  pld.AddHeader("X-CallbackUrl", tx.CallBackURL)
- }
+Setting tx.CallBackURL and tx.CallBackToken will add the headers `X-CallbackUrl` and `X-CallbackToken` to the request.
+It will allow you to get the callback from the node when the transaction is mined, and receive the transaction details and status.
 
- if tx.CallBackToken != "" {
-  pld.AddHeader("X-CallbackToken", tx.CallBackToken)
- }
-
- if statusCode, ok := broadcast.MapTxStatusToInt(tx.WaitForStatus); ok {
-  pld.AddHeader("X-WaitForStatus", strconv.Itoa(statusCode))
- }
-```
-
-> If the tx parameters are set propely the request will be sent with the headers set as above.
+Setting tx.WaitForStatus will add the header `X-WaitForStatus` to the request.
+It will allow you to wait for the transaction to be mined and return the result only when the transaction reaches the status you set.
 
 ### SubmitBatchTx Method
 
