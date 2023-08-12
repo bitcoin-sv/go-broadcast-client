@@ -22,6 +22,8 @@ type PolicyQuoter interface {
 }
 
 // TransactionQuerier is the interface that wraps the QueryTransaction method.
+// It takes a transaction ID and returns the transaction details, like it's status, hash, height etc.
+// Everything is wrapped in the QueryTxResponse struct.
 type TransactionQuerier interface {
 	QueryTransaction(ctx context.Context, txID string) (*QueryTxResponse, error)
 }
