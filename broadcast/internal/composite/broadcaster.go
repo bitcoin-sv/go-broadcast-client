@@ -194,7 +194,6 @@ func (c *compositeBroadcaster) SubmitTransaction(ctx context.Context, tx *broadc
 	return submitTxResponse, nil
 }
 
-// SubmitBatchTransactions is a function that submits a batch of transactions using OneByOne strategy.
 func (c *compositeBroadcaster) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction) ([]*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
