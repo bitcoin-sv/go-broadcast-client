@@ -19,7 +19,7 @@ func TestFeeQuote(t *testing.T) {
 		name           string
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult *broadcast.FeeQuote
+		expectedResult []*broadcast.FeeQuote
 		expectedError  error
 	}{
 		{
@@ -41,13 +41,15 @@ func TestFeeQuote(t *testing.T) {
                     }
 					`)),
 			},
-			expectedResult: &broadcast.FeeQuote{
-				Miner: "http://example.com",
-				MiningFee: broadcast.MiningFeeResponse{
-					Bytes:    1000,
-					Satoshis: 1,
+			expectedResult: []*broadcast.FeeQuote{
+				{
+					Miner: "http://example.com",
+					MiningFee: broadcast.MiningFeeResponse{
+						Bytes:    1000,
+						Satoshis: 1,
+					},
+					Timestamp: "2023-08-10T13:49:07.308687569Z",
 				},
-				Timestamp: "2023-08-10T13:49:07.308687569Z",
 			},
 		},
 		{

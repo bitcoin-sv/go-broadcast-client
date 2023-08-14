@@ -19,7 +19,7 @@ func TestPolicyQuote(t *testing.T) {
 		name           string
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult *broadcast.PolicyQuoteResponse
+		expectedResult []*broadcast.PolicyQuoteResponse
 		expectedError  error
 	}{
 		{
@@ -41,18 +41,20 @@ func TestPolicyQuote(t *testing.T) {
                     }
 					`)),
 			},
-			expectedResult: &broadcast.PolicyQuoteResponse{
-				Miner: "http://example.com",
-				Policy: broadcast.PolicyResponse{
-					MaxScriptSizePolicy:    100000000,
-					MaxTxSigOpsCountPolicy: 4294967295,
-					MaxTxSizePolicy:        100000000,
-					MiningFee: broadcast.MiningFeeResponse{
-						Bytes:    1000,
-						Satoshis: 1,
+			expectedResult: []*broadcast.PolicyQuoteResponse{
+				{
+					Miner: "http://example.com",
+					Policy: broadcast.PolicyResponse{
+						MaxScriptSizePolicy:    100000000,
+						MaxTxSigOpsCountPolicy: 4294967295,
+						MaxTxSizePolicy:        100000000,
+						MiningFee: broadcast.MiningFeeResponse{
+							Bytes:    1000,
+							Satoshis: 1,
+						},
 					},
+					Timestamp: "2023-08-10T13:49:07.308687569Z",
 				},
-				Timestamp: "2023-08-10T13:49:07.308687569Z",
 			},
 		},
 		{
