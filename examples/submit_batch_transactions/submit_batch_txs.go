@@ -8,6 +8,7 @@ import (
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
 )
 
+// This example shows how to submit a batch of transactions.
 func main() {
 	token := "{token}"
 	apiURL := "https://tapi.taal.com/arc"

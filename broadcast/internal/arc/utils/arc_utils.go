@@ -1,13 +1,16 @@
-package arc_utils
+package arcutils
 
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
+
+var ErrUnableToDecodeArcError = errors.New("unable to decode arc error")
 
 func HandleHttpError(httpClientError error) error {
 	noSuccessResponseErr, ok := httpClientError.(httpclient.HttpClientError)
@@ -51,7 +54,11 @@ func decodeArcError(httpErr httpclient.HttpClientError) error {
 	bodyReader := io.TeeReader(response.Body, &buffer)
 
 	resultError := broadcast.ArcError{}
-	json.NewDecoder(bodyReader).Decode(&resultError) // ignore decoding error
+	err := json.NewDecoder(bodyReader).Decode(&resultError)
+
+	if err != nil {
+		return ErrUnableToDecodeArcError
+	}
 
 	if resultError.Title != "" {
 		return resultError

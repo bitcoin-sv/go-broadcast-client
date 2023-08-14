@@ -1,3 +1,4 @@
+// Package broadcast provides a set of functions to broadcast or query transactions to the Bitcoin SV network using the client provided.
 package broadcast
 
 import (
@@ -6,22 +7,43 @@ import (
 	"strings"
 )
 
+// ErrClientUndefined is returned when the client is undefined.
+// Example:
+//
+//	func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
+//		if a == nil {
+//			return nil, broadcast.ErrClientUndefined
+//		}
+//
+// It should be returned for all defined clients in the future.
 var ErrClientUndefined = errors.New("client is undefined")
 
+// ErrAllBroadcastersFailed is returned when all configured broadcasters failed to broadcast the transaction.
 var ErrAllBroadcastersFailed = errors.New("all broadcasters failed")
 
+// ErrURLEmpty is returned when the API URL is empty.
 var ErrURLEmpty = errors.New("url is empty")
 
+// ErrBroadcastFailed is returned when the broadcast failed.
 var ErrBroadcasterFailed = errors.New("broadcaster failed")
 
+// ErrUnableToDecodeResponse is returned when the http response cannot be decoded.
 var ErrUnableToDecodeResponse = errors.New("unable to decode response")
 
+// ErrMissingStatus is returned when the tx status is missing.
 var ErrMissingStatus = errors.New("missing tx status")
 
+// ErrStrategyUnkown is returned when the strategy provided is unknown.
+// Example:
+//
+// func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.Client
+// Calling NewBroadcaster we need to provide a strategy, if the strategy is unknown (we don't have an implementation for that) we return ErrStrategyUnkown.
 var ErrStrategyUnkown = errors.New("unknown strategy")
 
+// ErrNoMinerResponse is returned when no response is received from any miner.
 var ErrNoMinerResponse = errors.New("failed to get reponse from any miner")
 
+// ArcError is general type for the error returned by the ArcClient.
 type ArcError struct {
 	Type      string `json:"type"`
 	Title     string `json:"title"`
@@ -32,6 +54,7 @@ type ArcError struct {
 	ExtraInfo string `json:"extraInfo,omitempty"`
 }
 
+// Error returns the error string it's the implementation of the error interface.
 func (err ArcError) Error() string {
 	sb := strings.Builder{}
 

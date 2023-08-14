@@ -70,7 +70,6 @@ func TestStrategy_Execute(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	// Test case: Default OneByOne strategy
 	t.Run("should return correct strategy for OneByOneStrategy", func(t *testing.T) {
 		// given
 		expectedStrategyName := OneByOneStrategy
@@ -83,7 +82,6 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, expectedStrategyName, actualStrategy.name)
 	})
 
-	// Test case: Unknown strategy
 	t.Run("should return error for unknown strategy name", func(t *testing.T) {
 		// given
 		unknownStrategyName := StrategyName("Unknown")

@@ -9,14 +9,20 @@ import (
 type StrategyName string
 
 const (
+	// OneByOneStrategy is a strategy that executes the execution funcs one by one until one of them succeeds.
+	// If all execution funcs fail, then the strategy returns an error.
+	// The error is: ErrAllBroadcastersFailed.
 	OneByOneStrategy StrategyName = "OneByOneStrategy"
 )
 
 type Result interface{}
 
 type executionFunc func(context.Context) (Result, error)
+
 type StrategyExecutionFunc func(context.Context, []executionFunc) (Result, error)
 
+// Strategy is a component designed to offer flexibility in selecting a communication approach
+// for interacting with multiple broadcasting services, such as multiple Arc services.
 type Strategy struct {
 	name          StrategyName
 	executionFunc StrategyExecutionFunc

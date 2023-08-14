@@ -75,6 +75,7 @@ func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) (*broadcast.FeeQ
 	return feeQuote, nil
 }
 
+// GetBestQuote: ...
 func (c *compositeBroadcaster) GetBestQuote(ctx context.Context) (*broadcast.FeeQuote, error) {
 	fees := make(chan *broadcast.FeeQuote, len(c.broadcasters))
 	var wg sync.WaitGroup
@@ -114,6 +115,7 @@ func (c *compositeBroadcaster) GetBestQuote(ctx context.Context) (*broadcast.Fee
 	return bestQuote, nil
 }
 
+// GetFastestQuote: ...
 func (c *compositeBroadcaster) GetFastestQuote(ctx context.Context, timeout time.Duration) (*broadcast.FeeQuote, error) {
 	if timeout.Seconds() == 0 {
 		timeout = broadcast.DefaultFastestQuoteTimeout

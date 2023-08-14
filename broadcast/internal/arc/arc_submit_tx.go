@@ -39,7 +39,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 		return nil, broadcast.ErrClientUndefined
 	}
 
-	if txs == nil || len(txs) == 0 {
+	if len(txs) == 0 {
 		return nil, errors.New("invalid request, no transactions to submit")
 	}
 

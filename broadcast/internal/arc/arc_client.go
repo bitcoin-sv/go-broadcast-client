@@ -27,6 +27,7 @@ func NewArcClient(config Config, client httpclient.HTTPInterface) broadcast_api.
 	if client == nil {
 		client = httpclient.NewHttpClient()
 	}
+
 	return &ArcClient{
 		apiURL:     config.GetApiUrl(),
 		token:      config.GetToken(),
