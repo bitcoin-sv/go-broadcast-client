@@ -152,7 +152,6 @@ func (c *compositeBroadcaster) GetFastestQuote(ctx context.Context, timeout time
 	return fastQuote, nil
 }
 
-// QueryTransaction is a function that queries a transaction using OneByOne strategy.
 func (c *compositeBroadcaster) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
