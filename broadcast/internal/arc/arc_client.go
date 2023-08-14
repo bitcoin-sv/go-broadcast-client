@@ -13,9 +13,7 @@ const (
 )
 
 type Config interface {
-	// GetApiUrl returns the arc api url.
 	GetApiUrl() string
-	// GetToken returns the arc api token.
 	GetToken() string
 }
 
