@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
+	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 	"github.com/stretchr/testify/mock"
 )
 

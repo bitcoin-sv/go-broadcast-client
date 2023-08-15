@@ -8,7 +8,7 @@ import (
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
+	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
 type SubmitTxRequest struct {

@@ -4,7 +4,7 @@ import (
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/composite"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
+	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
 type builder struct {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arcutils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
+	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
 var ErrMissingTxID = errors.New("missing tx id")
