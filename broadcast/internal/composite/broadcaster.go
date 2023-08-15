@@ -94,6 +94,7 @@ func (c *compositeBroadcaster) QueryTransaction(
 func (c *compositeBroadcaster) SubmitTransaction(
 	ctx context.Context,
 	tx *broadcast.Transaction,
+	opts ...broadcast.TransactionOptFunc,
 ) (*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
@@ -118,6 +119,7 @@ func (c *compositeBroadcaster) SubmitTransaction(
 func (c *compositeBroadcaster) SubmitBatchTransactions(
 	ctx context.Context,
 	txs []*broadcast.Transaction,
+	opts ...broadcast.TransactionOptFunc,
 ) ([]*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {

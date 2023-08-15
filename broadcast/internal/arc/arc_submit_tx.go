@@ -17,12 +17,17 @@ type SubmitTxRequest struct {
 
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
-func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
+func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.ErrClientUndefined
 	}
 
-	result, err := submitTransaction(ctx, a, tx)
+	options := &broadcast.TransactionOpts{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +39,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 	return result, nil
 }
 
-func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction) ([]*broadcast.SubmitTxResponse, error) {
+func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) ([]*broadcast.SubmitTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.ErrClientUndefined
 	}
@@ -43,7 +48,12 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 		return nil, errors.New("invalid request, no transactions to submit")
 	}
 
-	result, err := submitBatchTransactions(ctx, a, txs)
+	options := &broadcast.TransactionOpts{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	result, err := submitBatchTransactions(ctx, a, txs, options)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +65,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 	return result, nil
 }
 
-func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction) (*broadcast.SubmitTxResponse, error) {
+func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmitTxResponse, error) {
 	url := arc.apiURL + arcSubmitTxRoute
 	data, err := createSubmitTxBody(tx)
 	if err != nil {
@@ -68,7 +78,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 		arc.token,
 		data,
 	)
-	appendSubmitTxHeaders(&pld, tx)
+	appendSubmitTxHeaders(&pld, opts)
 
 	resp, err := arc.HTTPClient.DoRequest(
 		ctx,
@@ -87,7 +97,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 	return &model, nil
 }
 
-func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction) ([]*broadcast.SubmitTxResponse, error) {
+func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmitTxResponse, error) {
 	url := arc.apiURL + arcSubmitBatchTxsRoute
 	data, err := createSubmitBatchTxsBody(txs)
 	if err != nil {
@@ -100,7 +110,7 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		arc.token,
 		data,
 	)
-	appendSubmitTxHeaders(&pld, txs[0])
+	appendSubmitTxHeaders(&pld, opts)
 
 	resp, err := arc.HTTPClient.DoRequest(
 		ctx,
@@ -144,20 +154,45 @@ func createSubmitBatchTxsBody(txs []*broadcast.Transaction) ([]byte, error) {
 	return data, nil
 }
 
-func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, tx *broadcast.Transaction) {
-	if tx.MerkleProof {
+func WithCallback(callbackURL string, callbackToken ...string) broadcast.TransactionOptFunc {
+	return func(o *broadcast.TransactionOpts) {
+		o.CallbackToken = callbackURL
+		if len(callbackToken) > 0 {
+			o.CallbackToken = callbackToken[0]
+		}
+	}
+}
+
+func WithMerkleProof() broadcast.TransactionOptFunc {
+	return func(o *broadcast.TransactionOpts) {
+		o.MerkleProof = true
+	}
+}
+
+func WithWaitForStatus(status broadcast.TxStatus) broadcast.TransactionOptFunc {
+	return func(o *broadcast.TransactionOpts) {
+		o.WaitForStatus = status
+	}
+}
+
+func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts) {
+	if opts == nil {
+		return
+	}
+
+	if opts.MerkleProof {
 		pld.AddHeader("X-MerkleProof", "true")
 	}
 
-	if tx.CallBackURL != "" {
-		pld.AddHeader("X-CallbackUrl", tx.CallBackURL)
+	if opts.CallbackURL != "" {
+		pld.AddHeader("X-CallbackUrl", opts.CallbackURL)
 	}
 
-	if tx.CallBackToken != "" {
-		pld.AddHeader("X-CallbackToken", tx.CallBackToken)
+	if opts.CallbackToken != "" {
+		pld.AddHeader("X-CallbackToken", opts.CallbackToken)
 	}
 
-	if statusCode, ok := broadcast.MapTxStatusToInt(tx.WaitForStatus); ok {
+	if statusCode, ok := broadcast.MapTxStatusToInt(opts.WaitForStatus); ok {
 		pld.AddHeader("X-WaitForStatus", strconv.Itoa(statusCode))
 	}
 }

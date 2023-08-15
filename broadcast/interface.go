@@ -24,14 +24,14 @@ type TransactionQuerier interface {
 // Transaction object needs RawTx to be set. All other fields are optional and used to append headers related to status callbacks.
 // As a result it returns a SubmitTxResponse object.
 type TransactionSubmitter interface {
-	SubmitTransaction(ctx context.Context, tx *Transaction) (*SubmitTxResponse, error)
+	SubmitTransaction(ctx context.Context, tx *Transaction, opts ...TransactionOptFunc) (*SubmitTxResponse, error)
 }
 
 // TransactionsSubmitter is the interface that wraps the SubmitBatchTransactions method.
 // It is the same as TransactionSubmitter but it takes a slice of transactions and tries to broadcast them to the P2P network.
 // As a result it returns a slice of SubmitTxResponse objects.
 type TransactionsSubmitter interface {
-	SubmitBatchTransactions(ctx context.Context, tx []*Transaction) ([]*SubmitTxResponse, error)
+	SubmitBatchTransactions(ctx context.Context, tx []*Transaction, opts ...TransactionOptFunc) ([]*SubmitTxResponse, error)
 }
 
 // Client is a grouping interface that represents the entire exposed functionality of the broadcast client.
