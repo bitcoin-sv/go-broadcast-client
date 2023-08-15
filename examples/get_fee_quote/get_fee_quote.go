@@ -9,22 +9,25 @@ import (
 )
 
 func main() {
-	token := ""
-	apiURL := "https://tapi.taal.com/arc"
+	taalCfg := broadcast_client.ArcClientConfig{
+		Token:  "",
+		APIUrl: "https://tapi.taal.com/arc",
+	}
 
-	cfg := broadcast_client.ArcClientConfig{
-		Token:  token,
-		APIUrl: apiURL,
+	gorillaCfg := broadcast_client.ArcClientConfig{
+		Token:  "",
+		APIUrl: "https://arc.gorillapool.io",
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(cfg).
+		WithArc(taalCfg).
+		WithArc(gorillaCfg).
 		Build()
 
-	feeQuote, err := client.GetFeeQuote(context.Background())
+	feeQuotes, err := client.GetFeeQuote(context.Background())
 	if err != nil {
 		log.Fatalf("error: %s", err.Error())
 	}
 
-	broadcast.PrettyPrint("Fee Quote", feeQuote)
+	broadcast.PrettyPrint("Fee Quotes", feeQuotes)
 }

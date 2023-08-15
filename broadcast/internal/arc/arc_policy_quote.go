@@ -8,7 +8,7 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
 )
 
-func (a *ArcClient) GetPolicyQuote(ctx context.Context) (*broadcast.PolicyQuoteResponse, error) {
+func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuoteResponse, error) {
 	if a == nil {
 		return nil, broadcast.ErrClientUndefined
 	}
@@ -20,7 +20,9 @@ func (a *ArcClient) GetPolicyQuote(ctx context.Context) (*broadcast.PolicyQuoteR
 
 	model.Miner = a.apiURL
 
-	return model, nil
+	models := []*broadcast.PolicyQuoteResponse{model}
+
+	return models, nil
 }
 
 func getPolicyQuote(ctx context.Context, arc *ArcClient) (*broadcast.PolicyQuoteResponse, error) {

@@ -2,23 +2,14 @@ package broadcast
 
 import (
 	"context"
-	"time"
 )
 
-type BestQuoter interface {
-	GetBestQuote(ctx context.Context) (*FeeQuote, error)
-}
-
-type FastestQuoter interface {
-	GetFastestQuote(ctx context.Context, timeout time.Duration) (*FeeQuote, error)
-}
-
 type FeeQuoter interface {
-	GetFeeQuote(ctx context.Context) (*FeeQuote, error)
+	GetFeeQuote(ctx context.Context) ([]*FeeQuote, error)
 }
 
 type PolicyQuoter interface {
-	GetPolicyQuote(ctx context.Context) (*PolicyQuoteResponse, error)
+	GetPolicyQuote(ctx context.Context) ([]*PolicyQuoteResponse, error)
 }
 
 // TransactionQuerier is the interface that wraps the QueryTransaction method.
@@ -45,8 +36,6 @@ type TransactionsSubmitter interface {
 
 // Client is a grouping interface that represents the entire exposed functionality of the broadcast client.
 type Client interface {
-	BestQuoter
-	FastestQuoter
 	FeeQuoter
 	PolicyQuoter
 	TransactionQuerier
