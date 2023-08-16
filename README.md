@@ -1,6 +1,6 @@
 # go-broadcast-client
 
-> Interact with Bitcoin SV Overlay Nodes exposing the interface [interface.go](https://github.com/bitcoin-sv/go-broadcast-client/blob/main/broadcast/interface.go)
+> Interact with Bitcoin SV ARC exposing the interface [interface.go](https://github.com/bitcoin-sv/go-broadcast-client/blob/main/broadcast/interface.go)
 
 ## Features
 
@@ -12,7 +12,7 @@
 
 ## What is library doing?
 
-It is a wrapper around the [Bitcoin SV Overlay API](https://bitcoin-sv.github.io/arc/api.html) that allows you to interact with the API in a more convenient way by providing a set of
+It is a wrapper around the [Bitcoin SV ARC API](https://bitcoin-sv.github.io/arc/api.html) that allows you to interact with the API in a more convenient way by providing a set of
 custom features to work with multiple nodes and retry logic.
 
 ## Custom features
