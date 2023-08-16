@@ -17,6 +17,27 @@ type TransactionOpts struct {
 	CallbackToken string
 	// MerkleProof is a flag that indicates if the merkle proof should be returned in the submit transaction response.
 	MerkleProof bool
-	// TxStatus is the status that the callback request will wait for.
+	// WaitForStatus is the status that the callback request will wait for.
 	WaitForStatus TxStatus
+}
+
+func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFunc {
+	return func(o *TransactionOpts) {
+		o.CallbackToken = callbackURL
+		if len(callbackToken) > 0 {
+			o.CallbackToken = callbackToken[0]
+		}
+	}
+}
+
+func WithMerkleProof() TransactionOptFunc {
+	return func(o *TransactionOpts) {
+		o.MerkleProof = true
+	}
+}
+
+func WithWaitForStatus(status TxStatus) TransactionOptFunc {
+	return func(o *TransactionOpts) {
+		o.WaitForStatus = status
+	}
 }

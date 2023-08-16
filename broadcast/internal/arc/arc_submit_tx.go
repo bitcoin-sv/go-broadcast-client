@@ -154,27 +154,6 @@ func createSubmitBatchTxsBody(txs []*broadcast.Transaction) ([]byte, error) {
 	return data, nil
 }
 
-func WithCallback(callbackURL string, callbackToken ...string) broadcast.TransactionOptFunc {
-	return func(o *broadcast.TransactionOpts) {
-		o.CallbackToken = callbackURL
-		if len(callbackToken) > 0 {
-			o.CallbackToken = callbackToken[0]
-		}
-	}
-}
-
-func WithMerkleProof() broadcast.TransactionOptFunc {
-	return func(o *broadcast.TransactionOpts) {
-		o.MerkleProof = true
-	}
-}
-
-func WithWaitForStatus(status broadcast.TxStatus) broadcast.TransactionOptFunc {
-	return func(o *broadcast.TransactionOpts) {
-		o.WaitForStatus = status
-	}
-}
-
 func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts) {
 	if opts == nil {
 		return
