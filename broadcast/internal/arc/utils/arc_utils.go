@@ -7,7 +7,7 @@ import (
 	"io"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/httpclient"
+	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
 var ErrUnableToDecodeArcError = errors.New("unable to decode arc error")
