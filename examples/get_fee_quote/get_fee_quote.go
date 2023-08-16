@@ -8,6 +8,7 @@ import (
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
 )
 
+// This example shows how to get a fee quote.
 func main() {
 	taalCfg := broadcast_client.ArcClientConfig{
 		Token:  "",
