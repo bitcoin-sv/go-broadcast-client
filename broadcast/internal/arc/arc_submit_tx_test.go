@@ -70,7 +70,7 @@ func TestSubmitTransaction(t *testing.T) {
 
 			body, _ := createSubmitTxBody(tc.transaction)
 			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+arcSubmitTxRoute, "someToken", body)
-			appendSubmitTxHeaders(&expectedPayload, tc.transaction)
+			appendSubmitTxHeaders(&expectedPayload, nil)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).
 				Return(tc.httpResponse, tc.httpError).Once()
@@ -163,7 +163,7 @@ func TestSubmitBatchTransactions(t *testing.T) {
 
 			body, _ := createSubmitBatchTxsBody(tc.transactions)
 			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+arcSubmitBatchTxsRoute, "someToken", body)
-			appendSubmitTxHeaders(&expectedPayload, tc.transactions[0])
+			appendSubmitTxHeaders(&expectedPayload, nil)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).
 				Return(tc.httpResponse, tc.httpError).Once()
