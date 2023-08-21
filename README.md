@@ -8,7 +8,7 @@
   - [x] [Query Transaction Status](https://bitcoin-sv.github.io/arc/api.html#/Arc/GET%20transaction%20status)
   - [x] [Submit Transaction](https://bitcoin-sv.github.io/arc/api.html#/Arc/POST%20transaction)
   - [x] [Submit Batch Transactions](https://bitcoin-sv.github.io/arc/api.html#/Arc/POST%20transactions)
-  - [ ] Quote Services -> WORK IN PROGRESS
+  - [x] [Quote Services](https://bitcoin-sv.github.io/arc/api.html#/Arc/GET%20policy)
 
 ## What is library doing?
 
@@ -129,6 +129,26 @@ When you created your own client, you can use the method `QueryTx` to query the 
     // ...
 ```
 
+### Get Policy Quote Method
+
+Having your client created, you can use the method `GetPolicyQuote` to get a slice of policy quotes from all the nodes configured in your client.
+
+```go
+    // ...
+	policyQuotes, err := client.GetPolicyQuote(context.Background())
+    // ...
+```
+
+### Get Fee Quote Method
+
+Having your client created, you can use the method `GetFeeQuote` to get a slice of fee quotes (which are subsets from PolicyQuotes) from all the nodes configured in your client.
+
+```go
+    // ...
+	feeQuotes, err := client.GetFeeQuote(context.Background())
+    // ...
+```
+
 ### SubmitTx Method
 
 Having your client created, you can use the method `SubmitTx` to submit a single transaction to the node.
@@ -187,6 +207,50 @@ type QueryTxResponse struct {
  Timestamp string `json:"timestamp,omitempty"`
  TxID string `json:"txid,omitempty"`
  TxStatus TxStatus `json:"txStatus,omitempty"`
+}
+```
+
+### PolicyQuote
+
+#### PolicyQuoteResponse
+
+```go
+type PolicyQuoteResponse struct {
+	Miner     string         `json:"miner"`
+	Policy    PolicyResponse `json:"policy"`
+	Timestamp string         `json:"timestamp"`
+}
+```
+
+#### PolicyResponse
+
+```go
+type PolicyResponse struct {
+	MaxScriptSizePolicy    int64             `json:"maxscriptsizepolicy"`
+	MaxTxSigOpsCountPolicy int64             `json:"maxtxsigopscountspolicy"`
+	MaxTxSizePolicy        int64             `json:"maxtxsizepolicy"`
+	MiningFee              MiningFeeResponse `json:"miningFee"`
+}
+```
+
+#### MiningFeeResponse
+
+```go
+type MiningFeeResponse struct {
+	Bytes    int64 `json:"bytes"`
+	Satoshis int64 `json:"satoshis"`
+}
+```
+
+### FeeQuote
+
+#### FeeQuoteResponse
+
+```go
+type FeeQuote struct {
+	Miner     string            `json:"miner"`
+	MiningFee MiningFeeResponse `json:"miningFee"`
+	Timestamp string            `json:"timestamp"`
 }
 ```
 
