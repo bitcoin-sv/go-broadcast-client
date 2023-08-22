@@ -63,7 +63,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 	}
 
 	finalResult := broadcast.SubmitBatchTxResponse{
-		Miner: a.apiURL,
+		BaseResponse: broadcast.BaseResponse{Miner: a.apiURL},
 		SubmitTxResponses: result,
 	}
 

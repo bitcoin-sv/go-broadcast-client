@@ -129,7 +129,7 @@ func TestSubmitBatchTransactions(t *testing.T) {
 					]`)),
 			},
 			expectedResult: &broadcast.SubmitBatchTxResponse{
-				Miner: "http://example.com",
+				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
 				SubmitTxResponses: []*broadcast.SubmitTxResponse{
 					{TxStatus: broadcast.Confirmed},
 					{TxStatus: broadcast.Confirmed},

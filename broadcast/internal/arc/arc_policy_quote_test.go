@@ -43,7 +43,7 @@ func TestPolicyQuote(t *testing.T) {
 			},
 			expectedResult: []*broadcast.PolicyQuoteResponse{
 				{
-					Miner: "http://example.com",
+					BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
 					Policy: broadcast.PolicyResponse{
 						MaxScriptSizePolicy:    100000000,
 						MaxTxSigOpsCountPolicy: 4294967295,

@@ -43,7 +43,7 @@ func TestFeeQuote(t *testing.T) {
 			},
 			expectedResult: []*broadcast.FeeQuote{
 				{
-					Miner: "http://example.com",
+					BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
 					MiningFee: broadcast.MiningFeeResponse{
 						Bytes:    1000,
 						Satoshis: 1,

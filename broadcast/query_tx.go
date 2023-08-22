@@ -2,8 +2,7 @@ package broadcast
 
 // QueryTxResponse is the response returned by the QueryTransaction method.
 type QueryTxResponse struct {
-	// Miner is the URL of the miner that returned the transaction.
-	Miner string `json:"miner"`
+	BaseResponse
 	// BlockHash is the hash of the block where the transaction was included.
 	BlockHash string `json:"blockHash,omitempty"`
 	// BlockHeight is the height of the block where the transaction was included.
