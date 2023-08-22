@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSubmitTransaction(t *testing.T) {
@@ -36,7 +37,8 @@ func TestSubmitTransaction(t *testing.T) {
                     `)),
 			},
 			expectedResult: &broadcast.SubmitTxResponse{
-				TxStatus: broadcast.Confirmed,
+				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
+				SubmittedTx:  &broadcast.SubmittedTx{TxStatus: broadcast.Confirmed},
 			},
 		},
 		{
@@ -69,7 +71,12 @@ func TestSubmitTransaction(t *testing.T) {
 			mockHttpClient := new(MockHttpClient)
 
 			body, _ := createSubmitTxBody(tc.transaction)
-			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+arcSubmitTxRoute, "someToken", body)
+			expectedPayload := httpclient.NewPayload(
+				httpclient.POST,
+				"http://example.com"+arcSubmitTxRoute,
+				"someToken",
+				body,
+			)
 			appendSubmitTxHeaders(&expectedPayload, nil)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).
@@ -100,7 +107,7 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		transactions   []*broadcast.Transaction
 		httpResponse   *http.Response
 		httpError      error
-		expectedResult []*broadcast.SubmitTxResponse
+		expectedResult *broadcast.SubmitBatchTxResponse
 		expectedError  error
 	}{
 		{
@@ -121,9 +128,12 @@ func TestSubmitBatchTransactions(t *testing.T) {
 						}
 					]`)),
 			},
-			expectedResult: []*broadcast.SubmitTxResponse{
-				{TxStatus: broadcast.Confirmed},
-				{TxStatus: broadcast.Confirmed},
+			expectedResult: &broadcast.SubmitBatchTxResponse{
+				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
+				Transactions: []*broadcast.SubmittedTx{
+					{TxStatus: broadcast.Confirmed},
+					{TxStatus: broadcast.Confirmed},
+				},
 			},
 		},
 		{
@@ -162,7 +172,12 @@ func TestSubmitBatchTransactions(t *testing.T) {
 			mockHttpClient := new(MockHttpClient)
 
 			body, _ := createSubmitBatchTxsBody(tc.transactions)
-			expectedPayload := httpclient.NewPayload(httpclient.POST, "http://example.com"+arcSubmitBatchTxsRoute, "someToken", body)
+			expectedPayload := httpclient.NewPayload(
+				httpclient.POST,
+				"http://example.com"+arcSubmitBatchTxsRoute,
+				"someToken",
+				body,
+			)
 			appendSubmitTxHeaders(&expectedPayload, nil)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).

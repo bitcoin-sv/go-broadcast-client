@@ -13,9 +13,9 @@ func (a *ArcClient) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, err
 	}
 
 	feeQuote := &broadcast.FeeQuote{
-		Miner:     a.apiURL,
-		MiningFee: policyQuotes[0].Policy.MiningFee,
-		Timestamp: policyQuotes[0].Timestamp,
+		BaseResponse: broadcast.BaseResponse{Miner: a.apiURL},
+		MiningFee:    policyQuotes[0].Policy.MiningFee,
+		Timestamp:    policyQuotes[0].Timestamp,
 	}
 
 	feeQuotes := []*broadcast.FeeQuote{feeQuote}

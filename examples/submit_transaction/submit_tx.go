@@ -28,6 +28,7 @@ func main() {
 		log.Fatalf("error: %s", err.Error())
 	}
 
+	log.Printf("miner: %s", result.Miner)
 	log.Printf("hash: %s", result.BlockHash)
 	log.Printf("status: %s", result.TxStatus)
 }

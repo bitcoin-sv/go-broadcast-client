@@ -120,7 +120,7 @@ func (c *compositeBroadcaster) SubmitBatchTransactions(
 	ctx context.Context,
 	txs []*broadcast.Transaction,
 	opts ...broadcast.TransactionOptFunc,
-) ([]*broadcast.SubmitTxResponse, error) {
+) (*broadcast.SubmitBatchTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
@@ -134,7 +134,7 @@ func (c *compositeBroadcaster) SubmitBatchTransactions(
 	}
 
 	// Convert result to []SubmitTxResponse
-	submitTxResponse, ok := result.([]*broadcast.SubmitTxResponse)
+	submitTxResponse, ok := result.(*broadcast.SubmitBatchTxResponse)
 	if !ok {
 		return nil, fmt.Errorf("unexpected result type: %T", result)
 	}
