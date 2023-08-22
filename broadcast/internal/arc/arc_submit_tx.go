@@ -39,7 +39,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 	return result, nil
 }
 
-func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) ([]*broadcast.SubmitTxResponse, error) {
+func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.ErrClientUndefined
 	}
@@ -62,7 +62,12 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 		return nil, err
 	}
 
-	return result, nil
+	finalResult := broadcast.SubmitBatchTxResponse{
+		Miner: a.apiURL,
+		SubmitTxResponses: result,
+	}
+
+	return &finalResult, nil
 }
 
 func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmitTxResponse, error) {
@@ -93,6 +98,8 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 	if err != nil {
 		return nil, err
 	}
+
+	model.Miner = arc.apiURL
 
 	return &model, nil
 }

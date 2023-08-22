@@ -29,9 +29,9 @@ type TransactionSubmitter interface {
 
 // TransactionsSubmitter is the interface that wraps the SubmitBatchTransactions method.
 // It is the same as TransactionSubmitter but it takes a slice of transactions and tries to broadcast them to the P2P network.
-// As a result it returns a slice of SubmitTxResponse objects.
+// As a result it returns a SubmitBatchTxResponse, which includes a slice of SubmitTxResponse objects.
 type TransactionsSubmitter interface {
-	SubmitBatchTransactions(ctx context.Context, tx []*Transaction, opts ...TransactionOptFunc) ([]*SubmitTxResponse, error)
+	SubmitBatchTransactions(ctx context.Context, tx []*Transaction, opts ...TransactionOptFunc) (*SubmitBatchTxResponse, error)
 }
 
 // Client is a grouping interface that represents the entire exposed functionality of the broadcast client.

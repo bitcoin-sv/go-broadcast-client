@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
 func TestQueryTransaction(t *testing.T) {
@@ -34,6 +35,7 @@ func TestQueryTransaction(t *testing.T) {
 					`)),
 			},
 			expectedResult: &broadcast.QueryTxResponse{
+				Miner:     "http://example.com",
 				BlockHash: "abc123",
 				TxStatus:  broadcast.Confirmed,
 				TxID:      "abc123",

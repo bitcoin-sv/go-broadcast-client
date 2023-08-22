@@ -52,6 +52,8 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 		return nil, err
 	}
 
+	model.Miner = arc.apiURL
+
 	return &model, nil
 }
 

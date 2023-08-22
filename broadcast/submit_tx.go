@@ -2,6 +2,8 @@ package broadcast
 
 // SubmitTxResponse is the response returned by the SubmitTransaction method.
 type SubmitTxResponse struct {
+	// Miner is the URL of the miner that submitted the transaction.
+	Miner string `json:"miner,omitempty"`
 	// BlockHash is the hash of the block where the transaction was included.
 	BlockHash string `json:"blockHash,omitempty"`
 	// BlockHeight is the height of the block where the transaction was included.
@@ -14,4 +16,12 @@ type SubmitTxResponse struct {
 	Title string `json:"title,omitempty"`
 	// TxStatus is the status of the transaction.
 	TxStatus TxStatus `json:"txStatus,omitempty"`
+}
+
+// SubmitTxResponse is the response returned by the SubmitBatchTransactions method.
+type SubmitBatchTxResponse struct {
+	// Miner is the URL of the miner that submitted the batch transactions.
+	Miner string `json:"miner"`
+	// SubmitTxResponses are the responses returned by the miner who submitted the batch transactions.
+	SubmitTxResponses []*SubmitTxResponse
 }
