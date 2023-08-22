@@ -37,8 +37,8 @@ func TestSubmitTransaction(t *testing.T) {
                     `)),
 			},
 			expectedResult: &broadcast.SubmitTxResponse{
-				Miner:    "http://example.com",
-				TxStatus: broadcast.Confirmed,
+				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
+				SubmittedTx:  &broadcast.SubmittedTx{TxStatus: broadcast.Confirmed},
 			},
 		},
 		{
@@ -130,7 +130,7 @@ func TestSubmitBatchTransactions(t *testing.T) {
 			},
 			expectedResult: &broadcast.SubmitBatchTxResponse{
 				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
-				SubmitTxResponses: []*broadcast.SubmitTxResponse{
+				Transactions: []*broadcast.SubmittedTx{
 					{TxStatus: broadcast.Confirmed},
 					{TxStatus: broadcast.Confirmed},
 				},

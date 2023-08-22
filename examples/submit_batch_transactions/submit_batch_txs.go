@@ -35,7 +35,7 @@ func main() {
 	}
 
 	log.Printf("Miner that submitted batch txs: %s", result.Miner)
-	for i, tx := range result.SubmitTxResponses {
+	for i, tx := range result.Transactions {
 		log.Printf("tx[%d]: { hash: %s, status: %s }", i, tx.BlockHash, tx.TxStatus)
 	}
 

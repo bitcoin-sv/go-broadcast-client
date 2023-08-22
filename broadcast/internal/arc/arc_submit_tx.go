@@ -36,7 +36,12 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 		return nil, err
 	}
 
-	return result, nil
+	response := &broadcast.SubmitTxResponse{
+		BaseResponse: broadcast.BaseResponse{Miner: a.apiURL},
+		SubmittedTx: result,
+	}
+
+	return response, nil
 }
 
 func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, error) {
@@ -62,15 +67,15 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 		return nil, err
 	}
 
-	finalResult := broadcast.SubmitBatchTxResponse{
+	response := broadcast.SubmitBatchTxResponse{
 		BaseResponse: broadcast.BaseResponse{Miner: a.apiURL},
-		SubmitTxResponses: result,
+		Transactions: result,
 	}
 
-	return &finalResult, nil
+	return &response, nil
 }
 
-func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmitTxResponse, error) {
+func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitTxRoute
 	data, err := createSubmitTxBody(tx)
 	if err != nil {
@@ -93,18 +98,16 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 		return nil, arc_utils.HandleHttpError(err)
 	}
 
-	model := broadcast.SubmitTxResponse{}
+	model := broadcast.SubmittedTx{}
 	err = arc_utils.DecodeResponseBody(resp.Body, &model)
 	if err != nil {
 		return nil, err
 	}
 
-	model.Miner = arc.apiURL
-
 	return &model, nil
 }
 
-func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmitTxResponse, error) {
+func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitBatchTxsRoute
 	data, err := createSubmitBatchTxsBody(txs)
 	if err != nil {
@@ -127,7 +130,7 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		return nil, arc_utils.HandleHttpError(err)
 	}
 
-	var model []*broadcast.SubmitTxResponse
+	var model []*broadcast.SubmittedTx
 	err = arc_utils.DecodeResponseBody(resp.Body, &model)
 	if err != nil {
 		return nil, err
@@ -183,7 +186,7 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.Transact
 	}
 }
 
-func validateBatchResponse(model []*broadcast.SubmitTxResponse) error {
+func validateBatchResponse(model []*broadcast.SubmittedTx) error {
 	for _, tx := range model {
 		if err := validateSubmitTxResponse(tx); err != nil {
 			return err
@@ -193,7 +196,7 @@ func validateBatchResponse(model []*broadcast.SubmitTxResponse) error {
 	return nil
 }
 
-func validateSubmitTxResponse(model *broadcast.SubmitTxResponse) error {
+func validateSubmitTxResponse(model *broadcast.SubmittedTx) error {
 	if model.TxStatus == "" {
 		return broadcast.ErrMissingStatus
 	}
