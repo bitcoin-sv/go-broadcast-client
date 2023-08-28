@@ -23,6 +23,5 @@ jobs:
       run: task godocs
       env:
         GIT_DOMAIN: ${{ github.server_url }}
-        REPO_OWNER: ${{ github.repository_owner }}
-        REPO_NAME: ${{ github.event.repository.name }}
+        REPO_OWNER: ${{ github.repository }}
         VERSION_SHORT: ${{ github.ref }}
