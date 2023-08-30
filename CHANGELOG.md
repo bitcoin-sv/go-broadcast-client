@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.1.0...v0.1.1) (2023-08-30)
+
+
+### Bug Fixes
+
+* **BUX-000:** syndicate and bump-version changes ([#23](https://github.com/bitcoin-sv/go-broadcast-client/issues/23)) ([98a5f07](https://github.com/bitcoin-sv/go-broadcast-client/commit/98a5f076ad77ddc844a1a281c653c1821f1ad341))
+
 ## [0.1.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.0.1...v0.1.0) (2023-08-28)
 
 
