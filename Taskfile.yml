@@ -10,9 +10,3 @@ tasks:
     desc: Run lint
     cmds:
       - golangci-lint run
-
-  godocs:
-    desc: Sync the latest tag with GoDocs
-    cmds:
-      - echo "syndicating to GoDocs..."
-      - curl "https://proxy.golang.org/github.com/$REPO/v/$VERSION_SHORT.info"
