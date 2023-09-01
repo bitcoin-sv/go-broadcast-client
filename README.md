@@ -1,3 +1,5 @@
+DO NOT MERGE - IT IS ONLY THE TEST OF PR
+
 # go-broadcast-client
 
 > Interact with Bitcoin SV ARC exposing the interface [interface.go](https://github.com/bitcoin-sv/go-broadcast-client/blob/main/broadcast/interface.go)
