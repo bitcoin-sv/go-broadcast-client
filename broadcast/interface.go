@@ -4,10 +4,14 @@ import (
 	"context"
 )
 
+// FeeQuoter it the interface that wraps GetFeeQuote method.
+// It retrieves the Fee Quote from the configured miners.
 type FeeQuoter interface {
 	GetFeeQuote(ctx context.Context) ([]*FeeQuote, error)
 }
 
+// PolicyQuoter it the interface that wraps GetPolicyQuote method.
+// It retrieves the Policy Quote from the configured miners.
 type PolicyQuoter interface {
 	GetPolicyQuote(ctx context.Context) ([]*PolicyQuoteResponse, error)
 }
