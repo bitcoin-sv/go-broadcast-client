@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.1.1...v0.1.2) (2023-09-15)
+
+
+### Bug Fixes
+
+* http client applying headers ([#27](https://github.com/bitcoin-sv/go-broadcast-client/issues/27)) ([15aaf88](https://github.com/bitcoin-sv/go-broadcast-client/commit/15aaf88e8f55ec041ea95a20f9dc1d71163edda3))
+
 ## [0.1.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.1.0...v0.1.1) (2023-08-30)
 
 
