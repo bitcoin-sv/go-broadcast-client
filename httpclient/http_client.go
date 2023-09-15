@@ -89,6 +89,12 @@ func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPRequest) (*http.Res
 		req.Header.Add("Authorization", pld.Token)
 	}
 
+	if pld.Headers != nil {
+		for key, value := range pld.Headers {
+			req.Header.Add(key, value)
+		}
+	}
+
 	resp, err := hc.Client.Do(req)
 	if err != nil {
 		return nil, err
