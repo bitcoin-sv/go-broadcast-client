@@ -27,7 +27,7 @@ custom features to work with multiple nodes and retry logic.
   
 - [x] Possibility to use custom http client [WithHTTPClient](https://github.com/bitcoin-sv/go-broadcast-client/blob/main/broadcast/broadcast-client/client_builder.go#L19)
 
-- [x] Mock Client for testing purposes [details](link)
+- [x] Mock Client for testing purposes [details](#MockClientBuilder)
 
 ## How to use it?
 
