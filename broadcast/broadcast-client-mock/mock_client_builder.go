@@ -4,7 +4,6 @@ import (
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/mocks"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/composite"
-	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
 // MockType is an enum that is used as parameter to WithMockArc
@@ -19,7 +18,6 @@ const (
 
 type builder struct {
 	factories []composite.BroadcastFactory
-	client    httpclient.HTTPInterface
 }
 
 // Builder is used to prepare the mock broadcast client. It is recommended 
