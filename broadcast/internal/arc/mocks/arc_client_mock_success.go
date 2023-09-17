@@ -6,31 +6,20 @@ import (
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
-const (
-	MockedApiUrl1 = "https://mocked_api_url.com/arc"
-	MockedApiUrl2 = "https://second_mocked_api_url.com/arc"
-)
-
 type ArcClientMock struct{}
 
 // GetFeeQuote returns a successful FeeQuote response.
 func (*ArcClientMock) GetFeeQuote(ctx context.Context) ([]*broadcast_api.FeeQuote, error) {
 	quote1 := &broadcast_api.FeeQuote{
 		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
-		MiningFee: broadcast_api.MiningFeeResponse{
-			Bytes:    1000,
-			Satoshis: 1,
-		},
-		Timestamp: "2023-09-05T17:03:49.537230128Z",
+		MiningFee:    Policy1.Policy.MiningFee,
+		Timestamp:    Policy1.Timestamp,
 	}
 
 	quote2 := &broadcast_api.FeeQuote{
 		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl2},
-		MiningFee: broadcast_api.MiningFeeResponse{
-			Bytes:    1000,
-			Satoshis: 2,
-		},
-		Timestamp: "2023-09-05T17:05:29.736256927Z",
+		MiningFee:    Policy2.Policy.MiningFee,
+		Timestamp:    Policy2.Timestamp,
 	}
 
 	quotes := make([]*broadcast_api.FeeQuote, 2)
@@ -42,60 +31,23 @@ func (*ArcClientMock) GetFeeQuote(ctx context.Context) ([]*broadcast_api.FeeQuot
 
 // GetPolicyQuote return a successful PolicyQuoteResponse.
 func (*ArcClientMock) GetPolicyQuote(ctx context.Context) ([]*broadcast_api.PolicyQuoteResponse, error) {
-	policy1 := &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
-		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    100000000,
-			MaxTxSigOpsCountPolicy: 4294967295,
-			MaxTxSizePolicy:        100000000,
-			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    1000,
-				Satoshis: 1,
-			},
-		},
-		Timestamp: "2023-09-05T17:03:49.537230128Z",
-	}
-
-	policy2 := &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl2},
-		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    100000000,
-			MaxTxSigOpsCountPolicy: 4294967295,
-			MaxTxSizePolicy:        220000000,
-			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    1000,
-				Satoshis: 2,
-			},
-		},
-		Timestamp: "2023-09-05T17:05:29.736256927Z",
-	}
-
 	policies := make([]*broadcast_api.PolicyQuoteResponse, 2)
-	policies = append(policies, policy1)
-	policies = append(policies, policy2)
+	policies = append(policies, Policy1)
+	policies = append(policies, Policy2)
 
 	return policies, nil
 }
 
 // QueryTransaction returns a successful QueryTxResponse.
 func (*ArcClientMock) QueryTransaction(ctx context.Context, txID string) (*broadcast_api.QueryTxResponse, error) {
-	return &broadcast_api.QueryTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
-		Timestamp:    "2023-09-05T17:05:29.736256927Z",
-		TxID:         txID,
-		TxStatus:     "SEEN_ON_NETWORK",
-	}, nil
+	return QueryTx(txID), nil
 }
 
 // SubmitTransaction returns a successful SubmitTxResponse.
 func (*ArcClientMock) SubmitTransaction(ctx context.Context, tx *broadcast_api.Transaction, opts ...broadcast_api.TransactionOptFunc) (*broadcast_api.SubmitTxResponse, error) {
 	return &broadcast_api.SubmitTxResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
-		SubmittedTx: &broadcast_api.SubmittedTx{
-			Status:   200,
-			Title:    "OK",
-			TxStatus: "SENT_TO_NETWORK",
-		},
+		SubmittedTx:  SubmittedTx,
 	}, nil
 }
 
@@ -104,16 +56,8 @@ func (*ArcClientMock) SubmitBatchTransactions(ctx context.Context, tx []*broadca
 	return &broadcast_api.SubmitBatchTxResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
 		Transactions: []*broadcast_api.SubmittedTx{
-			{
-				Status:   200,
-				Title:    "OK",
-				TxStatus: "SENT_TO_NETWORK",
-			},
-			{
-				Status:   200,
-				Title:    "OK",
-				TxStatus: "SENT_TO_NETWORK",
-			},
+			SubmittedTx,
+			SubmittedTx,
 		},
 	}, nil
 }

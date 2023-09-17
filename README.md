@@ -27,6 +27,8 @@ custom features to work with multiple nodes and retry logic.
   
 - [x] Possibility to use custom http client [WithHTTPClient](https://github.com/bitcoin-sv/go-broadcast-client/blob/main/broadcast/broadcast-client/client_builder.go#L19)
 
+- [x] Mock Client for testing purposes [details](link)
+
 ## How to use it?
 
 ### Create client
@@ -302,3 +304,45 @@ type Transaction struct {
 | 109 | `REJECTED`             | The transaction has been rejected by the Bitcoin network.
 
 *Source* [Arc API](https://github.com/bitcoin-sv/arc/blob/main/README.md)
+
+
+## MockClientBuilder
+
+Mock Client allows you to test your code without using an actual client and without connecting to any nodes.
+
+### WithMockArc Method
+
+This method allows you to create a client with a different Mock Type passed as parameter.
+
+```go
+client := broadcast_client_mock.Builder().
+	WithMockArc(broadcast_client_mock.MockSucces).
+	Build()
+```
+
+| MockType      | Description
+|---------------|-----------------------------------------------------------------------------------
+| `MockSucces`  | Client will return a successful response from all methods.
+| `MockFailure` | Client will return an error that no miner returned a response from all methods.
+| `MockTimeout` | Client will return a successful response after a timeout from all methods.
+
+#### MockTimeout
+
+MockTimeout will return a successfull response after around ~10ms more than the timeout provided in the context that is passed to it's method.
+
+
+Example:
+
+```go
+client := broadcast_client_mock.Builder().
+	WithMockArc(broadcast_client_mock.MockTimeout).
+	Build()
+
+ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second) // Creating a timeout context with 2 seconds timeout
+defer cancel()
+
+result, err := client.GetPolicyQuote(ctx) // client will return a response after around 2 seconds and 10 milliseconds, therefore exceeding the timeout
+```
+
+If you pass the context without a timeout, the client will instantly return a successful response (just like from a MockSuccess type).
+

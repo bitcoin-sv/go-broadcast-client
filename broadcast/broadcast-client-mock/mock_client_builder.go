@@ -1,8 +1,10 @@
-package broadcast_client
+package broadcast_client_mock
 
 import (
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/mocks"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/composite"
+	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
 // MockType is an enum that is used as parameter to WithMockArc
@@ -15,22 +17,31 @@ const (
 	MockTimeout
 )
 
+type builder struct {
+	factories []composite.BroadcastFactory
+	client    httpclient.HTTPInterface
+}
+
+// Builder is used to prepare the mock broadcast client. It is recommended 
+// to use that builder for creating the mock broadcast client.
+func Builder() *builder {
+	return &builder{}
+}
+
 // WithMockArc creates a mock client for testing purposes. It takes mock type as argument
 // and creates a mock client that satisfies the client interface with methods that return
-// success or specific error based on this mock type argument.
-func (cb *builder) WithMockArc(config ArcClientConfig, mockType MockType) *builder {
+// success or specific error based on this mock type argument. It allows for creating
+// multiple mock clients.
+func (cb *builder) WithMockArc(mockType MockType) *builder {
 	var clientToReturn broadcast_api.Client
 
 	switch mockType {
 	case MockSuccess:
 		clientToReturn = mocks.NewArcClientMock()
-		break
 	case MockFailure:
 		clientToReturn = mocks.NewArcClientMockFailure()
-		break
 	case MockTimeout:
 		clientToReturn = mocks.NewArcClientMockTimeout()
-		break
 	default:
 		clientToReturn = mocks.NewArcClientMock()
 	}
@@ -39,4 +50,12 @@ func (cb *builder) WithMockArc(config ArcClientConfig, mockType MockType) *build
 		return clientToReturn
 	})
 	return cb
+}
+
+// Build builds the broadcast client based on the provided configuration.
+func (cb *builder) Build() broadcast_api.Client {
+	if len(cb.factories) == 1 {
+		return cb.factories[0]()
+	}
+	return composite.NewBroadcasterWithDefaultStrategy(cb.factories...)
 }
