@@ -177,7 +177,7 @@ func TestMockClientTimeout(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		assert.Greater(t, time.Now().Sub(startTime), defaultTestTime)
+		assert.Greater(t, time.Since(startTime), defaultTestTime)
 	})
 
 	t.Run("Should successfully query for Fee Quote after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -195,7 +195,7 @@ func TestMockClientTimeout(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		assert.Greater(t, time.Now().Sub(startTime), defaultTestTime)
+		assert.Greater(t, time.Since(startTime), defaultTestTime)
 	})
 
 	t.Run("Should successfully query for transaction after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -213,7 +213,7 @@ func TestMockClientTimeout(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		assert.Greater(t, time.Now().Sub(startTime), defaultTestTime)
+		assert.Greater(t, time.Since(startTime), defaultTestTime)
 	})
 
 	t.Run("Should return successful submit transaction response after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -231,7 +231,7 @@ func TestMockClientTimeout(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		assert.Greater(t, time.Now().Sub(startTime), defaultTestTime)
+		assert.Greater(t, time.Since(startTime), defaultTestTime)
 	})
 
 	t.Run("Should return successful submit batch transactions response after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -249,6 +249,6 @@ func TestMockClientTimeout(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		assert.Greater(t, time.Now().Sub(startTime), defaultTestTime)
+		assert.Greater(t, time.Since(startTime), defaultTestTime)
 	})
 }
