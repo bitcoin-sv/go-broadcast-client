@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.1.2...v0.2.0) (2023-09-18)
+
+
+### Features
+
+* **mock-tests:** Mock Arc Client for testing purposes ([#26](https://github.com/bitcoin-sv/go-broadcast-client/issues/26)) ([ad2f0fc](https://github.com/bitcoin-sv/go-broadcast-client/commit/ad2f0fcc81c4f40af3834a10b7e1d8e6a837455d))
+
 ## [0.1.2](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.1.1...v0.1.2) (2023-09-15)
 
 
