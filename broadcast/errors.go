@@ -18,7 +18,7 @@ import (
 // It should be returned for all defined clients in the future.
 var ErrClientUndefined = errors.New("client is undefined")
 
-// ErrAllBroadcastersFailed is returned when all configured broadcasters failed to broadcast the transaction.
+// ErrAllBroadcastersFailed is returned when all configured broadcasters failed to query or broadcast the transaction.
 var ErrAllBroadcastersFailed = errors.New("all broadcasters failed")
 
 // ErrURLEmpty is returned when the API URL is empty.
