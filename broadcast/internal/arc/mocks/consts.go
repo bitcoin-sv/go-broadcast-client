@@ -1,53 +1,65 @@
 package mocks
 
-import broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
-
-const (
-	MockedApiUrl1 = "https://mocked_api_url.com/arc"
-	MockedApiUrl2 = "https://second_mocked_api_url.com/arc"
+import (
+	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
+	mock_consts "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/mock-consts"
 )
 
 var (
-	Policy1 = &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
+	policy1 = &broadcast_api.PolicyQuoteResponse{
+		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
 		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    100000000,
-			MaxTxSigOpsCountPolicy: 4294967295,
-			MaxTxSizePolicy:        100000000,
+			MaxScriptSizePolicy:    mock_consts.MockedMaxScriptSizePolicy,
+			MaxTxSigOpsCountPolicy: mock_consts.MockedMaxTxSigOpsCountPolicy,
+			MaxTxSizePolicy:        mock_consts.MockedMaxTxSizePolicy,
 			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    1000,
-				Satoshis: 1,
+				Bytes:    mock_consts.MockedMiningFeeBytes,
+				Satoshis: mock_consts.MockedSatoshisPerBytes,
 			},
 		},
-		Timestamp: "2023-09-05T17:03:49.537230128Z",
+		Timestamp: mock_consts.MockedTimestamp,
 	}
 
-	Policy2 = &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl2},
+	policy2 = &broadcast_api.PolicyQuoteResponse{
+		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderSecondary},
 		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    100000000,
-			MaxTxSigOpsCountPolicy: 4294967295,
-			MaxTxSizePolicy:        220000000,
+			MaxScriptSizePolicy:    mock_consts.MockedMaxScriptSizePolicy,
+			MaxTxSigOpsCountPolicy: mock_consts.MockedMaxTxSigOpsCountPolicy,
+			MaxTxSizePolicy:        mock_consts.MockedMaxTxSizePolicySecondary,
 			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    1000,
-				Satoshis: 2,
+				Bytes:    mock_consts.MockedMiningFeeBytes,
+				Satoshis: mock_consts.MockedSatoshisPerBytesSecondary,
 			},
 		},
-		Timestamp: "2023-09-05T17:05:29.736256927Z",
+		Timestamp: mock_consts.MockedTimestampSecondary,
 	}
 
-	SubmittedTx = &broadcast_api.SubmittedTx{
-		Status:   200,
-		Title:    "OK",
-		TxStatus: "SENT_TO_NETWORK",
+	submittedTx = &broadcast_api.SubmittedTx{
+		Status:      mock_consts.MockedTxResponseStatus,
+		Title:       mock_consts.MockedTxResponseTitle,
+		TxStatus:    mock_consts.MockedTxStatus,
+		BlockHash:   mock_consts.MockedTxBlockHash,
+		BlockHeight: mock_consts.MockedTxBlockHeight,
+		ExtraInfo:   mock_consts.MockedTxExtraInfo,
+	}
+
+	submittedTxSecondary = &broadcast_api.SubmittedTx{
+		Status:      mock_consts.MockedTxResponseStatus,
+		Title:       mock_consts.MockedTxResponseTitle,
+		TxStatus:    mock_consts.MockedTxStatus,
+		BlockHash:   mock_consts.MockedTxBlockHashSecondary,
+		BlockHeight: mock_consts.MockedTxBlockHeightSecondary,
+		ExtraInfo:   mock_consts.MockedTxExtraInfo,
 	}
 )
 
-func QueryTx(txID string) *broadcast_api.QueryTxResponse {
+func queryTx(txID string) *broadcast_api.QueryTxResponse {
 	return &broadcast_api.QueryTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
-		Timestamp:    "2023-09-05T17:05:29.736256927Z",
+		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		Timestamp:    mock_consts.MockedTimestamp,
+		TxStatus:     mock_consts.MockedTxStatus,
+		BlockHash:    mock_consts.MockedTxBlockHash,
+		BlockHeight:  mock_consts.MockedTxBlockHeight,
 		TxID:         txID,
-		TxStatus:     "SEEN_ON_NETWORK",
 	}
 }
