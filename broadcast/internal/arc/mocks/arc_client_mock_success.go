@@ -4,7 +4,7 @@ import (
 	"context"
 
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	mock_consts "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/mock-consts"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 )
 
 type ArcClientMock struct{}
@@ -12,13 +12,13 @@ type ArcClientMock struct{}
 // GetFeeQuote returns a successful FeeQuote response.
 func (*ArcClientMock) GetFeeQuote(ctx context.Context) ([]*broadcast_api.FeeQuote, error) {
 	quote1 := &broadcast_api.FeeQuote{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		MiningFee:    policy1.Policy.MiningFee,
 		Timestamp:    policy1.Timestamp,
 	}
 
 	quote2 := &broadcast_api.FeeQuote{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderSecondary},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderSecondary},
 		MiningFee:    policy2.Policy.MiningFee,
 		Timestamp:    policy2.Timestamp,
 	}
@@ -47,7 +47,7 @@ func (*ArcClientMock) QueryTransaction(ctx context.Context, txID string) (*broad
 // SubmitTransaction returns a successful SubmitTxResponse.
 func (*ArcClientMock) SubmitTransaction(ctx context.Context, tx *broadcast_api.Transaction, opts ...broadcast_api.TransactionOptFunc) (*broadcast_api.SubmitTxResponse, error) {
 	return &broadcast_api.SubmitTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		SubmittedTx:  submittedTx,
 	}, nil
 }
@@ -55,7 +55,7 @@ func (*ArcClientMock) SubmitTransaction(ctx context.Context, tx *broadcast_api.T
 // SubmitBatchTransactions returns a successful SubmitBatchTxResponse.
 func (*ArcClientMock) SubmitBatchTransactions(ctx context.Context, tx []*broadcast_api.Transaction, opts ...broadcast_api.TransactionOptFunc) (*broadcast_api.SubmitBatchTxResponse, error) {
 	return &broadcast_api.SubmitBatchTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		Transactions: []*broadcast_api.SubmittedTx{
 			submittedTx,
 			submittedTxSecondary,

@@ -2,64 +2,64 @@ package mocks
 
 import (
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	mock_consts "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/mock-consts"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 )
 
 var (
 	policy1 = &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    mock_consts.MockedMaxScriptSizePolicy,
-			MaxTxSigOpsCountPolicy: mock_consts.MockedMaxTxSigOpsCountPolicy,
-			MaxTxSizePolicy:        mock_consts.MockedMaxTxSizePolicy,
+			MaxScriptSizePolicy:    fixtures.MaxScriptSizePolicy,
+			MaxTxSigOpsCountPolicy: fixtures.MaxTxSigOpsCountPolicy,
+			MaxTxSizePolicy:        fixtures.MaxTxSizePolicy,
 			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    mock_consts.MockedMiningFeeBytes,
-				Satoshis: mock_consts.MockedSatoshisPerBytes,
+				Bytes:    fixtures.MiningFeeBytes,
+				Satoshis: fixtures.SatoshisPerBytes,
 			},
 		},
-		Timestamp: mock_consts.MockedTimestamp,
+		Timestamp: fixtures.Timestamp,
 	}
 
 	policy2 = &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderSecondary},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderSecondary},
 		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    mock_consts.MockedMaxScriptSizePolicy,
-			MaxTxSigOpsCountPolicy: mock_consts.MockedMaxTxSigOpsCountPolicy,
-			MaxTxSizePolicy:        mock_consts.MockedMaxTxSizePolicySecondary,
+			MaxScriptSizePolicy:    fixtures.MaxScriptSizePolicy,
+			MaxTxSigOpsCountPolicy: fixtures.MaxTxSigOpsCountPolicy,
+			MaxTxSizePolicy:        fixtures.MaxTxSizePolicySecondary,
 			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    mock_consts.MockedMiningFeeBytes,
-				Satoshis: mock_consts.MockedSatoshisPerBytesSecondary,
+				Bytes:    fixtures.MiningFeeBytes,
+				Satoshis: fixtures.SatoshisPerBytesSecondary,
 			},
 		},
-		Timestamp: mock_consts.MockedTimestampSecondary,
+		Timestamp: fixtures.TimestampSecondary,
 	}
 
 	submittedTx = &broadcast_api.SubmittedTx{
-		Status:      mock_consts.MockedTxResponseStatus,
-		Title:       mock_consts.MockedTxResponseTitle,
-		TxStatus:    mock_consts.MockedTxStatus,
-		BlockHash:   mock_consts.MockedTxBlockHash,
-		BlockHeight: mock_consts.MockedTxBlockHeight,
-		ExtraInfo:   mock_consts.MockedTxExtraInfo,
+		Status:      fixtures.TxResponseStatus,
+		Title:       fixtures.TxResponseTitle,
+		TxStatus:    fixtures.TxStatus,
+		BlockHash:   fixtures.TxBlockHash,
+		BlockHeight: fixtures.TxBlockHeight,
+		ExtraInfo:   fixtures.TxExtraInfo,
 	}
 
 	submittedTxSecondary = &broadcast_api.SubmittedTx{
-		Status:      mock_consts.MockedTxResponseStatus,
-		Title:       mock_consts.MockedTxResponseTitle,
-		TxStatus:    mock_consts.MockedTxStatus,
-		BlockHash:   mock_consts.MockedTxBlockHashSecondary,
-		BlockHeight: mock_consts.MockedTxBlockHeightSecondary,
-		ExtraInfo:   mock_consts.MockedTxExtraInfo,
+		Status:      fixtures.TxResponseStatus,
+		Title:       fixtures.TxResponseTitle,
+		TxStatus:    fixtures.TxStatus,
+		BlockHash:   fixtures.TxBlockHashSecondary,
+		BlockHeight: fixtures.TxBlockHeightSecondary,
+		ExtraInfo:   fixtures.TxExtraInfo,
 	}
 )
 
 func queryTx(txID string) *broadcast_api.QueryTxResponse {
 	return &broadcast_api.QueryTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
-		Timestamp:    mock_consts.MockedTimestamp,
-		TxStatus:     mock_consts.MockedTxStatus,
-		BlockHash:    mock_consts.MockedTxBlockHash,
-		BlockHeight:  mock_consts.MockedTxBlockHeight,
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
+		Timestamp:    fixtures.Timestamp,
+		TxStatus:     fixtures.TxStatus,
+		BlockHash:    fixtures.TxBlockHash,
+		BlockHeight:  fixtures.TxBlockHeight,
 		TxID:         txID,
 	}
 }

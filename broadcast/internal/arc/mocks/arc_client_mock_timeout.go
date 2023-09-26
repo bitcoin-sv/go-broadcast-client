@@ -5,7 +5,7 @@ import (
 	"time"
 
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	mock_consts "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/mock-consts"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 )
 
 type ArcClientMockTimeout struct{}
@@ -17,13 +17,13 @@ func (*ArcClientMockTimeout) GetFeeQuote(ctx context.Context) ([]*broadcast_api.
 	}
 
 	quote1 := &broadcast_api.FeeQuote{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		MiningFee:    policy1.Policy.MiningFee,
 		Timestamp:    policy1.Timestamp,
 	}
 
 	quote2 := &broadcast_api.FeeQuote{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderSecondary},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderSecondary},
 		MiningFee:    policy2.Policy.MiningFee,
 		Timestamp:    policy2.Timestamp,
 	}
@@ -64,7 +64,7 @@ func (*ArcClientMockTimeout) SubmitTransaction(ctx context.Context, tx *broadcas
 	}
 
 	return &broadcast_api.SubmitTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		SubmittedTx:  submittedTx,
 	}, nil
 }
@@ -76,7 +76,7 @@ func (*ArcClientMockTimeout) SubmitBatchTransactions(ctx context.Context, tx []*
 	}
 
 	return &broadcast_api.SubmitBatchTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: mock_consts.MockedProviderMain},
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		Transactions: []*broadcast_api.SubmittedTx{
 			submittedTx,
 			submittedTxSecondary,

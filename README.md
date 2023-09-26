@@ -348,28 +348,28 @@ If you pass the context without a timeout, the client will instantly return a su
 
 ### Mock Responses Constants
 
-In order to test the Mock Client, you may often need to check if the response from the client is correct. Therefore, some useful constants are exposed from `mock_consts` package.
+In order to test the Mock Client, you may often need to check if the response from the client is correct. Therefore, some useful constants are exposed from `fixtures` package.
 
 ```go
 const (
-	MockedProviderMain              = "https://mocked_arc_api_url.com/arc"
-	MockedProviderSecondary         = "https://secondary_mocked_arc_api_url.com/arc"
-	MockedMaxScriptSizePolicy       = 100000000
-	MockedMaxTxSigOpsCountPolicy    = 4294967295
-	MockedMaxTxSizePolicy           = 100000000
-	MockedMaxTxSizePolicySecondary  = 220000000
-	MockedMiningFeeBytes            = 1000
-	MockedSatoshisPerBytes          = 1
-	MockedSatoshisPerBytesSecondary = 2
-	MockedTimestamp                 = "2023-09-05T17:03:49.537230128Z"
-	MockedTimestampSecondary        = "2023-09-05T17:05:29.736256927Z"
-	MockedTxResponseStatus          = 200
-	MockedTxResponseTitle           = "OK"
-	MockedTxStatus                  = "SEEN_ON_NETWORK"
-	MockedTxBlockHash               = "123123"
-	MockedTxBlockHashSecondary      = "123123"
-	MockedTxBlockHeight             = 123456
-	MockedTxBlockHeightSecondary    = 123456
-	MockedTxExtraInfo               = ""
+	ProviderMain              = "https://mocked_arc_api_url.com/arc"
+	ProviderSecondary         = "https://secondary_mocked_arc_api_url.com/arc"
+	MaxScriptSizePolicy       = 100000000
+	MaxTxSigOpsCountPolicy    = 4294967295
+	MaxTxSizePolicy           = 100000000
+	MaxTxSizePolicySecondary  = 220000000
+	MiningFeeBytes            = 1000
+	SatoshisPerBytes          = 1
+	SatoshisPerBytesSecondary = 2
+	Timestamp                 = "2023-09-05T17:03:49.537230128Z"
+	TimestampSecondary        = "2023-09-05T17:05:29.736256927Z"
+	TxResponseStatus          = 200
+	TxResponseTitle           = "OK"
+	TxStatus                  = "SEEN_ON_NETWORK"
+	TxBlockHash               = "123123"
+	TxBlockHashSecondary      = "123123"
+	TxBlockHeight             = 123456
+	TxBlockHeightSecondary    = 123456
+	TxExtraInfo               = ""
 )
 ```
