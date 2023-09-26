@@ -16,21 +16,9 @@ func (*ArcClientMockTimeout) GetFeeQuote(ctx context.Context) ([]*broadcast_api.
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}
 
-	quote1 := &broadcast_api.FeeQuote{
-		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
-		MiningFee:    policy1.Policy.MiningFee,
-		Timestamp:    policy1.Timestamp,
-	}
-
-	quote2 := &broadcast_api.FeeQuote{
-		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderSecondary},
-		MiningFee:    policy2.Policy.MiningFee,
-		Timestamp:    policy2.Timestamp,
-	}
-
-	quotes := make([]*broadcast_api.FeeQuote, 2)
-	quotes = append(quotes, quote1)
-	quotes = append(quotes, quote2)
+	quotes := make([]*broadcast_api.FeeQuote, 0)
+	quotes = append(quotes, Fee1)
+	quotes = append(quotes, Fee2)
 
 	return quotes, nil
 }
@@ -41,9 +29,9 @@ func (*ArcClientMockTimeout) GetPolicyQuote(ctx context.Context) ([]*broadcast_a
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}
 
-	policies := make([]*broadcast_api.PolicyQuoteResponse, 2)
-	policies = append(policies, policy1)
-	policies = append(policies, policy2)
+	policies := make([]*broadcast_api.PolicyQuoteResponse, 0)
+	policies = append(policies, Policy1)
+	policies = append(policies, Policy2)
 
 	return policies, nil
 }
@@ -54,7 +42,7 @@ func (*ArcClientMockTimeout) QueryTransaction(ctx context.Context, txID string) 
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}
 
-	return queryTx(txID), nil
+	return QueryTx(txID), nil
 }
 
 // SubmitTransaction returns a successful SubmitTxResponse.
@@ -65,7 +53,7 @@ func (*ArcClientMockTimeout) SubmitTransaction(ctx context.Context, tx *broadcas
 
 	return &broadcast_api.SubmitTxResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
-		SubmittedTx:  submittedTx,
+		SubmittedTx:  SubmittedTx,
 	}, nil
 }
 
@@ -78,8 +66,8 @@ func (*ArcClientMockTimeout) SubmitBatchTransactions(ctx context.Context, tx []*
 	return &broadcast_api.SubmitBatchTxResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		Transactions: []*broadcast_api.SubmittedTx{
-			submittedTx,
-			submittedTxSecondary,
+			SubmittedTx,
+			SubmittedTxSecondary,
 		},
 	}, nil
 }
