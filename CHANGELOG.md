@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.2.0...v0.3.0) (2023-09-26)
+
+
+### Features
+
+* **BUX-222:** exposing mock consts for tests ([#30](https://github.com/bitcoin-sv/go-broadcast-client/issues/30)) ([bc5174e](https://github.com/bitcoin-sv/go-broadcast-client/commit/bc5174ebf30efe462d437f6bd2aff64cb3c48d64))
+
 ## [0.2.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.1.2...v0.2.0) (2023-09-18)
 
 
