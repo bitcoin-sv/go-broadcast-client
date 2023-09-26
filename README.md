@@ -346,3 +346,30 @@ result, err := client.GetPolicyQuote(ctx) // client will return a response after
 
 If you pass the context without a timeout, the client will instantly return a successful response (just like from a MockSuccess type).
 
+### Mock Responses Constants
+
+In order to test the Mock Client, you may often need to check if the response from the client is correct. Therefore, some useful constants are exposed from `fixtures` package.
+
+```go
+const (
+	ProviderMain              = "https://mocked_arc_api_url.com/arc"
+	ProviderSecondary         = "https://secondary_mocked_arc_api_url.com/arc"
+	MaxScriptSizePolicy       = 100000000
+	MaxTxSigOpsCountPolicy    = 4294967295
+	MaxTxSizePolicy           = 100000000
+	MaxTxSizePolicySecondary  = 220000000
+	MiningFeeBytes            = 1000
+	SatoshisPerBytes          = 1
+	SatoshisPerBytesSecondary = 2
+	Timestamp                 = "2023-09-05T17:03:49.537230128Z"
+	TimestampSecondary        = "2023-09-05T17:05:29.736256927Z"
+	TxResponseStatus          = 200
+	TxResponseTitle           = "OK"
+	TxStatus                  = "SEEN_ON_NETWORK"
+	TxBlockHash               = "123123"
+	TxBlockHashSecondary      = "123123"
+	TxBlockHeight             = 123456
+	TxBlockHeightSecondary    = 123456
+	TxExtraInfo               = ""
+)
+```

@@ -1,53 +1,65 @@
 package mocks
 
-import broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
-
-const (
-	MockedApiUrl1 = "https://mocked_api_url.com/arc"
-	MockedApiUrl2 = "https://second_mocked_api_url.com/arc"
+import (
+	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 )
 
 var (
-	Policy1 = &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
+	policy1 = &broadcast_api.PolicyQuoteResponse{
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    100000000,
-			MaxTxSigOpsCountPolicy: 4294967295,
-			MaxTxSizePolicy:        100000000,
+			MaxScriptSizePolicy:    fixtures.MaxScriptSizePolicy,
+			MaxTxSigOpsCountPolicy: fixtures.MaxTxSigOpsCountPolicy,
+			MaxTxSizePolicy:        fixtures.MaxTxSizePolicy,
 			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    1000,
-				Satoshis: 1,
+				Bytes:    fixtures.MiningFeeBytes,
+				Satoshis: fixtures.SatoshisPerBytes,
 			},
 		},
-		Timestamp: "2023-09-05T17:03:49.537230128Z",
+		Timestamp: fixtures.Timestamp,
 	}
 
-	Policy2 = &broadcast_api.PolicyQuoteResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl2},
+	policy2 = &broadcast_api.PolicyQuoteResponse{
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderSecondary},
 		Policy: broadcast_api.PolicyResponse{
-			MaxScriptSizePolicy:    100000000,
-			MaxTxSigOpsCountPolicy: 4294967295,
-			MaxTxSizePolicy:        220000000,
+			MaxScriptSizePolicy:    fixtures.MaxScriptSizePolicy,
+			MaxTxSigOpsCountPolicy: fixtures.MaxTxSigOpsCountPolicy,
+			MaxTxSizePolicy:        fixtures.MaxTxSizePolicySecondary,
 			MiningFee: broadcast_api.MiningFeeResponse{
-				Bytes:    1000,
-				Satoshis: 2,
+				Bytes:    fixtures.MiningFeeBytes,
+				Satoshis: fixtures.SatoshisPerBytesSecondary,
 			},
 		},
-		Timestamp: "2023-09-05T17:05:29.736256927Z",
+		Timestamp: fixtures.TimestampSecondary,
 	}
 
-	SubmittedTx = &broadcast_api.SubmittedTx{
-		Status:   200,
-		Title:    "OK",
-		TxStatus: "SENT_TO_NETWORK",
+	submittedTx = &broadcast_api.SubmittedTx{
+		Status:      fixtures.TxResponseStatus,
+		Title:       fixtures.TxResponseTitle,
+		TxStatus:    fixtures.TxStatus,
+		BlockHash:   fixtures.TxBlockHash,
+		BlockHeight: fixtures.TxBlockHeight,
+		ExtraInfo:   fixtures.TxExtraInfo,
+	}
+
+	submittedTxSecondary = &broadcast_api.SubmittedTx{
+		Status:      fixtures.TxResponseStatus,
+		Title:       fixtures.TxResponseTitle,
+		TxStatus:    fixtures.TxStatus,
+		BlockHash:   fixtures.TxBlockHashSecondary,
+		BlockHeight: fixtures.TxBlockHeightSecondary,
+		ExtraInfo:   fixtures.TxExtraInfo,
 	}
 )
 
-func QueryTx(txID string) *broadcast_api.QueryTxResponse {
+func queryTx(txID string) *broadcast_api.QueryTxResponse {
 	return &broadcast_api.QueryTxResponse{
-		BaseResponse: broadcast_api.BaseResponse{Miner: MockedApiUrl1},
-		Timestamp:    "2023-09-05T17:05:29.736256927Z",
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
+		Timestamp:    fixtures.Timestamp,
+		TxStatus:     fixtures.TxStatus,
+		BlockHash:    fixtures.TxBlockHash,
+		BlockHeight:  fixtures.TxBlockHeight,
 		TxID:         txID,
-		TxStatus:     "SEEN_ON_NETWORK",
 	}
 }
