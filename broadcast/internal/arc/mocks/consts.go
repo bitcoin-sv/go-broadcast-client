@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	policy1 = &broadcast_api.PolicyQuoteResponse{
+	Policy1 = &broadcast_api.PolicyQuoteResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		Policy: broadcast_api.PolicyResponse{
 			MaxScriptSizePolicy:    fixtures.MaxScriptSizePolicy,
@@ -20,7 +20,7 @@ var (
 		Timestamp: fixtures.Timestamp,
 	}
 
-	policy2 = &broadcast_api.PolicyQuoteResponse{
+	Policy2 = &broadcast_api.PolicyQuoteResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderSecondary},
 		Policy: broadcast_api.PolicyResponse{
 			MaxScriptSizePolicy:    fixtures.MaxScriptSizePolicy,
@@ -34,7 +34,19 @@ var (
 		Timestamp: fixtures.TimestampSecondary,
 	}
 
-	submittedTx = &broadcast_api.SubmittedTx{
+	Fee1 = &broadcast_api.FeeQuote{
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
+		MiningFee:    Policy1.Policy.MiningFee,
+		Timestamp:    Policy1.Timestamp,
+	}
+
+	Fee2 = &broadcast_api.FeeQuote{
+		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderSecondary},
+		MiningFee:    Policy2.Policy.MiningFee,
+		Timestamp:    Policy2.Timestamp,
+	}
+
+	SubmittedTx = &broadcast_api.SubmittedTx{
 		Status:      fixtures.TxResponseStatus,
 		Title:       fixtures.TxResponseTitle,
 		TxStatus:    fixtures.TxStatus,
@@ -43,7 +55,7 @@ var (
 		ExtraInfo:   fixtures.TxExtraInfo,
 	}
 
-	submittedTxSecondary = &broadcast_api.SubmittedTx{
+	SubmittedTxSecondary = &broadcast_api.SubmittedTx{
 		Status:      fixtures.TxResponseStatus,
 		Title:       fixtures.TxResponseTitle,
 		TxStatus:    fixtures.TxStatus,
@@ -53,7 +65,7 @@ var (
 	}
 )
 
-func queryTx(txID string) *broadcast_api.QueryTxResponse {
+func QueryTx(txID string) *broadcast_api.QueryTxResponse {
 	return &broadcast_api.QueryTxResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
 		Timestamp:    fixtures.Timestamp,

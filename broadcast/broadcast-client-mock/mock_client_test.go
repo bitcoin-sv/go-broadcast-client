@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/mocks"
 )
 
 func TestMockClientSuccess(t *testing.T) {
@@ -16,6 +18,7 @@ func TestMockClientSuccess(t *testing.T) {
 		broadcaster := Builder().
 			WithMockArc(MockSuccess).
 			Build()
+		expectedResult := []*broadcast.PolicyQuoteResponse{mocks.Policy1, mocks.Policy2}
 
 		// when
 		result, err := broadcaster.GetPolicyQuote(context.Background())
@@ -23,6 +26,7 @@ func TestMockClientSuccess(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, result, expectedResult)
 	})
 
 	t.Run("Should successfully query for Fee Quote from mock Arc Client with Success Mock Type", func(t *testing.T) {
@@ -30,6 +34,7 @@ func TestMockClientSuccess(t *testing.T) {
 		broadcaster := Builder().
 			WithMockArc(MockSuccess).
 			Build()
+		expectedResult := []*broadcast.FeeQuote{mocks.Fee1, mocks.Fee2}
 
 		// when
 		result, err := broadcaster.GetFeeQuote(context.Background())
@@ -37,6 +42,7 @@ func TestMockClientSuccess(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, expectedResult, result)
 	})
 
 	t.Run("Should successfully query for transaction from mock Arc Client with Success Mock Type", func(t *testing.T) {
@@ -44,13 +50,18 @@ func TestMockClientSuccess(t *testing.T) {
 		broadcaster := Builder().
 			WithMockArc(MockSuccess).
 			Build()
+		testTxId := "test-txid"
 
 		// when
-		result, err := broadcaster.QueryTransaction(context.Background(), "test-txid")
+		result, err := broadcaster.QueryTransaction(context.Background(), testTxId)
 
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, result.Miner, fixtures.ProviderMain)
+		assert.Equal(t, result.TxID, testTxId)
+		assert.Equal(t, result.BlockHash, fixtures.TxBlockHash)
+		assert.Equal(t, result.BlockHeight, fixtures.TxBlockHeight)
 	})
 
 	t.Run("Should return successful submit transaction response from mock Arc Client with Success Mock Type", func(t *testing.T) {
@@ -65,6 +76,12 @@ func TestMockClientSuccess(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, result.Miner, fixtures.ProviderMain)
+		assert.Equal(t, result.BlockHash, fixtures.TxBlockHash)
+		assert.Equal(t, result.BlockHeight, fixtures.TxBlockHeight)
+		assert.Equal(t, result.TxStatus, fixtures.TxStatus)
+		assert.Equal(t, result.Status, fixtures.TxResponseStatus)
+		assert.Equal(t, result.Title, fixtures.TxResponseTitle)
 	})
 
 	t.Run("Should return successful submit batch transactions response from mock Arc Client with Success Mock Type", func(t *testing.T) {
@@ -72,6 +89,13 @@ func TestMockClientSuccess(t *testing.T) {
 		broadcaster := Builder().
 			WithMockArc(MockSuccess).
 			Build()
+		expectedResult := &broadcast.SubmitBatchTxResponse{
+			BaseResponse: broadcast.BaseResponse{Miner: fixtures.ProviderMain},
+			Transactions: []*broadcast.SubmittedTx{
+				mocks.SubmittedTx,
+				mocks.SubmittedTxSecondary,
+			},
+		}
 
 		// when
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{RawTx: "test-rawtx"}, {RawTx: "test2-rawtx"}})
@@ -79,6 +103,7 @@ func TestMockClientSuccess(t *testing.T) {
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, expectedResult, result)
 	})
 }
 
@@ -160,7 +185,7 @@ func TestMockClientFailure(t *testing.T) {
 }
 
 func TestMockClientTimeout(t *testing.T) {
-	const defaultTestTime = 200*time.Millisecond
+	const defaultTestTime = 200 * time.Millisecond
 
 	t.Run("Should successfully query for Policy Quote after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
 		// given
@@ -170,6 +195,7 @@ func TestMockClientTimeout(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), defaultTestTime)
 		defer cancel()
 		startTime := time.Now()
+		expectedResult := []*broadcast.PolicyQuoteResponse{mocks.Policy1, mocks.Policy2}
 
 		// when
 		result, err := broadcaster.GetPolicyQuote(ctx)
@@ -178,6 +204,7 @@ func TestMockClientTimeout(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
+		assert.Equal(t, expectedResult, result)
 	})
 
 	t.Run("Should successfully query for Fee Quote after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -188,6 +215,7 @@ func TestMockClientTimeout(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), defaultTestTime)
 		defer cancel()
 		startTime := time.Now()
+		expectedResult := []*broadcast.FeeQuote{mocks.Fee1, mocks.Fee2}
 
 		// when
 		result, err := broadcaster.GetFeeQuote(ctx)
@@ -196,6 +224,7 @@ func TestMockClientTimeout(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
+		assert.Equal(t, expectedResult, result)
 	})
 
 	t.Run("Should successfully query for transaction after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -206,14 +235,19 @@ func TestMockClientTimeout(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), defaultTestTime)
 		defer cancel()
 		startTime := time.Now()
+		testTxId := "test-txid"
 
 		// when
-		result, err := broadcaster.QueryTransaction(ctx, "test-txid")
+		result, err := broadcaster.QueryTransaction(ctx, testTxId)
 
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
+		assert.Equal(t, result.Miner, fixtures.ProviderMain)
+		assert.Equal(t, result.TxID, testTxId)
+		assert.Equal(t, result.BlockHash, fixtures.TxBlockHash)
+		assert.Equal(t, result.BlockHeight, fixtures.TxBlockHeight)
 	})
 
 	t.Run("Should return successful submit transaction response after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -232,6 +266,12 @@ func TestMockClientTimeout(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
+		assert.Equal(t, result.Miner, fixtures.ProviderMain)
+		assert.Equal(t, result.BlockHash, fixtures.TxBlockHash)
+		assert.Equal(t, result.BlockHeight, fixtures.TxBlockHeight)
+		assert.Equal(t, result.TxStatus, fixtures.TxStatus)
+		assert.Equal(t, result.Status, fixtures.TxResponseStatus)
+		assert.Equal(t, result.Title, fixtures.TxResponseTitle)
 	})
 
 	t.Run("Should return successful submit batch transactions response after a timeout period from mock Arc Client with Timeout Mock Type", func(t *testing.T) {
@@ -242,6 +282,13 @@ func TestMockClientTimeout(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), defaultTestTime)
 		defer cancel()
 		startTime := time.Now()
+		expectedResult := &broadcast.SubmitBatchTxResponse{
+			BaseResponse: broadcast.BaseResponse{Miner: fixtures.ProviderMain},
+			Transactions: []*broadcast.SubmittedTx{
+				mocks.SubmittedTx,
+				mocks.SubmittedTxSecondary,
+			},
+		}
 
 		// when
 		result, err := broadcaster.SubmitBatchTransactions(ctx, []*broadcast.Transaction{{RawTx: "test-rawtx"}, {RawTx: "test2-rawtx"}})
@@ -250,5 +297,6 @@ func TestMockClientTimeout(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
+		assert.Equal(t, expectedResult, result)
 	})
 }
