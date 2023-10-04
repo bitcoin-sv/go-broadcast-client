@@ -2,12 +2,21 @@ package broadcast
 
 // Transaction is the body contents in the "submit transaction" request
 type Transaction struct {
-	// TxHex is the transaction hex string.
+	// Hex is the transaction hex string.
 	Hex string `json:"hex"`
 }
 
 // TransactionOptFunc defines an optional arguments that can be passed to the SubmitTransaction method.
 type TransactionOptFunc func(o *TransactionOpts)
+
+// TransactionFormat is the format of transaction being submitted.
+type TransactionFormat int
+
+const (
+	BeefFormat TransactionFormat = iota
+	RawTxFormat
+	EfFormat
+)
 
 // TransactionOpts is a struct that holds optional arguments that can be passed to the SubmitTransaction method.
 type TransactionOpts struct {
@@ -19,13 +28,12 @@ type TransactionOpts struct {
 	MerkleProof bool
 	// WaitForStatus is the status that the callback request will wait for.
 	WaitForStatus TxStatus
-	// BeefFormat is a flag which indicates that the transaction given for submitting is in BEEF Format.
-	BeefFormat bool
-	// RawFormat is a flag which indicates that the transaction given for submitting is in Raw Tx Format.
-	RawFormat bool
+	// TransactionFormat is the format of transaction being submitted. Acceptable
+	// formats are: RawFormat (deprecated soon), BeefFormat and EfFormat.
+	TransactionFormat TransactionFormat
 }
 
-// WithCallback allow you to get the callback from the node when the transaction is mined, 
+// WithCallback allow you to get the callback from the node when the transaction is mined,
 // and receive the transaction details and status.
 func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFunc {
 	return func(o *TransactionOpts) {
@@ -51,22 +59,27 @@ func WithWaitForStatus(status TxStatus) TransactionOptFunc {
 	}
 }
 
-// WithBeefFormat will accept your transaction in BEEF format 
+// WithBeefFormat will accept your transaction in BEEF format
 // and decode it for a proper format acceptable by Arc.
 func WithBeefFormat() TransactionOptFunc {
 	return func(o *TransactionOpts) {
-		o.BeefFormat = true
-		o.RawFormat = false
+		o.TransactionFormat = BeefFormat
 	}
 }
 
-// WithRawFormat will accept your transaction in RawTx format 
+// WithEfFormat will submit your transaction in EF format.
+func WithEfFormat() TransactionOptFunc {
+	return func(o *TransactionOpts) {
+		o.TransactionFormat = EfFormat
+	}
+}
+
+// WithRawFormat will accept your transaction in RawTx format
 // and encode it for a proper format acceptable by Arc.
 // Deprecated: This function will be depreacted soon.
 // Only EF and BEEF format will be acceptable.
 func WithRawFormat() TransactionOptFunc {
 	return func(o *TransactionOpts) {
-		o.BeefFormat = false
-		o.RawFormat = true
+		o.TransactionFormat = RawTxFormat
 	}
 }

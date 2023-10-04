@@ -18,7 +18,7 @@ import (
 )
 
 type SubmitTxRequest struct {
-	TxHex string `json:"txHex"`
+	RawTx string `json:"rawTx"`
 }
 
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
@@ -33,12 +33,13 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 		opt(options)
 	}
 
-	if options.RawFormat {
+	if options.TransactionFormat == broadcast.RawTxFormat {
 		if err := convertToEfTransaction(tx); err != nil {
 			return nil, fmt.Errorf("Conversion to EF format failed: %s", err.Error())
 		}
-	} else if options.BeefFormat {
+	} else if options.TransactionFormat == broadcast.BeefFormat {
 		// To be implemented
+		return nil, fmt.Errorf("Submitting transactions in BEEF format is unimplemented yet...")
 	}
 
 	result, err := submitTransaction(ctx, a, tx, options)
@@ -166,7 +167,7 @@ func createSubmitTxBody(tx *broadcast.Transaction) ([]byte, error) {
 func createSubmitBatchTxsBody(txs []*broadcast.Transaction) ([]byte, error) {
 	rawTxs := make([]*SubmitTxRequest, 0, len(txs))
 	for _, tx := range txs {
-		rawTxs = append(rawTxs, &SubmitTxRequest{TxHex: tx.Hex})
+		rawTxs = append(rawTxs, &SubmitTxRequest{RawTx: tx.Hex})
 	}
 
 	data, err := json.Marshal(rawTxs)
