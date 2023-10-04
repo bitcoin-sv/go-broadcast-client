@@ -33,7 +33,6 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 		opt(options)
 	}
 
-	fmt.Println("BEFORE CONVERSION: ", tx.Hex)
 	if options.RawFormat {
 		if err := convertToEfTransaction(tx); err != nil {
 			return nil, fmt.Errorf("Conversion to EF format failed: %s", err.Error())
@@ -41,7 +40,6 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 	} else if options.BeefFormat {
 		// To be implemented
 	}
-	fmt.Println("AFTER CONVERSION: ", tx.Hex)
 
 	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
