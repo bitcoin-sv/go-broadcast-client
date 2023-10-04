@@ -25,6 +25,8 @@ type TransactionOpts struct {
 	RawFormat bool
 }
 
+// WithCallback allow you to get the callback from the node when the transaction is mined, 
+// and receive the transaction details and status.
 func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.CallbackToken = callbackURL
@@ -34,18 +36,23 @@ func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFun
 	}
 }
 
+// WithMerkleProof will return merkle proof from Arc.
 func WithMerkleProof() TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.MerkleProof = true
 	}
 }
 
+// WithWaitForStatus will allow you to return the result only
+// when the transaction reaches the status you set.
 func WithWaitForStatus(status TxStatus) TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.WaitForStatus = status
 	}
 }
 
+// WithBeefFormat will accept your transaction in BEEF format 
+// and decode it for a proper format acceptable by Arc.
 func WithBeefFormat() TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.BeefFormat = true
@@ -53,6 +60,10 @@ func WithBeefFormat() TransactionOptFunc {
 	}
 }
 
+// WithRawFormat will accept your transaction in RawTx format 
+// and encode it for a proper format acceptable by Arc.
+// Deprecated: This function will be depreacted soon.
+// Only EF and BEEF format will be acceptable.
 func WithRawFormat() TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.BeefFormat = false

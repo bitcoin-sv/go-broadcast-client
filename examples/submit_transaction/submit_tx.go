@@ -23,7 +23,7 @@ func main() {
 		WithArc(cfg).
 		Build()
 
-	result, err := client.SubmitTransaction(context.Background(), &tx)
+	result, err := client.SubmitTransaction(context.Background(), &tx, broadcast.WithRawFormat())
 	if err != nil {
 		log.Fatalf("error: %s", err.Error())
 	}
