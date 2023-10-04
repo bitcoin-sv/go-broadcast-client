@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.4.0...v0.5.0) (2023-10-04)
+
+
+### Features
+
+* **BUX-212/BUX-213:** adds new version of codeowner/codestandards/template files ([#39](https://github.com/bitcoin-sv/go-broadcast-client/issues/39)) ([ad7da8b](https://github.com/bitcoin-sv/go-broadcast-client/commit/ad7da8bff31ec6e13e73d554631c36443a97427a))
+
 ## [0.4.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.3.0...v0.4.0) (2023-09-28)
 
 
