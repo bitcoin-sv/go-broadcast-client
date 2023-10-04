@@ -29,7 +29,7 @@ type TransactionOpts struct {
 	// WaitForStatus is the status that the callback request will wait for.
 	WaitForStatus TxStatus
 	// TransactionFormat is the format of transaction being submitted. Acceptable
-	// formats are: RawFormat (deprecated soon), BeefFormat and EfFormat.
+	// formats are: RawFormat (deprecated soon), BeefFormat and EfFormat (default).
 	TransactionFormat TransactionFormat
 }
 
