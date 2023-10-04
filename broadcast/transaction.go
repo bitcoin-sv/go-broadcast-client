@@ -2,8 +2,8 @@ package broadcast
 
 // Transaction is the body contents in the "submit transaction" request
 type Transaction struct {
-	// RawTx is the raw transaction hex string.
-	RawTx string `json:"rawtx"`
+	// TxHex is the transaction hex string.
+	Hex string `json:"hex"`
 }
 
 // TransactionOptFunc defines an optional arguments that can be passed to the SubmitTransaction method.
@@ -19,6 +19,10 @@ type TransactionOpts struct {
 	MerkleProof bool
 	// WaitForStatus is the status that the callback request will wait for.
 	WaitForStatus TxStatus
+	// BeefFormat is a flag which indicates that the transaction given for submitting is in BEEF Format.
+	BeefFormat bool
+	// RawFormat is a flag which indicates that the transaction given for submitting is in Raw Tx Format.
+	RawFormat bool
 }
 
 func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFunc {
@@ -39,5 +43,19 @@ func WithMerkleProof() TransactionOptFunc {
 func WithWaitForStatus(status TxStatus) TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.WaitForStatus = status
+	}
+}
+
+func WithBeefFormat() TransactionOptFunc {
+	return func(o *TransactionOpts) {
+		o.BeefFormat = true
+		o.RawFormat = false
+	}
+}
+
+func WithRawFormat() TransactionOptFunc {
+	return func(o *TransactionOpts) {
+		o.BeefFormat = false
+		o.RawFormat = true
 	}
 }

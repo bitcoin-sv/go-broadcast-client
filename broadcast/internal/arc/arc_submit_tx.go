@@ -2,9 +2,15 @@ package arc
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
+
+	"github.com/GorillaPool/go-junglebus"
+	"github.com/GorillaPool/go-junglebus/models"
+	"github.com/libsv/go-bt/v2"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
@@ -12,7 +18,7 @@ import (
 )
 
 type SubmitTxRequest struct {
-	RawTx string `json:"rawTx"`
+	TxHex string `json:"txHex"`
 }
 
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
@@ -27,6 +33,16 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 		opt(options)
 	}
 
+	fmt.Println("BEFORE CONVERSION: ", tx.Hex)
+	if options.RawFormat {
+		if err := convertToEfTransaction(tx); err != nil {
+			return nil, fmt.Errorf("Conversion to EF format failed: %s", err.Error())
+		}
+	} else if options.BeefFormat {
+		// To be implemented
+	}
+	fmt.Println("AFTER CONVERSION: ", tx.Hex)
+
 	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
 		return nil, err
@@ -38,7 +54,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 
 	response := &broadcast.SubmitTxResponse{
 		BaseResponse: broadcast.BaseResponse{Miner: a.apiURL},
-		SubmittedTx: result,
+		SubmittedTx:  result,
 	}
 
 	return response, nil
@@ -140,9 +156,8 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 }
 
 func createSubmitTxBody(tx *broadcast.Transaction) ([]byte, error) {
-	body := &SubmitTxRequest{tx.RawTx}
+	body := &SubmitTxRequest{tx.Hex}
 	data, err := json.Marshal(body)
-
 	if err != nil {
 		return nil, ErrSubmitTxMarshal
 	}
@@ -153,7 +168,7 @@ func createSubmitTxBody(tx *broadcast.Transaction) ([]byte, error) {
 func createSubmitBatchTxsBody(txs []*broadcast.Transaction) ([]byte, error) {
 	rawTxs := make([]*SubmitTxRequest, 0, len(txs))
 	for _, tx := range txs {
-		rawTxs = append(rawTxs, &SubmitTxRequest{RawTx: tx.RawTx})
+		rawTxs = append(rawTxs, &SubmitTxRequest{TxHex: tx.Hex})
 	}
 
 	data, err := json.Marshal(rawTxs)
@@ -201,5 +216,35 @@ func validateSubmitTxResponse(model *broadcast.SubmittedTx) error {
 		return broadcast.ErrMissingStatus
 	}
 
+	return nil
+}
+
+func convertToEfTransaction(tx *broadcast.Transaction) error {
+	junglebusClient, err := junglebus.New(
+		junglebus.WithHTTP("https://junglebus.gorillapool.io"),
+	)
+	if err != nil {
+		return err
+	}
+	transaction, err := bt.NewTxFromString(tx.Hex)
+	if err != nil {
+		return err
+	}
+	for _, input := range transaction.Inputs {
+		txid := input.PreviousTxIDStr()
+		var tx *models.Transaction
+		if tx, err = junglebusClient.GetTransaction(context.Background(), txid); err != nil {
+			return err
+		} else {
+			actualTx, err := bt.NewTxFromBytes(tx.Transaction)
+			if err != nil {
+				return err
+			}
+			o := actualTx.Outputs[input.PreviousTxOutIndex]
+			input.PreviousTxScript = o.LockingScript
+			input.PreviousTxSatoshis = o.Satoshis
+		}
+	}
+	tx.Hex = hex.EncodeToString(transaction.ExtendedBytes())
 	return nil
 }
