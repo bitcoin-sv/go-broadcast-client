@@ -13,9 +13,9 @@ type TransactionOptFunc func(o *TransactionOpts)
 type TransactionFormat int
 
 const (
-	BeefFormat TransactionFormat = iota
+	EfFormat TransactionFormat = iota
+	BeefFormat
 	RawTxFormat
-	EfFormat
 )
 
 // TransactionOpts is a struct that holds optional arguments that can be passed to the SubmitTransaction method.
