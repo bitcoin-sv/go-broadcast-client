@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/GorillaPool/go-junglebus"
-	"github.com/GorillaPool/go-junglebus/models"
 	"github.com/libsv/go-bt/v2"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
