@@ -313,7 +313,7 @@ type Transaction struct {
     DsCheck bool `json:"dsCheck,omitempty"`
     MerkleFormat string `json:"merkleFormat,omitempty"`
     MerkleProof bool `json:"merkleProof,omitempty"`
-    Hex string `json:"rawtx"`
+    Hex string `json:"hex"`
     WaitForStatus TxStatus `json:"waitForStatus,omitempty"`
 }
   ```

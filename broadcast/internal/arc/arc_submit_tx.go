@@ -235,26 +235,38 @@ func convertToEfTransaction(tx *SubmitTxRequest) error {
 	if err != nil {
 		return err
 	}
+
 	transaction, err := bt.NewTxFromString(tx.RawTx)
 	if err != nil {
 		return err
 	}
+
 	for _, input := range transaction.Inputs {
-		txid := input.PreviousTxIDStr()
-		var tx *models.Transaction
-		if tx, err = junglebusClient.GetTransaction(context.Background(), txid); err != nil {
+		if err = updateUtxoWithMissingData(junglebusClient, input); err != nil {
 			return err
-		} else {
-			actualTx, err := bt.NewTxFromBytes(tx.Transaction)
-			if err != nil {
-				return err
-			}
-			o := actualTx.Outputs[input.PreviousTxOutIndex]
-			input.PreviousTxScript = o.LockingScript
-			input.PreviousTxSatoshis = o.Satoshis
 		}
 	}
+
 	tx.RawTx = hex.EncodeToString(transaction.ExtendedBytes())
+	return nil
+}
+
+func updateUtxoWithMissingData(jbc *junglebus.Client, input *bt.Input) error {
+	txid := input.PreviousTxIDStr()
+
+	tx, err := jbc.GetTransaction(context.Background(), txid)
+	if err != nil {
+		return err
+	}
+
+	actualTx, err := bt.NewTxFromBytes(tx.Transaction)
+	if err != nil {
+		return err
+	}
+
+	o := actualTx.Outputs[input.PreviousTxOutIndex]
+	input.PreviousTxScript = o.LockingScript
+	input.PreviousTxSatoshis = o.Satoshis
 	return nil
 }
 
