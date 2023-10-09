@@ -36,9 +36,11 @@ func TestQueryTransaction(t *testing.T) {
 			},
 			expectedResult: &broadcast.QueryTxResponse{
 				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
-				BlockHash:    "abc123",
-				TxStatus:     broadcast.Confirmed,
-				TxID:         "abc123",
+				BaseTxResponse: broadcast.BaseTxResponse{
+					BlockHash: "abc123",
+					TxStatus:  broadcast.Confirmed,
+					TxID:      "abc123",
+				},
 			},
 		},
 		{
