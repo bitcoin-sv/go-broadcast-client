@@ -12,7 +12,7 @@ import (
 func main() {
 	token := ""
 	apiURL := "https://tapi.taal.com/arc"
-	hex := "680d975a403fd9ec90f613e87d17802c029d2d930df1c8373cdcdda2f536a1c0"
+	hex := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
 
 	cfg := broadcast_client.ArcClientConfig{
 		Token:  token,

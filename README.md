@@ -247,7 +247,7 @@ type QueryTxResponse struct {
 	BlockHash string `json:"blockHash,omitempty"`
 	BlockHeight int64 `json:"blockHeight,omitempty"`
 	ExtraInfo string `json:"extraInfo,omitempty"`
-	MerklePath string `json:"merklePath,omitempty"`
+	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
 	Timestamp string `json:"timestamp,omitempty"`
 	TxStatus TxStatus `json:"txStatus,omitempty"`
 	TxID string `json:"txid,omitempty"`
@@ -308,7 +308,7 @@ type SubmitTxResponse struct {
 	BlockHash string `json:"blockHash,omitempty"`
 	BlockHeight int64 `json:"blockHeight,omitempty"`
 	ExtraInfo string `json:"extraInfo,omitempty"`
-	MerklePath string `json:"merklePath,omitempty"`
+	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
 	Timestamp string `json:"timestamp,omitempty"`
 	TxStatus TxStatus `json:"txStatus,omitempty"`
 	TxID string `json:"txid,omitempty"`

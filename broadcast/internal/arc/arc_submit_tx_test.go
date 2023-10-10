@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
 
+	"github.com/libsv/go-bc"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
@@ -39,8 +42,10 @@ func TestSubmitTransaction(t *testing.T) {
 			expectedResult: &broadcast.SubmitTxResponse{
 				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
 				SubmittedTx: &broadcast.SubmittedTx{
-					BaseTxResponse: broadcast.BaseTxResponse{
-						TxStatus: broadcast.Confirmed,
+					BaseSubmitTxResponse: broadcast.BaseSubmitTxResponse{
+						BaseTxResponse: broadcast.BaseTxResponse{
+							TxStatus: broadcast.Confirmed,
+						},
 					},
 				},
 			},
@@ -247,6 +252,55 @@ func TestConvertBatchTransactions(t *testing.T) {
 	}
 }
 
+func TestDecodeSubmitResponseBody(t *testing.T) {
+	mp, _ := bc.NewMerklePathFromStr(fixtures.TxMerklePath)
+	testCases := []struct {
+		name           string
+		httpResponse   *http.Response
+		expectedResult *broadcast.SubmittedTx
+	}{
+		{
+			name: "successful decode",
+			httpResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"merklePath\":\"%s\"}", fixtures.TxMerklePath))),
+			},
+			expectedResult: &broadcast.SubmittedTx{
+				BaseSubmitTxResponse: broadcast.BaseSubmitTxResponse{
+					BaseTxResponse: broadcast.BaseTxResponse{
+						MerklePath: fixtures.TxMerklePath,
+					},
+				},
+				MerklePath: mp,
+			},
+		},
+		{
+			name: "empty merkle path",
+			httpResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(bytes.NewBufferString(`
+					{
+						"merklePath": ""
+					}
+					`)),
+			},
+			expectedResult: &broadcast.SubmittedTx{
+				MerklePath: nil,
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// when
+			model, err := decodeSubmitResponseBody(tc.httpResponse)
+
+			// then
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedResult, model)
+		})
+	}
+}
+
 func TestSubmitBatchTransactions(t *testing.T) {
 	testCases := []struct {
 		name           string
@@ -278,13 +332,17 @@ func TestSubmitBatchTransactions(t *testing.T) {
 				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
 				Transactions: []*broadcast.SubmittedTx{
 					{
-						BaseTxResponse: broadcast.BaseTxResponse{
-							TxStatus: broadcast.Confirmed,
+						BaseSubmitTxResponse: broadcast.BaseSubmitTxResponse{
+							BaseTxResponse: broadcast.BaseTxResponse{
+								TxStatus: broadcast.Confirmed,
+							},
 						},
 					},
 					{
-						BaseTxResponse: broadcast.BaseTxResponse{
-							TxStatus: broadcast.Confirmed,
+						BaseSubmitTxResponse: broadcast.BaseSubmitTxResponse{
+							BaseTxResponse: broadcast.BaseTxResponse{
+								TxStatus: broadcast.Confirmed,
+							},
 						},
 					},
 				},
