@@ -243,14 +243,14 @@ The method works the same as the `SubmitTx` method, but it is sending a batch of
 
 ```go
 type QueryTxResponse struct {
-    Miner string `json:"miner"`
-    BlockHash string `json:"blockHash,omitempty"`
-    BlockHeight int64 `json:"blockHeight,omitempty"`
-    ExtraInfo string `json:"extraInfo,omitempty"`
-    MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
-    Timestamp string `json:"timestamp,omitempty"`
-    TxStatus TxStatus `json:"txStatus,omitempty"`
-    TxID string `json:"txid,omitempty"`
+    Miner       string         `json:"miner"`
+    BlockHash   string         `json:"blockHash,omitempty"`
+    BlockHeight int64          `json:"blockHeight,omitempty"`
+    ExtraInfo   string         `json:"extraInfo,omitempty"`
+    MerklePath  *bc.MerklePath `json:"merklePath,omitempty"`
+    Timestamp   string         `json:"timestamp,omitempty"`
+    TxStatus    TxStatus       `json:"txStatus,omitempty"`
+    TxID        string         `json:"txid,omitempty"`
 }
 ```
 
@@ -304,16 +304,16 @@ type FeeQuote struct {
 
 ```go
 type SubmitTxResponse struct {
-    Miner string `json:"miner"`
-    BlockHash string `json:"blockHash,omitempty"`
-    BlockHeight int64 `json:"blockHeight,omitempty"`
-    ExtraInfo string `json:"extraInfo,omitempty"`
-    MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
-    Timestamp string `json:"timestamp,omitempty"`
-    TxStatus TxStatus `json:"txStatus,omitempty"`
-    TxID string `json:"txid,omitempty"`
-    Status int `json:"status,omitempty"`
-    Title string `json:"title,omitempty"`
+    Miner       string         `json:"miner"`
+    BlockHash   string         `json:"blockHash,omitempty"`
+    BlockHeight int64          `json:"blockHeight,omitempty"`
+    ExtraInfo   string         `json:"extraInfo,omitempty"`
+    MerklePath  *bc.MerklePath `json:"merklePath,omitempty"`
+    Timestamp   string         `json:"timestamp,omitempty"`
+    TxStatus    TxStatus       `json:"txStatus,omitempty"`
+    TxID        string         `json:"txid,omitempty"`
+    Status      int            `json:"status,omitempty"`
+    Title       string         `json:"title,omitempty"`
 }
 ```
 
@@ -321,14 +321,14 @@ type SubmitTxResponse struct {
 
   ```go
 type Transaction struct {
-    CallBackEncryption string `json:"callBackEncryption,omitempty"`
-    CallBackToken string `json:"callBackToken,omitempty"`
-    CallBackURL string `json:"callBackUrl,omitempty"`
-    DsCheck bool `json:"dsCheck,omitempty"`
-    MerkleFormat string `json:"merkleFormat,omitempty"`
-    MerkleProof bool `json:"merkleProof,omitempty"`
-    Hex string `json:"hex"`
-    WaitForStatus TxStatus `json:"waitForStatus,omitempty"`
+    CallBackEncryption string   `json:"callBackEncryption,omitempty"`
+    CallBackToken      string   `json:"callBackToken,omitempty"`
+    CallBackURL        string   `json:"callBackUrl,omitempty"`
+    DsCheck            bool     `json:"dsCheck,omitempty"`
+    MerkleFormat       string   `json:"merkleFormat,omitempty"`
+    MerkleProof        bool     `json:"merkleProof,omitempty"`
+    Hex                string   `json:"hex"`
+    WaitForStatus      TxStatus `json:"waitForStatus,omitempty"`
 }
   ```
 
