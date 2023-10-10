@@ -243,14 +243,14 @@ The method works the same as the `SubmitTx` method, but it is sending a batch of
 
 ```go
 type QueryTxResponse struct {
-	Miner string `json:"miner"`
-	BlockHash string `json:"blockHash,omitempty"`
-	BlockHeight int64 `json:"blockHeight,omitempty"`
-	ExtraInfo string `json:"extraInfo,omitempty"`
-	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
-	Timestamp string `json:"timestamp,omitempty"`
-	TxStatus TxStatus `json:"txStatus,omitempty"`
-	TxID string `json:"txid,omitempty"`
+    Miner string `json:"miner"`
+    BlockHash string `json:"blockHash,omitempty"`
+    BlockHeight int64 `json:"blockHeight,omitempty"`
+    ExtraInfo string `json:"extraInfo,omitempty"`
+    MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
+    Timestamp string `json:"timestamp,omitempty"`
+    TxStatus TxStatus `json:"txStatus,omitempty"`
+    TxID string `json:"txid,omitempty"`
 }
 ```
 
@@ -260,9 +260,9 @@ type QueryTxResponse struct {
 
 ```go
 type PolicyQuoteResponse struct {
-	Miner     string         `json:"miner"`
-	Policy    PolicyResponse `json:"policy"`
-	Timestamp string         `json:"timestamp"`
+    Miner     string         `json:"miner"`
+    Policy    PolicyResponse `json:"policy"`
+    Timestamp string         `json:"timestamp"`
 }
 ```
 
@@ -270,10 +270,10 @@ type PolicyQuoteResponse struct {
 
 ```go
 type PolicyResponse struct {
-	MaxScriptSizePolicy    int64             `json:"maxscriptsizepolicy"`
-	MaxTxSigOpsCountPolicy int64             `json:"maxtxsigopscountspolicy"`
-	MaxTxSizePolicy        int64             `json:"maxtxsizepolicy"`
-	MiningFee              MiningFeeResponse `json:"miningFee"`
+    MaxScriptSizePolicy    int64             `json:"maxscriptsizepolicy"`
+    MaxTxSigOpsCountPolicy int64             `json:"maxtxsigopscountspolicy"`
+    MaxTxSizePolicy        int64             `json:"maxtxsizepolicy"`
+    MiningFee              MiningFeeResponse `json:"miningFee"`
 }
 ```
 
@@ -281,8 +281,8 @@ type PolicyResponse struct {
 
 ```go
 type MiningFeeResponse struct {
-	Bytes    int64 `json:"bytes"`
-	Satoshis int64 `json:"satoshis"`
+    Bytes    int64 `json:"bytes"`
+    Satoshis int64 `json:"satoshis"`
 }
 ```
 
@@ -292,9 +292,9 @@ type MiningFeeResponse struct {
 
 ```go
 type FeeQuote struct {
-	Miner     string            `json:"miner"`
-	MiningFee MiningFeeResponse `json:"miningFee"`
-	Timestamp string            `json:"timestamp"`
+    Miner     string            `json:"miner"`
+    MiningFee MiningFeeResponse `json:"miningFee"`
+    Timestamp string            `json:"timestamp"`
 }
 ```
 
@@ -304,14 +304,14 @@ type FeeQuote struct {
 
 ```go
 type SubmitTxResponse struct {
-	Miner string `json:"miner"`
-	BlockHash string `json:"blockHash,omitempty"`
-	BlockHeight int64 `json:"blockHeight,omitempty"`
-	ExtraInfo string `json:"extraInfo,omitempty"`
-	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
-	Timestamp string `json:"timestamp,omitempty"`
-	TxStatus TxStatus `json:"txStatus,omitempty"`
-	TxID string `json:"txid,omitempty"`
+    Miner string `json:"miner"`
+    BlockHash string `json:"blockHash,omitempty"`
+    BlockHeight int64 `json:"blockHeight,omitempty"`
+    ExtraInfo string `json:"extraInfo,omitempty"`
+    MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
+    Timestamp string `json:"timestamp,omitempty"`
+    TxStatus TxStatus `json:"txStatus,omitempty"`
+    TxID string `json:"txid,omitempty"`
     Status int `json:"status,omitempty"`
     Title string `json:"title,omitempty"`
 }
