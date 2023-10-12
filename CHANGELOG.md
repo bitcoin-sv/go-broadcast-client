@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.6.0...v0.7.0) (2023-10-12)
+
+
+### Miscellaneous Chores
+
+* release 0.7.0 ([#46](https://github.com/bitcoin-sv/go-broadcast-client/issues/46)) ([75786d3](https://github.com/bitcoin-sv/go-broadcast-client/commit/75786d39d4b5844e10ccab2da85ca3cf8919ed5b))
+
 ## [0.6.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.5.0...v0.6.0) (2023-10-05)
 
 
