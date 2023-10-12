@@ -2,14 +2,9 @@ package arc
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
-
-	"github.com/GorillaPool/go-junglebus"
-	"github.com/libsv/go-bt/v2"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
@@ -43,7 +38,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 
 	response := &broadcast.SubmitTxResponse{
 		BaseResponse: broadcast.BaseResponse{Miner: a.apiURL},
-		SubmittedTx:  result,
+		SubmittedTx: result,
 	}
 
 	return response, nil
@@ -82,7 +77,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitTxRoute
-	data, err := createSubmitTxBody(tx, opts.TransactionFormat)
+	data, err := createSubmitTxBody(tx)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +109,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 
 func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitBatchTxsRoute
-	data, err := createSubmitBatchTxsBody(txs, opts.TransactionFormat)
+	data, err := createSubmitBatchTxsBody(txs)
 	if err != nil {
 		return nil, err
 	}
@@ -144,19 +139,10 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 	return model, nil
 }
 
-func createSubmitTxBody(tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
-	body := &SubmitTxRequest{tx.Hex}
-
-	if txFormat == broadcast.RawTxFormat {
-		if err := convertToEfTransaction(body); err != nil {
-			return nil, fmt.Errorf("Conversion to EF format failed: %s", err.Error())
-		}
-	} else if txFormat == broadcast.BeefFormat {
-		// To be implemented
-		return nil, fmt.Errorf("Submitting transactions in BEEF format is unimplemented yet...")
-	}
-
+func createSubmitTxBody(tx *broadcast.Transaction) ([]byte, error) {
+	body := &SubmitTxRequest{tx.RawTx}
 	data, err := json.Marshal(body)
+
 	if err != nil {
 		return nil, ErrSubmitTxMarshal
 	}
@@ -164,19 +150,10 @@ func createSubmitTxBody(tx *broadcast.Transaction, txFormat broadcast.Transactio
 	return data, nil
 }
 
-func createSubmitBatchTxsBody(txs []*broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
+func createSubmitBatchTxsBody(txs []*broadcast.Transaction) ([]byte, error) {
 	rawTxs := make([]*SubmitTxRequest, 0, len(txs))
 	for _, tx := range txs {
-		rawTxs = append(rawTxs, &SubmitTxRequest{RawTx: tx.Hex})
-	}
-
-	if txFormat == broadcast.RawTxFormat {
-		if err := convertBatchToEfTransaction(rawTxs); err != nil {
-			return nil, fmt.Errorf("Conversion to EF format failed for one or more transactions with error: %s", err.Error())
-		}
-	} else if txFormat == broadcast.BeefFormat {
-		// To be implemented
-		return nil, fmt.Errorf("Submitting transactions in BEEF format is unimplemented yet...")
+		rawTxs = append(rawTxs, &SubmitTxRequest{RawTx: tx.RawTx})
 	}
 
 	data, err := json.Marshal(rawTxs)
@@ -224,56 +201,5 @@ func validateSubmitTxResponse(model *broadcast.SubmittedTx) error {
 		return broadcast.ErrMissingStatus
 	}
 
-	return nil
-}
-
-func convertToEfTransaction(tx *SubmitTxRequest) error {
-	junglebusClient, err := junglebus.New(
-		junglebus.WithHTTP("https://junglebus.gorillapool.io"),
-	)
-	if err != nil {
-		return err
-	}
-
-	transaction, err := bt.NewTxFromString(tx.RawTx)
-	if err != nil {
-		return err
-	}
-
-	for _, input := range transaction.Inputs {
-		if err = updateUtxoWithMissingData(junglebusClient, input); err != nil {
-			return err
-		}
-	}
-
-	tx.RawTx = hex.EncodeToString(transaction.ExtendedBytes())
-	return nil
-}
-
-func updateUtxoWithMissingData(jbc *junglebus.Client, input *bt.Input) error {
-	txid := input.PreviousTxIDStr()
-
-	tx, err := jbc.GetTransaction(context.Background(), txid)
-	if err != nil {
-		return err
-	}
-
-	actualTx, err := bt.NewTxFromBytes(tx.Transaction)
-	if err != nil {
-		return err
-	}
-
-	o := actualTx.Outputs[input.PreviousTxOutIndex]
-	input.PreviousTxScript = o.LockingScript
-	input.PreviousTxSatoshis = o.Satoshis
-	return nil
-}
-
-func convertBatchToEfTransaction(rawTxs []*SubmitTxRequest) error {
-	for _, rawTx := range rawTxs {
-		if err := convertToEfTransaction(rawTx); err != nil {
-			return err
-		}
-	}
 	return nil
 }

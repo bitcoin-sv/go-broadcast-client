@@ -158,7 +158,7 @@ Having your client created, you can use the method `SubmitTx` to submit a single
 ```go
     // ...
     tx := broadcast.Transaction{
-      Hex: "xyz",
+      RawTx: "xyz",
     }
 
     result, err := client.SubmitTransaction(context.Background(), tx)
@@ -167,46 +167,14 @@ Having your client created, you can use the method `SubmitTx` to submit a single
 
 You need to pass the [transaction](#transaction) as a parameter to the method `SubmitTransaction`.
 
-You may add options to this method:
-
-##### WithCallback
-
-```go
-    result, err := client.SubmitTransaction(context.Background(), tx, broadcast.WithCallback(callBackUrl, callbackToken))
-```
-Setting `CallbackURL` and `CallBackToken` will add the headers `X-CallbackUrl` and `X-CallbackToken` to the request.
-It will allow you to get the callback from the node when the transaction is mined, and receive the transaction details and status.
-
-##### WithMerkleProof
-
-```go
-    result, err := client.SubmitTransaction(context.Background(), tx, broadcast.WithMerkleProof())
-```
-Setting `MerkleProof` to true will add the header `X-MerkleProof` to the request.
+Setting tx.MerkleProof to true will add the header `X-MerkleProof` to the request.
 MerkleProof while broadcasting will handle the merkle proof capability of the node.
 
-##### WithWaitForstatus
+Setting tx.CallBackURL and tx.CallBackToken will add the headers `X-CallbackUrl` and `X-CallbackToken` to the request.
+It will allow you to get the callback from the node when the transaction is mined, and receive the transaction details and status.
 
-```go
-    result, err := client.SubmitTransaction(context.Background(), tx, broadcast.WithWaitForstatus(broadcast.AnnouncedToNetwork))
-```
-Setting `WaitForStatus` will add the header `X-WaitForStatus` to the request.
-It will allow you to return the result only when the transaction reaches the status you set.
-
-##### WithBeefFormat
-
-```go
-    result, err := client.SubmitTransaction(context.Background(), tx, broadcast.WithBeefFormat())
-```
-Setting `BeefFormat` will accept your transaction in BEEF format and decode it for a proper format acceptable by Arc.
-
-##### WithRawFormat (**DEPRECATED!**)
-
-```go
-    result, err := client.SubmitTransaction(context.Background(), tx, broadcast.WithRawFormat())
-```
-Setting `RawFormat` will accept your transaction in RawTx format and encode it for a proper format acceptable by Arc.
-This option will become deprecated soon.
+Setting tx.WaitForStatus will add the header `X-WaitForStatus` to the request.
+It will allow you to wait for the transaction to be mined and return the result only when the transaction reaches the status you set.
 
 ### SubmitBatchTx Method
 
@@ -215,11 +183,11 @@ Having your client created, you can use the method `SubmitBatchTx` to submit a b
 ```go
     // ...
      txs := []*broadcast.Transaction{
-      {Hex: "xyz1"},
-      {Hex: "xyz2"},
-      {Hex: "xyz3"},
-      {Hex: "xyz4"},
-      {Hex: "xyz5"},
+      {RawTx: "xyz1"},
+      {RawTx: "xyz2"},
+      {RawTx: "xyz3"},
+      {RawTx: "xyz4"},
+      {RawTx: "xyz5"},
     }
 
     result, err := client.SubmitBatchTransaction(context.Background(), txs)
@@ -236,11 +204,11 @@ The method works the same as the `SubmitTx` method, but it is sending a batch of
 
 ```go
 type QueryTxResponse struct {
-    BlockHash string `json:"blockHash,omitempty"`
-    BlockHeight int64 `json:"blockHeight,omitempty"`
-    Timestamp string `json:"timestamp,omitempty"`
-    TxID string `json:"txid,omitempty"`
-    TxStatus TxStatus `json:"txStatus,omitempty"`
+ BlockHash string `json:"blockHash,omitempty"`
+ BlockHeight int64 `json:"blockHeight,omitempty"`
+ Timestamp string `json:"timestamp,omitempty"`
+ TxID string `json:"txid,omitempty"`
+ TxStatus TxStatus `json:"txStatus,omitempty"`
 }
 ```
 
@@ -294,12 +262,12 @@ type FeeQuote struct {
 
 ```go
 type SubmitTxResponse struct {
-    BlockHash string `json:"blockHash,omitempty"`
-    BlockHeight int64 `json:"blockHeight,omitempty"`
-    ExtraInfo string `json:"extraInfo,omitempty"`
-    Status int `json:"status,omitempty"`
-    Title string `json:"title,omitempty"`
-    TxStatus TxStatus `json:"txStatus,omitempty"`
+ BlockHash string `json:"blockHash,omitempty"`
+ BlockHeight int64 `json:"blockHeight,omitempty"`
+ ExtraInfo string `json:"extraInfo,omitempty"`
+ Status int `json:"status,omitempty"`
+ Title string `json:"title,omitempty"`
+ TxStatus TxStatus `json:"txStatus,omitempty"`
 }
 ```
 
@@ -307,14 +275,14 @@ type SubmitTxResponse struct {
 
   ```go
 type Transaction struct {
-    CallBackEncryption string `json:"callBackEncryption,omitempty"`
-    CallBackToken string `json:"callBackToken,omitempty"`
-    CallBackURL string `json:"callBackUrl,omitempty"`
-    DsCheck bool `json:"dsCheck,omitempty"`
-    MerkleFormat string `json:"merkleFormat,omitempty"`
-    MerkleProof bool `json:"merkleProof,omitempty"`
-    Hex string `json:"hex"`
-    WaitForStatus TxStatus `json:"waitForStatus,omitempty"`
+  CallBackEncryption string `json:"callBackEncryption,omitempty"`
+  CallBackToken string `json:"callBackToken,omitempty"`
+  CallBackURL string `json:"callBackUrl,omitempty"`
+  DsCheck bool `json:"dsCheck,omitempty"`
+  MerkleFormat string `json:"merkleFormat,omitempty"`
+  MerkleProof bool `json:"merkleProof,omitempty"`
+  RawTx string `json:"rawtx"`
+  WaitForStatus TxStatus `json:"waitForStatus,omitempty"`
 }
   ```
 

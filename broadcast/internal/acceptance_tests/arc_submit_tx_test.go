@@ -51,7 +51,7 @@ func TestSubmitTransaction(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Times(0)
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{RawTx: "transaction-data"})
 
 		// then
 		httpClientMock.AssertExpectations(t)
@@ -74,7 +74,7 @@ func TestSubmitTransaction(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{RawTx: "transaction-data"})
 
 		// then
 		httpClientMock.AssertExpectations(t)
@@ -98,7 +98,7 @@ func TestSubmitTransaction(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{RawTx: "transaction-data"})
 
 		// then
 		httpClientMock.AssertExpectations(t)
@@ -122,7 +122,7 @@ func TestSubmitTransaction(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Once()
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{RawTx: "transaction-data"})
 
 		// then
 		httpClientMock.AssertExpectations(t)
@@ -146,8 +146,8 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Times(0)
 
 		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
+			{RawTx: "transaction-0-data"},
+			{RawTx: "transaction-1-data"},
 		}
 
 		// when
@@ -174,8 +174,8 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Once()
 
 		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
+			{RawTx: "transaction-0-data"},
+			{RawTx: "transaction-1-data"},
 		}
 
 		// when
@@ -198,8 +198,8 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
 
 		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
+			{RawTx: "transaction-0-data"},
+			{RawTx: "transaction-1-data"},
 		}
 
 		// when
@@ -223,8 +223,8 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
 
 		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
+			{RawTx: "transaction-0-data"},
+			{RawTx: "transaction-1-data"},
 		}
 
 		// when

@@ -71,7 +71,7 @@ func TestMockClientSuccess(t *testing.T) {
 			Build()
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{RawTx: "test-rawtx"})
 
 		// then
 		assert.NoError(t, err)
@@ -98,7 +98,7 @@ func TestMockClientSuccess(t *testing.T) {
 		}
 
 		// when
-		result, err := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{Hex: "test-rawtx"}, {Hex: "test2-rawtx"}})
+		result, err := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{RawTx: "test-rawtx"}, {RawTx: "test2-rawtx"}})
 
 		// then
 		assert.NoError(t, err)
@@ -160,7 +160,7 @@ func TestMockClientFailure(t *testing.T) {
 			Build()
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{RawTx: "test-rawtx"})
 
 		// then
 		assert.Error(t, err)
@@ -175,7 +175,7 @@ func TestMockClientFailure(t *testing.T) {
 			Build()
 
 		// when
-		result, err := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{Hex: "test-rawtx"}, {Hex: "test2-rawtx"}})
+		result, err := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{RawTx: "test-rawtx"}, {RawTx: "test2-rawtx"}})
 
 		// then
 		assert.Error(t, err)
@@ -260,7 +260,7 @@ func TestMockClientTimeout(t *testing.T) {
 		startTime := time.Now()
 
 		// when
-		result, err := broadcaster.SubmitTransaction(ctx, &broadcast.Transaction{Hex: "test-rawtx"})
+		result, err := broadcaster.SubmitTransaction(ctx, &broadcast.Transaction{RawTx: "test-rawtx"})
 
 		// then
 		assert.NoError(t, err)
@@ -291,7 +291,7 @@ func TestMockClientTimeout(t *testing.T) {
 		}
 
 		// when
-		result, err := broadcaster.SubmitBatchTransactions(ctx, []*broadcast.Transaction{{Hex: "test-rawtx"}, {Hex: "test2-rawtx"}})
+		result, err := broadcaster.SubmitBatchTransactions(ctx, []*broadcast.Transaction{{RawTx: "test-rawtx"}, {RawTx: "test2-rawtx"}})
 
 		// then
 		assert.NoError(t, err)
