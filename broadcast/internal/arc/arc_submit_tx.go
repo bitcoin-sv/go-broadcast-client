@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/GorillaPool/go-junglebus"
 	"github.com/libsv/go-bt/v2"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
@@ -82,7 +81,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitTxRoute
-	data, err := createSubmitTxBody(tx, opts.TransactionFormat)
+	data, err := createSubmitTxBody(arc, tx, opts.TransactionFormat)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +113,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 
 func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitBatchTxsRoute
-	data, err := createSubmitBatchTxsBody(txs, opts.TransactionFormat)
+	data, err := createSubmitBatchTxsBody(arc, txs, opts.TransactionFormat)
 	if err != nil {
 		return nil, err
 	}
@@ -144,11 +143,11 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 	return model, nil
 }
 
-func createSubmitTxBody(tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
+func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
 	body := &SubmitTxRequest{tx.Hex}
 
 	if txFormat == broadcast.RawTxFormat {
-		if err := convertToEfTransaction(body); err != nil {
+		if err := convertToEfTransaction(arc, body); err != nil {
 			return nil, fmt.Errorf("Conversion to EF format failed: %s", err.Error())
 		}
 	} else if txFormat == broadcast.BeefFormat {
@@ -164,14 +163,14 @@ func createSubmitTxBody(tx *broadcast.Transaction, txFormat broadcast.Transactio
 	return data, nil
 }
 
-func createSubmitBatchTxsBody(txs []*broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
+func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
 	rawTxs := make([]*SubmitTxRequest, 0, len(txs))
 	for _, tx := range txs {
 		rawTxs = append(rawTxs, &SubmitTxRequest{RawTx: tx.Hex})
 	}
 
 	if txFormat == broadcast.RawTxFormat {
-		if err := convertBatchToEfTransaction(rawTxs); err != nil {
+		if err := convertBatchToEfTransaction(arc, rawTxs); err != nil {
 			return nil, fmt.Errorf("Conversion to EF format failed for one or more transactions with error: %s", err.Error())
 		}
 	} else if txFormat == broadcast.BeefFormat {
@@ -227,21 +226,14 @@ func validateSubmitTxResponse(model *broadcast.SubmittedTx) error {
 	return nil
 }
 
-func convertToEfTransaction(tx *SubmitTxRequest) error {
-	junglebusClient, err := junglebus.New(
-		junglebus.WithHTTP("https://junglebus.gorillapool.io"),
-	)
-	if err != nil {
-		return err
-	}
-
+func convertToEfTransaction(arc *ArcClient, tx *SubmitTxRequest) error {
 	transaction, err := bt.NewTxFromString(tx.RawTx)
 	if err != nil {
 		return err
 	}
 
 	for _, input := range transaction.Inputs {
-		if err = updateUtxoWithMissingData(junglebusClient, input); err != nil {
+		if err = updateUtxoWithMissingData(arc, input); err != nil {
 			return err
 		}
 	}
@@ -250,10 +242,22 @@ func convertToEfTransaction(tx *SubmitTxRequest) error {
 	return nil
 }
 
-func updateUtxoWithMissingData(jbc *junglebus.Client, input *bt.Input) error {
+func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 	txid := input.PreviousTxIDStr()
 
-	tx, err := jbc.GetTransaction(context.Background(), txid)
+	pld := httpclient.NewPayload(
+		httpclient.GET,
+		fmt.Sprintf("https://junglebus.gorillapool.io/v1/transaction/get/%s", txid),
+		"",
+		nil,
+	)
+	resp, err := arc.HTTPClient.DoRequest(context.Background(), pld)
+	if err != nil {
+		return err
+	}
+
+	var tx *junglebusTransaction
+	err = arc_utils.DecodeResponseBody(resp.Body, &tx)
 	if err != nil {
 		return err
 	}
@@ -269,11 +273,35 @@ func updateUtxoWithMissingData(jbc *junglebus.Client, input *bt.Input) error {
 	return nil
 }
 
-func convertBatchToEfTransaction(rawTxs []*SubmitTxRequest) error {
+func convertBatchToEfTransaction(arc *ArcClient, rawTxs []*SubmitTxRequest) error {
 	for _, rawTx := range rawTxs {
-		if err := convertToEfTransaction(rawTx); err != nil {
+		if err := convertToEfTransaction(arc, rawTx); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+type junglebusTransaction struct {
+	ID          string `json:"id"`
+	Transaction []byte `json:"transaction"`
+	BlockHash   string `json:"block_hash"`
+	BlockHeight uint32 `json:"block_height"`
+	BlockTime   uint32 `json:"block_time"`
+	BlockIndex  uint64 `json:"block_index"`
+
+	// index data
+	// input/output types are
+	// p2pkh, p2sh, token-stas, opreturn, tokenized, metanet, bitcom, run, map, bap, non-standard etc.
+	Addresses   []string `json:"addresses"`
+	Inputs      []string `json:"inputs"`
+	Outputs     []string `json:"outputs"`
+	InputTypes  []string `json:"input_types"`
+	OutputTypes []string `json:"output_types"`
+	Contexts    []string `json:"contexts"`     // optional contexts of output types, only for known protocols
+	SubContexts []string `json:"sub_contexts"` // optional sub-contexts of output types, only for known protocols
+	Data        []string `json:"data"`         // optional data of output types, only for known protocols
+
+	// the merkle proof in binary
+	MerkleProof []byte `json:"merkle_proof"`
 }
