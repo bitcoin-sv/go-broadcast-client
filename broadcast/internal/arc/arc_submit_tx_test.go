@@ -104,15 +104,15 @@ func TestSubmitTransaction(t *testing.T) {
 func TestConvertTransaction(t *testing.T) {
 	testCases := []struct {
 		name           string
-		transaction    *SubmitTxRequest
+		transaction    *broadcast.Transaction
 		httpResponse   *http.Response
 		httpError      error
 		expectedResult *SubmitTxRequest
 	}{
 		{
 			name: "successful conversion from RawTx to EF",
-			transaction: &SubmitTxRequest{
-				RawTx: "0100000001d6d1607b208b30c0a3fe21d563569c4d2a0f913604b4c5054fe267da6be324ab220000006b4830450221009a965dcd5d42983090a63cfd761038ff8adcea621c46a68a205f326292a95383022061b8d858f366c69f3ebd30a60ccafe36faca4e242ac3d2edd3bf63b669bcf23b4121034e871e147aa4a3e2f1665eaf76cf9264d089b6a91702af92bd6ce33bac84a765ffffffff0123020000000000001976a914d8819a7197d3e221e15f4348203fdecfd29fa2b888ac00000000",
+			transaction: &broadcast.Transaction{
+				Hex: "0100000001d6d1607b208b30c0a3fe21d563569c4d2a0f913604b4c5054fe267da6be324ab220000006b4830450221009a965dcd5d42983090a63cfd761038ff8adcea621c46a68a205f326292a95383022061b8d858f366c69f3ebd30a60ccafe36faca4e242ac3d2edd3bf63b669bcf23b4121034e871e147aa4a3e2f1665eaf76cf9264d089b6a91702af92bd6ce33bac84a765ffffffff0123020000000000001976a914d8819a7197d3e221e15f4348203fdecfd29fa2b888ac00000000",
 			},
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
@@ -130,8 +130,6 @@ func TestConvertTransaction(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// given
-			test_tx := *tc.transaction
-
 			mockHttpClient := new(MockHttpClient)
 			expectedPayload := httpclient.NewPayload(
 				httpclient.GET,
@@ -150,11 +148,11 @@ func TestConvertTransaction(t *testing.T) {
 			}
 
 			// when
-			err := convertToEfTransaction(client, &test_tx)
+			result, err := formatTxRequest(client, tc.transaction, broadcast.RawTxFormat)
 
 			// then
 			assert.NoError(t, err)
-			assert.Equal(t, *tc.expectedResult, test_tx)
+			assert.Equal(t, tc.expectedResult, result)
 		})
 	}
 }
@@ -162,19 +160,19 @@ func TestConvertTransaction(t *testing.T) {
 func TestConvertBatchTransactions(t *testing.T) {
 	testCases := []struct {
 		name            string
-		transactions    []*SubmitTxRequest
+		transactions    []*broadcast.Transaction
 		httpResponses   []*http.Response
 		httpError       error
 		expectedResults []*SubmitTxRequest
 	}{
 		{
 			name: "successful batch conversion from RawTx to EF",
-			transactions: []*SubmitTxRequest{
+			transactions: []*broadcast.Transaction{
 				{
-					RawTx: "0100000001d6d1607b208b30c0a3fe21d563569c4d2a0f913604b4c5054fe267da6be324ab220000006b4830450221009a965dcd5d42983090a63cfd761038ff8adcea621c46a68a205f326292a95383022061b8d858f366c69f3ebd30a60ccafe36faca4e242ac3d2edd3bf63b669bcf23b4121034e871e147aa4a3e2f1665eaf76cf9264d089b6a91702af92bd6ce33bac84a765ffffffff0123020000000000001976a914d8819a7197d3e221e15f4348203fdecfd29fa2b888ac00000000",
+					Hex: "0100000001d6d1607b208b30c0a3fe21d563569c4d2a0f913604b4c5054fe267da6be324ab220000006b4830450221009a965dcd5d42983090a63cfd761038ff8adcea621c46a68a205f326292a95383022061b8d858f366c69f3ebd30a60ccafe36faca4e242ac3d2edd3bf63b669bcf23b4121034e871e147aa4a3e2f1665eaf76cf9264d089b6a91702af92bd6ce33bac84a765ffffffff0123020000000000001976a914d8819a7197d3e221e15f4348203fdecfd29fa2b888ac00000000",
 				},
 				{
-					RawTx: "0100000001d6d1607b208b30c0a3fe21d563569c4d2a0f913604b4c5054fe267da6be324ab220000006b4830450221009a965dcd5d42983090a63cfd761038ff8adcea621c46a68a205f326292a95383022061b8d858f366c69f3ebd30a60ccafe36faca4e242ac3d2edd3bf63b669bcf23b4121034e871e147aa4a3e2f1665eaf76cf9264d089b6a91702af92bd6ce33bac84a765ffffffff0123020000000000001976a914d8819a7197d3e221e15f4348203fdecfd29fa2b888ac00000000",
+					Hex: "0100000001d6d1607b208b30c0a3fe21d563569c4d2a0f913604b4c5054fe267da6be324ab220000006b4830450221009a965dcd5d42983090a63cfd761038ff8adcea621c46a68a205f326292a95383022061b8d858f366c69f3ebd30a60ccafe36faca4e242ac3d2edd3bf63b669bcf23b4121034e871e147aa4a3e2f1665eaf76cf9264d089b6a91702af92bd6ce33bac84a765ffffffff0123020000000000001976a914d8819a7197d3e221e15f4348203fdecfd29fa2b888ac00000000",
 				},
 			},
 			httpResponses: []*http.Response{
@@ -208,8 +206,6 @@ func TestConvertBatchTransactions(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// given
-			test_txs := tc.transactions
-
 			mockHttpClient := new(MockHttpClient)
 			expectedPayload := httpclient.NewPayload(
 				httpclient.GET,
@@ -230,11 +226,19 @@ func TestConvertBatchTransactions(t *testing.T) {
 			}
 
 			// when
-			err := convertBatchToEfTransaction(client, test_txs)
+			results := make([]*SubmitTxRequest, 0, len(tc.transactions))
+			errors := make([]error, 0)
+			for _, tx := range tc.transactions {
+				requestTx, err := formatTxRequest(client, tx, broadcast.RawTxFormat)
+				if err != nil {
+					errors = append(errors, err)
+				}
+				results = append(results, requestTx)
+			}
 
 			// then
-			assert.NoError(t, err)
-			assert.Equal(t, tc.expectedResults, test_txs)
+			assert.Empty(t, errors)
+			assert.Equal(t, tc.expectedResults, results)
 		})
 	}
 }

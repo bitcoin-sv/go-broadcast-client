@@ -144,15 +144,9 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 }
 
 func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
-	body := &SubmitTxRequest{tx.Hex}
-
-	if txFormat == broadcast.RawTxFormat {
-		if err := convertToEfTransaction(arc, body); err != nil {
-			return nil, fmt.Errorf("Conversion to EF format failed: %s", err.Error())
-		}
-	} else if txFormat == broadcast.BeefFormat {
-		// To be implemented
-		return nil, fmt.Errorf("Submitting transactions in BEEF format is unimplemented yet...")
+	body, err := formatTxRequest(arc, tx, txFormat)
+	if err != nil {
+		return nil, err
 	}
 
 	data, err := json.Marshal(body)
@@ -166,16 +160,11 @@ func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broa
 func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
 	rawTxs := make([]*SubmitTxRequest, 0, len(txs))
 	for _, tx := range txs {
-		rawTxs = append(rawTxs, &SubmitTxRequest{RawTx: tx.Hex})
-	}
-
-	if txFormat == broadcast.RawTxFormat {
-		if err := convertBatchToEfTransaction(arc, rawTxs); err != nil {
-			return nil, fmt.Errorf("Conversion to EF format failed for one or more transactions with error: %s", err.Error())
+		requestTx, err := formatTxRequest(arc, tx, txFormat)
+		if err != nil {
+			return nil, err
 		}
-	} else if txFormat == broadcast.BeefFormat {
-		// To be implemented
-		return nil, fmt.Errorf("Submitting transactions in BEEF format is unimplemented yet...")
+		rawTxs = append(rawTxs, requestTx)
 	}
 
 	data, err := json.Marshal(rawTxs)
@@ -226,20 +215,56 @@ func validateSubmitTxResponse(model *broadcast.SubmittedTx) error {
 	return nil
 }
 
-func convertToEfTransaction(arc *ArcClient, tx *SubmitTxRequest) error {
-	transaction, err := bt.NewTxFromString(tx.RawTx)
+func formatTxRequest(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) (*SubmitTxRequest, error) {
+	var (
+		body *SubmitTxRequest
+		err  error
+	)
+
+	switch txFormat {
+	case broadcast.RawTxFormat:
+		body, err = rawTxRequest(arc, tx.Hex)
+	case broadcast.EfFormat:
+		body, err = efTxRequest(tx.Hex)
+	case broadcast.BeefFormat:
+		body, err = beefTxRequest(tx.Hex)
+	default:
+		err = fmt.Errorf("unknown transaction format")
+	}
+
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	return body, nil
+}
+
+func efTxRequest(rawTx string) (*SubmitTxRequest, error) {
+	request := &SubmitTxRequest{RawTx: rawTx}
+
+	return request, nil
+}
+
+func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
+	return nil, fmt.Errorf("Submitting transactions in BEEF format is unimplemented yet...")
+}
+
+func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
+	transaction, err := bt.NewTxFromString(rawTx)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, input := range transaction.Inputs {
 		if err = updateUtxoWithMissingData(arc, input); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	tx.RawTx = hex.EncodeToString(transaction.ExtendedBytes())
-	return nil
+	request := &SubmitTxRequest{
+		RawTx: hex.EncodeToString(transaction.ExtendedBytes()),
+	}
+	return request, nil
 }
 
 func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
@@ -270,15 +295,6 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 	o := actualTx.Outputs[input.PreviousTxOutIndex]
 	input.PreviousTxScript = o.LockingScript
 	input.PreviousTxSatoshis = o.Satoshis
-	return nil
-}
-
-func convertBatchToEfTransaction(arc *ArcClient, rawTxs []*SubmitTxRequest) error {
-	for _, rawTx := range rawTxs {
-		if err := convertToEfTransaction(arc, rawTx); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
