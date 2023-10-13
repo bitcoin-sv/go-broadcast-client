@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.7.0...v0.8.0) (2023-10-13)
+
+
+### Features
+
+* **BUX-236:** transaction submitting in RawTx format for backwards compatibility ([#48](https://github.com/bitcoin-sv/go-broadcast-client/issues/48)) ([22cd7e0](https://github.com/bitcoin-sv/go-broadcast-client/commit/22cd7e02302f009aacbb1b53e8eebb1f777a2cb0))
+
 ## [0.7.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.6.0...v0.7.0) (2023-10-12)
 
 
