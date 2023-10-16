@@ -1,6 +1,8 @@
 package mocks
 
 import (
+	"github.com/libsv/go-bc"
+
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 )
@@ -46,32 +48,55 @@ var (
 		Timestamp:    Policy2.Timestamp,
 	}
 
+	mp, _  = bc.NewMerklePathFromStr(fixtures.TxMerklePath)
+	mp2, _ = bc.NewMerklePathFromStr(fixtures.TxMerklePathSecondary)
+
 	SubmittedTx = &broadcast_api.SubmittedTx{
-		Status:      fixtures.TxResponseStatus,
-		Title:       fixtures.TxResponseTitle,
-		TxStatus:    fixtures.TxStatus,
-		BlockHash:   fixtures.TxBlockHash,
-		BlockHeight: fixtures.TxBlockHeight,
-		ExtraInfo:   fixtures.TxExtraInfo,
+		BaseSubmitTxResponse: broadcast_api.BaseSubmitTxResponse{
+			Status: fixtures.TxResponseStatus,
+			Title:  fixtures.TxResponseTitle,
+			BaseTxResponse: broadcast_api.BaseTxResponse{
+				BlockHash:   fixtures.TxBlockHash,
+				BlockHeight: fixtures.TxBlockHeight,
+				ExtraInfo:   fixtures.TxExtraInfo,
+				MerklePath:  fixtures.TxMerklePath,
+				Timestamp:   fixtures.Timestamp,
+				TxStatus:    fixtures.TxStatus,
+				TxID:        fixtures.TxId,
+			},
+		},
+		MerklePath: mp,
 	}
 
 	SubmittedTxSecondary = &broadcast_api.SubmittedTx{
-		Status:      fixtures.TxResponseStatus,
-		Title:       fixtures.TxResponseTitle,
-		TxStatus:    fixtures.TxStatus,
-		BlockHash:   fixtures.TxBlockHashSecondary,
-		BlockHeight: fixtures.TxBlockHeightSecondary,
-		ExtraInfo:   fixtures.TxExtraInfo,
+		BaseSubmitTxResponse: broadcast_api.BaseSubmitTxResponse{
+			Status: fixtures.TxResponseStatus,
+			Title:  fixtures.TxResponseTitle,
+			BaseTxResponse: broadcast_api.BaseTxResponse{
+				BlockHash:   fixtures.TxBlockHashSecondary,
+				BlockHeight: fixtures.TxBlockHeightSecondary,
+				ExtraInfo:   fixtures.TxExtraInfo,
+				MerklePath:  fixtures.TxMerklePath,
+				Timestamp:   fixtures.Timestamp,
+				TxStatus:    fixtures.TxStatus,
+				TxID:        fixtures.TxIdSecondary,
+			},
+		},
+		MerklePath: mp2,
 	}
 )
 
 func QueryTx(txID string) *broadcast_api.QueryTxResponse {
 	return &broadcast_api.QueryTxResponse{
 		BaseResponse: broadcast_api.BaseResponse{Miner: fixtures.ProviderMain},
-		Timestamp:    fixtures.Timestamp,
-		TxStatus:     fixtures.TxStatus,
-		BlockHash:    fixtures.TxBlockHash,
-		BlockHeight:  fixtures.TxBlockHeight,
-		TxID:         txID,
+		BaseTxResponse: broadcast_api.BaseTxResponse{
+			BlockHash:   fixtures.TxBlockHash,
+			BlockHeight: fixtures.TxBlockHeight,
+			ExtraInfo:   fixtures.TxExtraInfo,
+			MerklePath:  fixtures.TxMerklePath,
+			Timestamp:   fixtures.Timestamp,
+			TxStatus:    fixtures.TxStatus,
+			TxID:        txID,
+		},
 	}
 }

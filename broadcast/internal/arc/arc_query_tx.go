@@ -3,6 +3,9 @@ package arc
 import (
 	"context"
 	"errors"
+	"net/http"
+
+	"github.com/libsv/go-bc"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arcutils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
@@ -46,15 +49,39 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 		return nil, err
 	}
 
-	model := broadcast.QueryTxResponse{}
-	err = arcutils.DecodeResponseBody(resp.Body, &model)
+	model, err := decodeQueryResponseBody(resp, arc)
 	if err != nil {
 		return nil, err
 	}
 
-	model.Miner = arc.apiURL
+	return model, nil
+}
 
-	return &model, nil
+func decodeQueryResponseBody(resp *http.Response, arc *ArcClient) (*broadcast.QueryTxResponse, error) {
+	base := broadcast.BaseTxResponse{}
+	err := arcutils.DecodeResponseBody(resp.Body, &base)
+	if err != nil {
+		return nil, err
+	}
+
+	var merklePath *bc.MerklePath
+
+	if base.MerklePath != "" {
+		merklePath, err = bc.NewMerklePathFromStr(base.MerklePath)
+		if err != nil {
+			return nil, broadcast.ErrUnableToDecodeMerklePath
+		}
+	}
+
+	model := &broadcast.QueryTxResponse{
+		BaseResponse: broadcast.BaseResponse{
+			Miner: arc.apiURL,
+		},
+		BaseTxResponse: base,
+		MerklePath:     merklePath,
+	}
+
+	return model, nil
 }
 
 func validateQueryTxResponse(model *broadcast.QueryTxResponse) error {

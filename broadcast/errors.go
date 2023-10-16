@@ -30,6 +30,9 @@ var ErrBroadcasterFailed = errors.New("broadcaster failed")
 // ErrUnableToDecodeResponse is returned when the http response cannot be decoded.
 var ErrUnableToDecodeResponse = errors.New("unable to decode response")
 
+// ErrUnableToDecodeMerklePath is returned when merkle path from transaction response cannot be decoded.
+var ErrUnableToDecodeMerklePath = errors.New("unable to decode merkle path from response")
+
 // ErrMissingStatus is returned when the tx status is missing.
 var ErrMissingStatus = errors.New("missing tx status")
 

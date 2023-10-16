@@ -4,14 +4,17 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
 
+	"github.com/libsv/go-bc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 )
 
 func TestQueryTransaction(t *testing.T) {
@@ -36,9 +39,11 @@ func TestQueryTransaction(t *testing.T) {
 			},
 			expectedResult: &broadcast.QueryTxResponse{
 				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
-				BlockHash:    "abc123",
-				TxStatus:     broadcast.Confirmed,
-				TxID:         "abc123",
+				BaseTxResponse: broadcast.BaseTxResponse{
+					BlockHash: "abc123",
+					TxStatus:  broadcast.Confirmed,
+					TxID:      "abc123",
+				},
 			},
 		},
 		{
@@ -82,6 +87,62 @@ func TestQueryTransaction(t *testing.T) {
 
 			// assert Expectations on the mock
 			mockHttpClient.AssertExpectations(t)
+		})
+	}
+}
+
+func TestDecodeQueryResponseBody(t *testing.T) {
+	mp, _ := bc.NewMerklePathFromStr(fixtures.TxMerklePath)
+	testCases := []struct {
+		name           string
+		httpResponse   *http.Response
+		expectedResult *broadcast.QueryTxResponse
+	}{
+		{
+			name: "successful decode",
+			httpResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"merklePath\":\"%s\"}", fixtures.TxMerklePath))),
+			},
+			expectedResult: &broadcast.QueryTxResponse{
+				BaseResponse:   broadcast.BaseResponse{Miner: "http://example.com"},
+				BaseTxResponse: broadcast.BaseTxResponse{
+					MerklePath: fixtures.TxMerklePath,
+				},
+				MerklePath:     mp,
+			},
+		},
+		{
+			name: "empty merkle path",
+			httpResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(bytes.NewBufferString(`
+					{
+						"merklePath": ""
+					}
+					`)),
+			},
+			expectedResult: &broadcast.QueryTxResponse{
+				BaseResponse: broadcast.BaseResponse{
+					Miner: "http://example.com",
+				},
+				MerklePath: nil,
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// given
+			client := &ArcClient{
+				apiURL: "http://example.com",
+			}
+
+			// when
+			model, err := decodeQueryResponseBody(tc.httpResponse, client)
+
+			// then
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedResult, model)
 		})
 	}
 }

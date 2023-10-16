@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 
+	"github.com/libsv/go-bc"
 	"github.com/libsv/go-bt/v2"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
@@ -71,12 +73,12 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 		return nil, err
 	}
 
-	response := broadcast.SubmitBatchTxResponse{
+	response := &broadcast.SubmitBatchTxResponse{
 		BaseResponse: broadcast.BaseResponse{Miner: a.apiURL},
 		Transactions: result,
 	}
 
-	return &response, nil
+	return response, nil
 }
 
 func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
@@ -102,13 +104,12 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 		return nil, arc_utils.HandleHttpError(err)
 	}
 
-	model := broadcast.SubmittedTx{}
-	err = arc_utils.DecodeResponseBody(resp.Body, &model)
+	model, err := decodeSubmitResponseBody(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model, nil
+	return model, nil
 }
 
 func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
@@ -134,8 +135,7 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		return nil, arc_utils.HandleHttpError(err)
 	}
 
-	var model []*broadcast.SubmittedTx
-	err = arc_utils.DecodeResponseBody(resp.Body, &model)
+	model, err := decodeSubmitBatchResponseBody(resp)
 	if err != nil {
 		return nil, err
 	}
@@ -195,6 +195,53 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.Transact
 	if statusCode, ok := broadcast.MapTxStatusToInt(opts.WaitForStatus); ok {
 		pld.AddHeader("X-WaitForStatus", strconv.Itoa(statusCode))
 	}
+}
+
+func decodeSubmitResponseBody(resp *http.Response) (*broadcast.SubmittedTx, error) {
+	base := broadcast.BaseSubmitTxResponse{}
+	err := arc_utils.DecodeResponseBody(resp.Body, &base)
+	if err != nil {
+		return nil, broadcast.ErrUnableToDecodeMerklePath
+	}
+
+	var merklePath *bc.MerklePath
+
+	if base.MerklePath != "" {
+		if merklePath, err = bc.NewMerklePathFromStr(base.MerklePath); err != nil {
+			return nil, broadcast.ErrUnableToDecodeMerklePath
+		}
+	}
+
+	model := &broadcast.SubmittedTx{
+		BaseSubmitTxResponse: base,
+		MerklePath:           merklePath,
+	}
+
+	return model, nil
+}
+
+func decodeSubmitBatchResponseBody(resp *http.Response) ([]*broadcast.SubmittedTx, error) {
+	base := make([]broadcast.BaseSubmitTxResponse, 0)
+	err := arc_utils.DecodeResponseBody(resp.Body, &base)
+	if err != nil {
+		return nil, err
+	}
+
+	model := make([]*broadcast.SubmittedTx, 0)
+	for _, tx := range base {
+		var merklePath *bc.MerklePath
+		if tx.MerklePath != "" {
+			if merklePath, err = bc.NewMerklePathFromStr(tx.MerklePath); err != nil {
+				return nil, broadcast.ErrUnableToDecodeMerklePath
+			}
+		}
+		model = append(model, &broadcast.SubmittedTx{
+			BaseSubmitTxResponse: tx,
+			MerklePath:           merklePath,
+		})
+	}
+
+	return model, nil
 }
 
 func validateBatchResponse(model []*broadcast.SubmittedTx) error {

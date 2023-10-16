@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
 )
 
@@ -11,7 +12,7 @@ import (
 func main() {
 	token := ""
 	apiURL := "https://tapi.taal.com/arc"
-	hex := "9c5f5244ee45e8c3213521c1d1d5df265d6c74fb108961a876917073d65fef14"
+	hex := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
 
 	cfg := broadcast_client.ArcClientConfig{
 		Token:  token,
@@ -27,9 +28,5 @@ func main() {
 		log.Fatalf("error: %s", err.Error())
 	}
 
-	log.Printf("miner: %s", result.Miner)
-	log.Printf("hash: %s", result.BlockHash)
-	log.Printf("txID: %s", result.TxID)
-	log.Printf("status: %s", result.TxStatus)
-	log.Printf("block height: %d", result.BlockHeight)
+	broadcast.PrettyPrint("Result: ", result)
 }

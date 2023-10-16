@@ -1,85 +1,64 @@
 package broadcast
 
-// Transaction is the body contents in the "submit transaction" request
+import "github.com/libsv/go-bc"
+
+// Transaction is the body contents in the "submit transaction" request.
 type Transaction struct {
 	// Hex is the transaction hex string.
 	Hex string `json:"hex"`
 }
 
-// TransactionOptFunc defines an optional arguments that can be passed to the SubmitTransaction method.
-type TransactionOptFunc func(o *TransactionOpts)
-
-// TransactionFormat is the format of transaction being submitted.
-type TransactionFormat int
-
-const (
-	EfFormat TransactionFormat = iota
-	BeefFormat
-	RawTxFormat
-)
-
-// TransactionOpts is a struct that holds optional arguments that can be passed to the SubmitTransaction method.
-type TransactionOpts struct {
-	// CallbackURL is the URL that will be called when the transaction status changes.
-	CallbackURL string
-	// CallbackToken is the token that will be sent in the callback request.
-	CallbackToken string
-	// MerkleProof is a flag that indicates if the merkle proof should be returned in the submit transaction response.
-	MerkleProof bool
-	// WaitForStatus is the status that the callback request will wait for.
-	WaitForStatus TxStatus
-	// TransactionFormat is the format of transaction being submitted. Acceptable
-	// formats are: RawFormat (deprecated soon), BeefFormat and EfFormat (default).
-	TransactionFormat TransactionFormat
+// BasicTxResponse is a base type for query and submit transaction response.
+type BaseTxResponse struct {
+	// BlockHash is the hash of the block where the transaction was included.
+	BlockHash string `json:"blockHash,omitempty"`
+	// BlockHeight is the height of the block where the transaction was included.
+	BlockHeight int64 `json:"blockHeight,omitempty"`
+	// ExtraInfo provides extra information for given transaction.
+	ExtraInfo string `json:"extraInfo,omitempty"`
+	// MerklePath is the Merkle path used to calculate Merkle root of the block in which the transaction was included.
+	MerklePath string `json:"merklePath,omitempty"`
+	// Timestamp is the timestamp of the block where the transaction was included.
+	Timestamp string `json:"timestamp,omitempty"`
+	// TxStatus is the status of the transaction.
+	TxStatus TxStatus `json:"txStatus,omitempty"`
+	// TxID is the transaction id.
+	TxID string `json:"txid,omitempty"`
 }
 
-// WithCallback allow you to get the callback from the node when the transaction is mined,
-// and receive the transaction details and status.
-func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.CallbackToken = callbackURL
-		if len(callbackToken) > 0 {
-			o.CallbackToken = callbackToken[0]
-		}
-	}
+// QueryTxResponse is the response returned by the QueryTransaction method.
+type QueryTxResponse struct {
+	BaseResponse
+	BaseTxResponse
+	// MerklePath is the Merkle path used to calculate Merkle root of the block in which the transaction was included.
+	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
 }
 
-// WithMerkleProof will return merkle proof from Arc.
-func WithMerkleProof() TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.MerkleProof = true
-	}
+// BaseSubmitTxResponse is the internal response returned by the miner from submitting transaction(s).
+type BaseSubmitTxResponse struct {
+	BaseTxResponse
+	// Status is the status of the response.
+	Status int `json:"status,omitempty"`
+	// Title is the title of the response.
+	Title string `json:"title,omitempty"`
 }
 
-// WithWaitForStatus will allow you to return the result only
-// when the transaction reaches the status you set.
-func WithWaitForStatus(status TxStatus) TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.WaitForStatus = status
-	}
+// SubmittedTx is the submit response with decoded Merkl Path.
+type SubmittedTx struct {
+	BaseSubmitTxResponse
+	// MerklePath is the Merkle path used to calculate Merkle root of the block in which the transaction was included.
+	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
 }
 
-// WithBeefFormat will accept your transaction in BEEF format
-// and decode it for a proper format acceptable by Arc.
-func WithBeefFormat() TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.TransactionFormat = BeefFormat
-	}
+// SubmitTxResponse is the response returned by the SubmitTransaction method.
+type SubmitTxResponse struct {
+	BaseResponse
+	*SubmittedTx
 }
 
-// WithEfFormat will submit your transaction in EF format.
-func WithEfFormat() TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.TransactionFormat = EfFormat
-	}
-}
-
-// WithRawFormat will accept your transaction in RawTx format
-// and encode it for a proper format acceptable by Arc.
-// Deprecated: This function will be depreacted soon.
-// Only EF and BEEF format will be acceptable.
-func WithRawFormat() TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.TransactionFormat = RawTxFormat
-	}
+// SubmitTxResponse is the response returned by the SubmitBatchTransactions method.
+type SubmitBatchTxResponse struct {
+	BaseResponse
+	// Transactions is a slice of responses returned from submitting the batch transactions.
+	Transactions []*SubmittedTx `json:"transactions"`
 }
