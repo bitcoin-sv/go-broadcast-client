@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.9.0...v0.10.0) (2023-12-21)
+
+
+### Features
+
+* **BUX-420:** go version and workflows update ([#57](https://github.com/bitcoin-sv/go-broadcast-client/issues/57)) ([3c718ad](https://github.com/bitcoin-sv/go-broadcast-client/commit/3c718ad52177d844f3dbebe1cb36052729b7b0da))
+
 ## [0.9.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.8.0...v0.9.0) (2023-10-16)
 
 
