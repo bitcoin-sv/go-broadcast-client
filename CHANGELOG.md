@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.10.0...v0.11.0) (2023-12-22)
+
+
+### Features
+
+* **BUX-207:** unify logs ([#60](https://github.com/bitcoin-sv/go-broadcast-client/issues/60)) ([525d340](https://github.com/bitcoin-sv/go-broadcast-client/commit/525d3407c9645ba41136a00a9302d5d3cbdb4ba8))
+
 ## [0.10.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.9.0...v0.10.0) (2023-12-21)
 
 
