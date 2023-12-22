@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog"
 	"io"
 	"net/http"
 	"testing"
@@ -68,6 +69,7 @@ func TestQueryTransaction(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// given
 			mockHttpClient := new(MockHttpClient)
+			testLogger := zerolog.Nop()
 
 			mockHttpClient.On("DoRequest", context.Background(), mock.Anything).
 				Return(tc.httpResponse, tc.httpError).Once()
@@ -76,6 +78,7 @@ func TestQueryTransaction(t *testing.T) {
 				HTTPClient: mockHttpClient,
 				apiURL:     "http://example.com",
 				token:      "someToken",
+				Logger:     &testLogger,
 			}
 
 			// when
@@ -102,14 +105,14 @@ func TestDecodeQueryResponseBody(t *testing.T) {
 			name: "successful decode",
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
-				Body: io.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"merklePath\":\"%s\"}", fixtures.TxMerklePath))),
+				Body:       io.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"merklePath\":\"%s\"}", fixtures.TxMerklePath))),
 			},
 			expectedResult: &broadcast.QueryTxResponse{
-				BaseResponse:   broadcast.BaseResponse{Miner: "http://example.com"},
+				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
 				BaseTxResponse: broadcast.BaseTxResponse{
 					MerklePath: fixtures.TxMerklePath,
 				},
-				MerklePath:     mp,
+				MerklePath: mp,
 			},
 		},
 		{

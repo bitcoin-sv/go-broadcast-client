@@ -5,6 +5,7 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/composite"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
+	"github.com/rs/zerolog"
 )
 
 type builder struct {
@@ -25,9 +26,9 @@ func (cb *builder) WithHttpClient(client httpclient.HTTPInterface) *builder {
 
 // WithArc sets up the connection of the broadcast client to the Arc service using the provided ArcClientConfig.
 // This method can be called multiple times with different ArcClientConfigurations to establish connections to multiple Arc instances.
-func (cb *builder) WithArc(config ArcClientConfig) *builder {
+func (cb *builder) WithArc(config ArcClientConfig, log *zerolog.Logger) *builder {
 	cb.factories = append(cb.factories, func() broadcast_api.Client {
-		return arc.NewArcClient(&config, cb.client)
+		return arc.NewArcClient(&config, cb.client, log)
 	})
 	return cb
 }

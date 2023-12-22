@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/rs/zerolog"
 	"log"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
@@ -10,6 +11,7 @@ import (
 
 // This example shows how to submit a batch of transactions.
 func main() {
+	logger := zerolog.Nop()
 	token := "{token}"
 	apiURL := "https://tapi.taal.com/arc"
 	txs := []*broadcast.Transaction{
@@ -26,7 +28,7 @@ func main() {
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(cfg).
+		WithArc(cfg, &logger).
 		Build()
 
 	result, err := client.SubmitBatchTransactions(context.Background(), txs, broadcast.WithRawFormat())
