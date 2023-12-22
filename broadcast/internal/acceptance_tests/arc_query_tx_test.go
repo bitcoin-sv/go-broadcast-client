@@ -3,6 +3,7 @@ package acceptancetests
 import (
 	"context"
 	"errors"
+	"github.com/rs/zerolog"
 	"io"
 	"net/http"
 	"strings"
@@ -32,13 +33,14 @@ var secondSuccessfulResponse = `
 `
 
 func TestQueryTransaction(t *testing.T) {
+	testLogger := zerolog.Nop()
 	t.Run("Should successfully query from multiple ArcClients", func(t *testing.T) {
 		// given
 		httpClientMock := &arc.MockHttpClient{}
 		broadcaster := broadcast_client.Builder().
 			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
 			Build()
 
 		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(firstSuccessfulResponse))}
@@ -59,8 +61,8 @@ func TestQueryTransaction(t *testing.T) {
 		httpClientMock := &arc.MockHttpClient{}
 		broadcaster := broadcast_client.Builder().
 			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
 			Build()
 
 		httpResponse := &http.Response{}
@@ -80,7 +82,7 @@ func TestQueryTransaction(t *testing.T) {
 		httpClientMock := &arc.MockHttpClient{}
 		broadcaster := broadcast_client.Builder().
 			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
 			Build()
 
 		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(firstSuccessfulResponse))}
@@ -100,7 +102,7 @@ func TestQueryTransaction(t *testing.T) {
 		httpResponse := &http.Response{}
 		broadcaster := broadcast_client.Builder().
 			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}).
+			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
 			Build()
 
 		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()

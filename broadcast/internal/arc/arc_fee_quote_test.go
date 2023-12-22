@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"github.com/rs/zerolog"
 	"io"
 	"net/http"
 	"testing"
@@ -63,6 +64,7 @@ func TestFeeQuote(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// given
 			mockHttpClient := new(MockHttpClient)
+			testLogger := zerolog.Nop()
 
 			mockHttpClient.On("DoRequest", context.Background(), mock.Anything).
 				Return(tc.httpResponse, tc.httpError).Once()
@@ -71,6 +73,7 @@ func TestFeeQuote(t *testing.T) {
 				HTTPClient: mockHttpClient,
 				apiURL:     "http://example.com",
 				token:      "someToken",
+				Logger:     &testLogger,
 			}
 
 			// when

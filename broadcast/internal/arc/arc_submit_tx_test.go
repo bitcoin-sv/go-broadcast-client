@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog"
 	"io"
 	"net/http"
 	"testing"
@@ -78,11 +79,13 @@ func TestSubmitTransaction(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// given
 			mockHttpClient := new(MockHttpClient)
+			testLogger := zerolog.Nop()
 
 			client := &ArcClient{
 				HTTPClient: mockHttpClient,
 				apiURL:     "http://example.com",
 				token:      "someToken",
+				Logger:     &testLogger,
 			}
 
 			body, _ := createSubmitTxBody(client, tc.transaction, broadcast.EfFormat)
@@ -263,7 +266,7 @@ func TestDecodeSubmitResponseBody(t *testing.T) {
 			name: "successful decode",
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
-				Body: io.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"merklePath\":\"%s\"}", fixtures.TxMerklePath))),
+				Body:       io.NopCloser(bytes.NewBufferString(fmt.Sprintf("{\"merklePath\":\"%s\"}", fixtures.TxMerklePath))),
 			},
 			expectedResult: &broadcast.SubmittedTx{
 				BaseSubmitTxResponse: broadcast.BaseSubmitTxResponse{
@@ -382,11 +385,13 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// given
 			mockHttpClient := new(MockHttpClient)
+			testLogger := zerolog.Nop()
 
 			client := &ArcClient{
 				HTTPClient: mockHttpClient,
 				apiURL:     "http://example.com",
 				token:      "someToken",
+				Logger:     &testLogger,
 			}
 
 			body, _ := createSubmitBatchTxsBody(client, tc.transactions, broadcast.EfFormat)
