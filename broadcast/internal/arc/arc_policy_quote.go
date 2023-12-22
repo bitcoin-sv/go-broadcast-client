@@ -15,13 +15,14 @@ func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuot
 
 	model, err := getPolicyQuote(ctx, a)
 	if err != nil {
+		a.Logger.Error().Msgf("Failed to get policy quote: %s", err.Error())
 		return nil, err
 	}
 
 	model.Miner = a.apiURL
-
 	models := []*broadcast.PolicyQuoteResponse{model}
 
+	a.Logger.Debug().Msgf("Got policy quote from miner: %s", model.Miner)
 	return models, nil
 }
 

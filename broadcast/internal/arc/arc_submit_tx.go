@@ -25,6 +25,7 @@ var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
 func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
+		a.Logger.Error().Msgf("Failed to submit tx: %s", broadcast.ErrClientUndefined.Error())
 		return nil, broadcast.ErrClientUndefined
 	}
 
@@ -35,10 +36,12 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 
 	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
+		a.Logger.Error().Msgf("Failed to submit tx: %s", err.Error())
 		return nil, err
 	}
 
 	if err := validateSubmitTxResponse(result); err != nil {
+		a.Logger.Error().Msgf("Failed to validate submit tx response: %s", err.Error())
 		return nil, err
 	}
 
@@ -47,16 +50,21 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 		SubmittedTx:  result,
 	}
 
+	a.Logger.Debug().Msgf("Got submit tx response from miner: %s", response.Miner)
+
 	return response, nil
 }
 
 func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, error) {
 	if a == nil {
+		a.Logger.Error().Msgf("Failed to submit batch txs: %s", broadcast.ErrClientUndefined.Error())
 		return nil, broadcast.ErrClientUndefined
 	}
 
 	if len(txs) == 0 {
-		return nil, errors.New("invalid request, no transactions to submit")
+		err := errors.New("invalid request, no transactions to submit")
+		a.Logger.Error().Msgf("Failed to submit batch txs: %s", err.Error())
+		return nil, err
 	}
 
 	options := &broadcast.TransactionOpts{}
@@ -66,10 +74,12 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 	result, err := submitBatchTransactions(ctx, a, txs, options)
 	if err != nil {
+		a.Logger.Error().Msgf("Failed to submit batch txs: %s", err.Error())
 		return nil, err
 	}
 
 	if err := validateBatchResponse(result); err != nil {
+		a.Logger.Error().Msgf("Failed to validate batch txs response: %s", err.Error())
 		return nil, err
 	}
 
@@ -78,6 +88,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 		Transactions: result,
 	}
 
+	a.Logger.Debug().Msgf("Got submit batch txs response from miner: %s", response.Miner)
 	return response, nil
 }
 

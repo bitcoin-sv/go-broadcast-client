@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/rs/zerolog"
 	"log"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
@@ -10,6 +11,7 @@ import (
 
 // This example shows how to query a transaction by its hex.
 func main() {
+	logger := zerolog.Nop()
 	token := ""
 	apiURL := "https://tapi.taal.com/arc"
 	hex := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
@@ -20,7 +22,7 @@ func main() {
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(cfg).
+		WithArc(cfg, &logger).
 		Build()
 
 	result, err := client.QueryTransaction(context.Background(), hex)

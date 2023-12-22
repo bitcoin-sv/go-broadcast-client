@@ -16,19 +16,23 @@ var ErrMissingTxID = errors.New("missing tx id")
 
 func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
 	if a == nil {
+		a.Logger.Error().Msgf("Failed to query tx: %s", broadcast.ErrClientUndefined.Error())
 		return nil, broadcast.ErrClientUndefined
 	}
 
 	result, err := queryTransaction(ctx, a, txID)
 	if err != nil {
+		a.Logger.Error().Msgf("Failed to query tx: %s", err.Error())
 		return nil, err
 	}
 
 	err = validateQueryTxResponse(result)
 	if err != nil {
+		a.Logger.Error().Msgf("Failed to validate query tx response: %s", err.Error())
 		return nil, err
 	}
 
+	a.Logger.Debug().Msgf("Got query tx response from miner: %s", result.Miner)
 	return result, nil
 }
 
