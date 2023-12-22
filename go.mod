@@ -5,6 +5,7 @@ go 1.21.5
 require (
 	github.com/libsv/go-bc v0.1.26
 	github.com/libsv/go-bt/v2 v2.2.5
+	github.com/rs/zerolog v1.31.0
 	github.com/stretchr/testify v1.8.4
 )
 
@@ -17,7 +18,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/stretchr/objx v0.5.1 // indirect
 	go.elastic.co/ecszerolog v0.2.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
