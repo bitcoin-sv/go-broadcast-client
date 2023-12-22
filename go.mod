@@ -3,7 +3,7 @@ module github.com/bitcoin-sv/go-broadcast-client
 go 1.21.5
 
 require (
-	github.com/libsv/go-bc v0.1.25
+	github.com/libsv/go-bc v0.1.26
 	github.com/libsv/go-bt/v2 v2.2.5
 	github.com/stretchr/testify v1.8.4
 )
