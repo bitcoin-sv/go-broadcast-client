@@ -52,28 +52,3 @@ func WithWaitForStatus(status TxStatus) TransactionOptFunc {
 		o.WaitForStatus = status
 	}
 }
-
-// WithBeefFormat will accept your transaction in BEEF format
-// and decode it for a proper format acceptable by Arc.
-func WithBeefFormat() TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.TransactionFormat = BeefFormat
-	}
-}
-
-// WithEfFormat will submit your transaction in EF format.
-func WithEfFormat() TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.TransactionFormat = EfFormat
-	}
-}
-
-// WithRawFormat will accept your transaction in RawTx format
-// and encode it for a proper format acceptable by Arc.
-// Deprecated: This function will be depreacted soon.
-// Only EF and BEEF format will be acceptable.
-func WithRawFormat() TransactionOptFunc {
-	return func(o *TransactionOpts) {
-		o.TransactionFormat = RawTxFormat
-	}
-}

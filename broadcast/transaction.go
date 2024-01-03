@@ -1,7 +1,5 @@
 package broadcast
 
-import "github.com/libsv/go-bc"
-
 // Transaction is the body contents in the "submit transaction" request.
 type Transaction struct {
 	// Hex is the transaction hex string.
@@ -31,7 +29,7 @@ type QueryTxResponse struct {
 	BaseResponse
 	BaseTxResponse
 	// MerklePath is the Merkle path used to calculate Merkle root of the block in which the transaction was included.
-	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
+	MerklePath string `json:"merklePath,omitempty"`
 }
 
 // BaseSubmitTxResponse is the internal response returned by the miner from submitting transaction(s).
@@ -47,7 +45,7 @@ type BaseSubmitTxResponse struct {
 type SubmittedTx struct {
 	BaseSubmitTxResponse
 	// MerklePath is the Merkle path used to calculate Merkle root of the block in which the transaction was included.
-	MerklePath *bc.MerklePath `json:"merklePath,omitempty"`
+	MerklePath string `json:"merklePath,omitempty"`
 }
 
 // SubmitTxResponse is the response returned by the SubmitTransaction method.

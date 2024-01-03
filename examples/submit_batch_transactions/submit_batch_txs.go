@@ -32,7 +32,7 @@ func main() {
 		WithArc(cfg, &logger).
 		Build()
 
-	result, err := client.SubmitBatchTransactions(context.Background(), txs, broadcast.WithRawFormat())
+	result, err := client.SubmitBatchTransactions(context.Background(), txs)
 	if err != nil {
 		log.Fatalf("error: %s", err.Error())
 	}
