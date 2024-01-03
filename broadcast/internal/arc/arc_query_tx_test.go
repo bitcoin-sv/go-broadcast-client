@@ -111,7 +111,6 @@ func TestDecodeQueryResponseBody(t *testing.T) {
 				BaseTxResponse: broadcast.BaseTxResponse{
 					MerklePath: fixtures.TxMerklePath,
 				},
-				MerklePath: fixtures.TxMerklePath,
 			},
 		},
 		{
@@ -128,7 +127,6 @@ func TestDecodeQueryResponseBody(t *testing.T) {
 				BaseResponse: broadcast.BaseResponse{
 					Miner: "http://example.com",
 				},
-				MerklePath: "",
 			},
 		},
 	}

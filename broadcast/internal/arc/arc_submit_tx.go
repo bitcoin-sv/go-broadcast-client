@@ -210,7 +210,6 @@ func decodeSubmitResponseBody(resp *http.Response) (*broadcast.SubmittedTx, erro
 
 	model := &broadcast.SubmittedTx{
 		BaseSubmitTxResponse: base,
-		MerklePath:           base.MerklePath,
 	}
 
 	return model, nil
@@ -227,7 +226,6 @@ func decodeSubmitBatchResponseBody(resp *http.Response) ([]*broadcast.SubmittedT
 	for _, tx := range base {
 		model = append(model, &broadcast.SubmittedTx{
 			BaseSubmitTxResponse: tx,
-			MerklePath:           tx.MerklePath,
 		})
 	}
 

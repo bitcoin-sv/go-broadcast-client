@@ -60,7 +60,6 @@ var (
 				TxID:        fixtures.TxId,
 			},
 		},
-		MerklePath: fixtures.TxMerklePath,
 	}
 
 	SubmittedTxSecondary = &broadcast_api.SubmittedTx{
@@ -77,7 +76,6 @@ var (
 				TxID:        fixtures.TxIdSecondary,
 			},
 		},
-		MerklePath: fixtures.TxMerklePathSecondary,
 	}
 )
 

@@ -28,8 +28,6 @@ type BaseTxResponse struct {
 type QueryTxResponse struct {
 	BaseResponse
 	BaseTxResponse
-	// MerklePath is the Merkle path used to calculate Merkle root of the block in which the transaction was included.
-	MerklePath string `json:"merklePath,omitempty"`
 }
 
 // BaseSubmitTxResponse is the internal response returned by the miner from submitting transaction(s).
@@ -44,8 +42,6 @@ type BaseSubmitTxResponse struct {
 // SubmittedTx is the submit response with decoded Merkl Path.
 type SubmittedTx struct {
 	BaseSubmitTxResponse
-	// MerklePath is the Merkle path used to calculate Merkle root of the block in which the transaction was included.
-	MerklePath string `json:"merklePath,omitempty"`
 }
 
 // SubmitTxResponse is the response returned by the SubmitTransaction method.

@@ -71,7 +71,6 @@ func decodeQueryResponseBody(resp *http.Response, arc *ArcClient) (*broadcast.Qu
 			Miner: arc.apiURL,
 		},
 		BaseTxResponse: base,
-		MerklePath:     base.MerklePath,
 	}
 
 	return model, nil
