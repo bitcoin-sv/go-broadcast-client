@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/rs/zerolog"
 	"log"
+
+	"github.com/rs/zerolog"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
@@ -12,8 +13,8 @@ import (
 // This example shows how to submit a batch of transactions.
 func main() {
 	logger := zerolog.Nop()
-	token := "{token}"
-	apiURL := "https://tapi.taal.com/arc"
+	token := ""
+	apiURL := "https://arc.gorillapool.io"
 	txs := []*broadcast.Transaction{
 		{Hex: "0100000001d6d1607b208b30c0a3fe21d563569c4d2a0f913604b4c5054fe267da6be324ab220000006b4830450221009a965dcd5d42983090a63cfd761038ff8adcea621c46a68a205f326292a95383022061b8d858f366c69f3ebd30a60ccafe36faca4e242ac3d2edd3bf63b669bcf23b4121034e871e147aa4a3e2f1665eaf76cf9264d089b6a91702af92bd6ce33bac84a765ffffffff0123020000000000001976a914d8819a7197d3e221e15f4348203fdecfd29fa2b888ac00000000"},
 		{Hex: "0100000001bbf4d68a935126df1eea3e14714c5a6438bbda3d18b7e754bc90895cf2190196060000006a47304402206a0c3923a9ae253ac5ea22d36e667f067c51f88a8bfb2861d9124bc5402fecd00220745731fa951076c63df2de6528616e0ef97ef8ade5b17d8e1d51494cf153a64b412103af3ead8a3ab792225bf22262f0b81a72e5070788d363ee717c5868421b75a62dffffffff01000000000000000040006a0a6d793263656e74732c201c4759384d656c46634d326449674d75557356644d53776f6a66467431152c20302e323135353133313536343634343531313600000000"},
@@ -31,7 +32,7 @@ func main() {
 		WithArc(cfg, &logger).
 		Build()
 
-	result, err := client.SubmitBatchTransactions(context.Background(), txs, broadcast.WithRawFormat())
+	result, err := client.SubmitBatchTransactions(context.Background(), txs)
 	if err != nil {
 		log.Fatalf("error: %s", err.Error())
 	}

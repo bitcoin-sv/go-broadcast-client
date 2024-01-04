@@ -5,12 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
 	"io"
 	"net/http"
 	"testing"
 
-	"github.com/libsv/go-bc"
+	"github.com/rs/zerolog"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -95,7 +95,6 @@ func TestQueryTransaction(t *testing.T) {
 }
 
 func TestDecodeQueryResponseBody(t *testing.T) {
-	mp, _ := bc.NewMerklePathFromStr(fixtures.TxMerklePath)
 	testCases := []struct {
 		name           string
 		httpResponse   *http.Response
@@ -112,7 +111,6 @@ func TestDecodeQueryResponseBody(t *testing.T) {
 				BaseTxResponse: broadcast.BaseTxResponse{
 					MerklePath: fixtures.TxMerklePath,
 				},
-				MerklePath: mp,
 			},
 		},
 		{
@@ -129,7 +127,6 @@ func TestDecodeQueryResponseBody(t *testing.T) {
 				BaseResponse: broadcast.BaseResponse{
 					Miner: "http://example.com",
 				},
-				MerklePath: nil,
 			},
 		},
 	}

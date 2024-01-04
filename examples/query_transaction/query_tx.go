@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/rs/zerolog"
 	"log"
+
+	"github.com/rs/zerolog"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
@@ -13,7 +14,7 @@ import (
 func main() {
 	logger := zerolog.Nop()
 	token := ""
-	apiURL := "https://tapi.taal.com/arc"
+	apiURL := "https://arc.gorillapool.io"
 	hex := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
 
 	cfg := broadcast_client.ArcClientConfig{

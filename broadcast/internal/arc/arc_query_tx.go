@@ -5,8 +5,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/libsv/go-bc"
-
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arcutils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
@@ -68,21 +66,11 @@ func decodeQueryResponseBody(resp *http.Response, arc *ArcClient) (*broadcast.Qu
 		return nil, err
 	}
 
-	var merklePath *bc.MerklePath
-
-	if base.MerklePath != "" {
-		merklePath, err = bc.NewMerklePathFromStr(base.MerklePath)
-		if err != nil {
-			return nil, broadcast.ErrUnableToDecodeMerklePath
-		}
-	}
-
 	model := &broadcast.QueryTxResponse{
 		BaseResponse: broadcast.BaseResponse{
 			Miner: arc.apiURL,
 		},
 		BaseTxResponse: base,
-		MerklePath:     merklePath,
 	}
 
 	return model, nil

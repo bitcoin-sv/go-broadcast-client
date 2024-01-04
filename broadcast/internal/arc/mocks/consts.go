@@ -1,8 +1,6 @@
 package mocks
 
 import (
-	"github.com/libsv/go-bc"
-
 	broadcast_api "github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client-mock/fixtures"
 )
@@ -48,9 +46,6 @@ var (
 		Timestamp:    Policy2.Timestamp,
 	}
 
-	mp, _  = bc.NewMerklePathFromStr(fixtures.TxMerklePath)
-	mp2, _ = bc.NewMerklePathFromStr(fixtures.TxMerklePathSecondary)
-
 	SubmittedTx = &broadcast_api.SubmittedTx{
 		BaseSubmitTxResponse: broadcast_api.BaseSubmitTxResponse{
 			Status: fixtures.TxResponseStatus,
@@ -65,7 +60,6 @@ var (
 				TxID:        fixtures.TxId,
 			},
 		},
-		MerklePath: mp,
 	}
 
 	SubmittedTxSecondary = &broadcast_api.SubmittedTx{
@@ -82,7 +76,6 @@ var (
 				TxID:        fixtures.TxIdSecondary,
 			},
 		},
-		MerklePath: mp2,
 	}
 )
 

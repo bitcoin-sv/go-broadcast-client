@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/rs/zerolog"
 	"log"
+
+	"github.com/rs/zerolog"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
@@ -12,10 +13,6 @@ import (
 // This example shows how to get a policy quote.
 func main() {
 	logger := zerolog.Nop()
-	taalCfg := broadcast_client.ArcClientConfig{
-		Token:  "",
-		APIUrl: "https://tapi.taal.com/arc",
-	}
 
 	gorillaCfg := broadcast_client.ArcClientConfig{
 		Token:  "",
@@ -23,7 +20,6 @@ func main() {
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(taalCfg, &logger).
 		WithArc(gorillaCfg, &logger).
 		Build()
 
