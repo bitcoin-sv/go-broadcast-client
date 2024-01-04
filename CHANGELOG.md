@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.12.0...v0.12.1) (2024-01-04)
+
+
+### Bug Fixes
+
+* change name of query param in query_tx method ([#65](https://github.com/bitcoin-sv/go-broadcast-client/issues/65)) ([0a7b380](https://github.com/bitcoin-sv/go-broadcast-client/commit/0a7b380eba4f1bbd8def2ec2f25c028d3b2aec8d))
+
 ## [0.12.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.11.0...v0.12.0) (2024-01-04)
 
 
