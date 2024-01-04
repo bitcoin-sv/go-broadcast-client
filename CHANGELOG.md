@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.11.0...v0.12.0) (2024-01-04)
+
+
+### Features
+
+* **BUX-418/166:** default miners, retrieve bump (merkle paths) from arc ([#62](https://github.com/bitcoin-sv/go-broadcast-client/issues/62)) ([1b9372a](https://github.com/bitcoin-sv/go-broadcast-client/commit/1b9372a2f6069a4086947d3a7f8ec8552f7fb845))
+
 ## [0.11.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.10.0...v0.11.0) (2023-12-22)
 
 
