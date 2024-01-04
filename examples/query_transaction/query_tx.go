@@ -15,7 +15,7 @@ func main() {
 	logger := zerolog.Nop()
 	token := ""
 	apiURL := "https://arc.gorillapool.io"
-	hex := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
+	txID := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
 
 	cfg := broadcast_client.ArcClientConfig{
 		Token:  token,
@@ -26,7 +26,7 @@ func main() {
 		WithArc(cfg, &logger).
 		Build()
 
-	result, err := client.QueryTransaction(context.Background(), hex)
+	result, err := client.QueryTransaction(context.Background(), txID)
 	if err != nil {
 		log.Fatalf("error: %s", err.Error())
 	}
