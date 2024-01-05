@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.2](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.12.1...v0.12.2) (2024-01-05)
+
+
+### Bug Fixes
+
+* fixes merkle path test fixture ([#68](https://github.com/bitcoin-sv/go-broadcast-client/issues/68)) ([d752c50](https://github.com/bitcoin-sv/go-broadcast-client/commit/d752c504ca9678628a9913fbc6eb2a8a933db8fc))
+
 ## [0.12.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.12.0...v0.12.1) (2024-01-04)
 
 
