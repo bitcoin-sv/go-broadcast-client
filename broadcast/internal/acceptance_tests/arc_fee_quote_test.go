@@ -12,36 +12,6 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
-const firstSuccessfulFeeQuoteResponse = `
-{
-	"policy": {
-		"maxscriptsizepolicy": 100000000,
-		"maxtxsigopscountspolicy": 4294967295,
-		"maxtxsizepolicy": 100000000,
-		"miningFee": {
-			"bytes": 1000,
-			"satoshis": 1
-		}
-	},
-	"timestamp": "2023-08-10T13:49:07.308687569Z"
-}
-`
-
-const secondSuccessfulFeeQuoteResponse = `
-{
-	"policy": {
-		"maxscriptsizepolicy": 100000000,
-		"maxtxsigopscountspolicy": 4294967295,
-		"maxtxsizepolicy": 100000000,
-		"miningFee": {
-			"bytes": 1000,
-			"satoshis": 2
-		}
-	},
-	"timestamp": "2023-08-10T13:49:07.308687569Z"
-}
-`
-
 func policyUrl(base string) string {
 	return requestUrl(base, "/v1/policy")
 }
@@ -56,21 +26,24 @@ func TestFeeQuote(t *testing.T) {
 		broadcaster, urls := getBroadcaster(2)
 
 		httpmock.RegisterResponder("GET", policyUrl(urls[0]),
-			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulFeeQuoteResponse),
+			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulPolicyResponse),
 		)
 
 		httpmock.RegisterResponder("GET", policyUrl(urls[1]),
-			httpmock.NewStringResponder(http.StatusOK, secondSuccessfulFeeQuoteResponse),
+			httpmock.NewStringResponder(http.StatusOK, secondSuccessfulPolicyResponse),
 		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
-		assert.Equal(t, int64(100000000), result[0].Policy.MaxScriptSizePolicy)
+		assert.Equal(t, int64(1), result[0].MiningFee.Satoshis)
+		assert.Equal(t, urls[0], result[0].Miner)
+		assert.Equal(t, int64(2), result[1].MiningFee.Satoshis)
+		assert.Equal(t, urls[1], result[1].Miner)
 	})
 
 	t.Run("Should return error if all ArcClients return errors", func(t *testing.T) {
@@ -87,7 +60,7 @@ func TestFeeQuote(t *testing.T) {
 		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.Error(t, err)
@@ -102,16 +75,17 @@ func TestFeeQuote(t *testing.T) {
 		broadcaster, urls := getBroadcaster(1)
 
 		httpmock.RegisterResponder("GET", policyUrl(urls[0]),
-			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulFeeQuoteResponse),
+			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulPolicyResponse),
 		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 1, httpmock.GetTotalCallCount())
+		assert.Equal(t, int64(1), result[0].MiningFee.Satoshis)
 	})
 
 	t.Run("Should return error if single ArcClient returns error", func(t *testing.T) {
@@ -124,7 +98,7 @@ func TestFeeQuote(t *testing.T) {
 		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.Error(t, err)
