@@ -8,6 +8,13 @@ require (
 )
 
 require (
+	github.com/libsv/go-bk v0.1.6 // indirect
+	github.com/libsv/go-bt/v2 v2.2.5 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	golang.org/x/crypto v0.13.0 // indirect
+)
+
+require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/kr/pretty v0.3.1 // indirect
