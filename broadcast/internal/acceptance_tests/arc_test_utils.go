@@ -2,10 +2,12 @@ package acceptancetests
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
+	"github.com/jarcoal/httpmock"
 	"github.com/rs/zerolog"
 )
 
@@ -47,4 +49,14 @@ func fakeApiToken(i int) string {
 
 func requestUrl(base, suffix string) string {
 	return fmt.Sprintf("%s%s", base, suffix)
+}
+
+func callCount(url string) int {
+	info := httpmock.GetCallCountInfo()
+	for key, value := range info {
+		if strings.Contains(key, url) {
+			return value
+		}
+	}
+	return 0
 }
