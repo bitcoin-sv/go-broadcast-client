@@ -2,6 +2,7 @@ package arc
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
@@ -26,6 +27,15 @@ func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuot
 	return models, nil
 }
 
+func decodePolicyQuoteResponseBody(resp *http.Response) (*broadcast.PolicyQuoteResponse, error) {
+	model := &broadcast.PolicyQuoteResponse{}
+	err := arc_utils.DecodeResponseBody(resp.Body, model)
+	if err != nil {
+		return nil, err
+	}
+	return model, nil
+}
+
 func getPolicyQuote(ctx context.Context, arc *ArcClient) (*broadcast.PolicyQuoteResponse, error) {
 	url := arc.apiURL + arcPolicyQuoteRoute
 	pld := httpclient.NewPayload(
@@ -35,15 +45,10 @@ func getPolicyQuote(ctx context.Context, arc *ArcClient) (*broadcast.PolicyQuote
 		nil,
 	)
 
-	resp, err := arc.HTTPClient.DoRequest(ctx, pld)
-	if err != nil {
-		return nil, arc_utils.HandleHttpError(err)
-	}
-
-	model := &broadcast.PolicyQuoteResponse{}
-	err = arc_utils.DecodeResponseBody(resp.Body, model)
-	if err != nil {
-		return nil, err
-	}
-	return model, nil
+	return httpclient.RequestModel(
+		ctx,
+		arc.HTTPClient.DoRequest,
+		pld,
+		decodePolicyQuoteResponseBody,
+	)
 }

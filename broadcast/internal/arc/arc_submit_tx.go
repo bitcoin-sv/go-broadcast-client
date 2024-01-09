@@ -102,20 +102,12 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 	)
 	appendSubmitTxHeaders(&pld, opts)
 
-	resp, err := arc.HTTPClient.DoRequest(
+	return httpclient.RequestModel(
 		ctx,
+		arc.HTTPClient.DoRequest,
 		pld,
+		decodeSubmitResponseBody,
 	)
-	if err != nil {
-		return nil, arc_utils.HandleHttpError(err)
-	}
-
-	model, err := decodeSubmitResponseBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return model, nil
 }
 
 func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
@@ -133,20 +125,12 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 	)
 	appendSubmitTxHeaders(&pld, opts)
 
-	resp, err := arc.HTTPClient.DoRequest(
+	return httpclient.RequestModel(
 		ctx,
+		arc.HTTPClient.DoRequest,
 		pld,
+		decodeSubmitBatchResponseBody,
 	)
-	if err != nil {
-		return nil, arc_utils.HandleHttpError(err)
-	}
-
-	model, err := decodeSubmitBatchResponseBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return model, nil
 }
 
 func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
