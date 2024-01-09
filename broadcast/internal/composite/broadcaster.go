@@ -73,8 +73,9 @@ func (c *compositeBroadcaster) QueryTransaction(
 ) (*broadcast.QueryTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
+		currentBroadcaster := broadcaster
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
-			return broadcaster.QueryTransaction(ctx, txID)
+			return currentBroadcaster.QueryTransaction(ctx, txID)
 		}
 	}
 	result, err := c.strategy.Execute(ctx, executionFuncs)
@@ -98,8 +99,9 @@ func (c *compositeBroadcaster) SubmitTransaction(
 ) (*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
+		currentBroadcaster := broadcaster
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
-			return broadcaster.SubmitTransaction(ctx, tx)
+			return currentBroadcaster.SubmitTransaction(ctx, tx)
 		}
 	}
 	result, err := c.strategy.Execute(ctx, executionFuncs)
@@ -123,8 +125,9 @@ func (c *compositeBroadcaster) SubmitBatchTransactions(
 ) (*broadcast.SubmitBatchTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
+		currentBroadcaster := broadcaster
 		executionFuncs[i] = func(ctx context.Context) (Result, error) {
-			return broadcaster.SubmitBatchTransactions(ctx, txs)
+			return currentBroadcaster.SubmitBatchTransactions(ctx, txs)
 		}
 	}
 
