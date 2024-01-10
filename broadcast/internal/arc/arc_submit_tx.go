@@ -293,6 +293,16 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	return request, nil
 }
 
+func decodeJunblebusTransaction(resp *http.Response) (*junglebusTransaction, error) {
+	tx := &junglebusTransaction{}
+	err := arc_utils.DecodeResponseBody(resp.Body, &tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx, nil
+}
+
 func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 	txid := input.PreviousTxIDStr()
 
@@ -302,13 +312,15 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 		"",
 		nil,
 	)
-	resp, err := arc.HTTPClient.DoRequest(context.Background(), pld)
-	if err != nil {
-		return err
-	}
 
-	var tx *junglebusTransaction
-	err = arc_utils.DecodeResponseBody(resp.Body, &tx)
+	tx, err := httpclient.RequestModel(
+		context.Background(),
+		arc.HTTPClient.DoRequest,
+		pld,
+		decodeJunblebusTransaction,
+		parseArcError,
+	)
+
 	if err != nil {
 		return err
 	}
