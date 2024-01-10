@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.12.2...v0.13.0) (2024-01-10)
+
+
+### Features
+
+* **BUX-426:** revert RawTx -&gt; EF Tx translation mechanism ([#73](https://github.com/bitcoin-sv/go-broadcast-client/issues/73)) ([437ebdf](https://github.com/bitcoin-sv/go-broadcast-client/commit/437ebdff48f7be12d45fc1d27bb4cfabc691481d))
+
 ## [0.12.2](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.12.1...v0.12.2) (2024-01-05)
 
 
