@@ -50,5 +50,6 @@ func getPolicyQuote(ctx context.Context, arc *ArcClient) (*broadcast.PolicyQuote
 		arc.HTTPClient.DoRequest,
 		pld,
 		decodePolicyQuoteResponseBody,
+		parseArcError,
 	)
 }

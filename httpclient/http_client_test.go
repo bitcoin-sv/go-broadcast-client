@@ -1,13 +1,13 @@
 package httpclient
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"testing"
 
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
@@ -40,15 +40,33 @@ func decodeModel(resp *http.Response) (*mockModel, error) {
 
 const mockUrl = "http://test.com"
 
-const arcErrorResponse = `
+func nilErrorParser(statusCode int, body []byte) error {
+	return nil
+}
+
+type mockError struct {
+	ExtraInfo string `json:"extraInfo"`
+}
+
+func (e mockError) Error() string {
+	return e.ExtraInfo
+}
+
+func mockErrorParser(statusCode int, body []byte) error {
+	resultError := &mockError{}
+	reader := bytes.NewReader(body)
+	err := json.NewDecoder(reader).Decode(resultError)
+
+	if err != nil {
+		return errors.New("unable to decode an error")
+	}
+
+	return resultError
+}
+
+const mockErrorResponse = `
 {
-	"detail": "The request seems to be malformed and cannot be processed",
-	"extraInfo": "extra info",
-	"instance": null,
-	"status": 400,
-	"title": "ErrStatusBadRequest",
-	"txid": null,
-	"type": "https://bitcoin-sv.github.io/arc/#/errors?id=_400"
+	"extraInfo": "mockErrorResponse"
 }
 `
 
@@ -73,6 +91,7 @@ func Test_HttpClient_RequestModel(t *testing.T) {
 			client.DoRequest,
 			NewPayload(GET, mockUrl, "", nil),
 			decodeModel,
+			nilErrorParser,
 		)
 
 		assert.NoError(t, err)
@@ -93,6 +112,7 @@ func Test_HttpClient_RequestModel(t *testing.T) {
 			client.DoRequest,
 			NewPayload(GET, mockUrl, "", nil),
 			decodeModel,
+			nilErrorParser,
 		)
 
 		assert.Error(t, err)
@@ -109,6 +129,7 @@ func Test_HttpClient_RequestModel(t *testing.T) {
 			client.DoRequest,
 			NewPayload(GET, "", "", nil),
 			decodeModel,
+			nilErrorParser,
 		)
 
 		assert.Error(t, err)
@@ -129,6 +150,7 @@ func Test_HttpClient_RequestModel(t *testing.T) {
 			client.DoRequest,
 			NewPayload(GET, mockUrl, "", nil),
 			decodeModel,
+			nilErrorParser,
 		)
 
 		assert.Error(t, err)
@@ -136,13 +158,13 @@ func Test_HttpClient_RequestModel(t *testing.T) {
 		assert.Contains(t, err.Error(), "404", "ERROR")
 	})
 
-	t.Run("No success response - arc error", func(t *testing.T) {
+	t.Run("No success response - special error", func(t *testing.T) {
 		httpmock.Reset()
 
 		client := NewHttpClient()
 
 		httpmock.RegisterResponder("GET", mockUrl,
-			httpmock.NewStringResponder(400, arcErrorResponse),
+			httpmock.NewStringResponder(400, mockErrorResponse),
 		)
 
 		model, err := RequestModel(
@@ -150,13 +172,13 @@ func Test_HttpClient_RequestModel(t *testing.T) {
 			client.DoRequest,
 			NewPayload(GET, mockUrl, "", nil),
 			decodeModel,
+			mockErrorParser,
 		)
 
 		assert.Error(t, err)
 		assert.Nil(t, model)
-		arcError, ok := err.(broadcast.ArcError)
+		specialError, ok := err.(*mockError)
 		assert.True(t, ok)
-		assert.Equal(t, "ErrStatusBadRequest", arcError.Title)
-		assert.Equal(t, 400, arcError.Status)
+		assert.Equal(t, "mockErrorResponse", specialError.ExtraInfo)
 	})
 }

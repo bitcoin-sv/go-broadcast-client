@@ -110,6 +110,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 		arc.HTTPClient.DoRequest,
 		pld,
 		decodeSubmitResponseBody,
+		parseArcError,
 	)
 }
 
@@ -133,6 +134,7 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		arc.HTTPClient.DoRequest,
 		pld,
 		decodeSubmitBatchResponseBody,
+		parseArcError,
 	)
 }
 

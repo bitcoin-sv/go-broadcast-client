@@ -43,13 +43,16 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 		nil,
 	)
 
+	parseResponse := func(resp *http.Response) (*broadcast.QueryTxResponse, error) {
+		return decodeQueryResponseBody(resp, arc)
+	}
+
 	return httpclient.RequestModel(
 		ctx,
 		arc.HTTPClient.DoRequest,
 		pld,
-		func(resp *http.Response) (*broadcast.QueryTxResponse, error) {
-			return decodeQueryResponseBody(resp, arc)
-		},
+		parseResponse,
+		parseArcError,
 	)
 }
 
