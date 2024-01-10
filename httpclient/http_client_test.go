@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"testing"
 
@@ -180,5 +181,34 @@ func Test_HttpClient_RequestModel(t *testing.T) {
 		specialError, ok := err.(*mockError)
 		assert.True(t, ok)
 		assert.Equal(t, "mockErrorResponse", specialError.ExtraInfo)
+	})
+
+	t.Run("Request with body using POST", func(t *testing.T) {
+		httpmock.Reset()
+
+		client := NewHttpClient()
+
+		mockModel := newMockModel("test", 1)
+		mockModelJson := modelJson(mockModel)
+
+		httpmock.RegisterResponder("POST", mockUrl,
+			func(r *http.Request) (*http.Response, error) {
+				requestBody, err := io.ReadAll(r.Body)
+				assert.NoError(t, err)
+				assert.Equal(t, "test", string(requestBody))
+				return httpmock.NewStringResponse(200, mockModelJson), nil
+			},
+		)
+
+		model, err := RequestModel(
+			context.Background(),
+			client.DoRequest,
+			NewPayload(POST, mockUrl, "", []byte("test")),
+			decodeModel,
+			nilErrorParser,
+		)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, model)
 	})
 }

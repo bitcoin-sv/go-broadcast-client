@@ -84,14 +84,16 @@ func (hc *HTTPClient) DoRequest(ctx context.Context, pld HTTPRequest) (*http.Res
 		return nil, errors.New("url is empty")
 	}
 
+	if pld.Data != nil && (pld.Method == http.MethodPost || pld.Method == http.MethodPut) {
+		bodyReader = bytes.NewBuffer(pld.Data)
+	}
+
 	req, err := http.NewRequestWithContext(ctx, string(pld.Method), pld.URL, bodyReader)
 	if err != nil {
 		return nil, err
 	}
 
-	if pld.Data != nil && (pld.Method == POST || pld.Method == PUT) {
-		bodyReader = bytes.NewBuffer(pld.Data)
-		req.Body = io.NopCloser(bodyReader)
+	if bodyReader != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 
