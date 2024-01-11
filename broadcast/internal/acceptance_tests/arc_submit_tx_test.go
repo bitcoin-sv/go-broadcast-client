@@ -3,27 +3,22 @@ package acceptancetests
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/rs/zerolog"
-	"io"
 	"net/http"
-	"strings"
 	"testing"
 
+	"github.com/jarcoal/httpmock"
+
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-var successfulSubmitResponse = `
+const successfulSubmitResponse = `
 {
     "txStatus": "MINED"
 }
 `
 
-var successfulSubmitBatchResponse = `
+const successfulSubmitBatchResponse = `
 [
 	{
     	"txStatus": "MINED"
@@ -34,224 +29,229 @@ var successfulSubmitBatchResponse = `
 ]
 `
 
+const missingStatusSubmitResponse = `
+{
+	"blockHash": "hash"
+}
+`
+
+const mockHex = "transaction-data"
+
+func mockBatch() []*broadcast.Transaction {
+	return []*broadcast.Transaction{
+		{Hex: "transaction-0-data"},
+		{Hex: "transaction-1-data"},
+	}
+}
+
+func submitUrl(base string) string {
+	return requestUrl(base, "/v1/tx")
+}
+
+func submitBatchUrl(base string) string {
+	return requestUrl(base, "/v1/txs")
+}
+
 func TestSubmitTransaction(t *testing.T) {
-	testLogger := zerolog.Nop()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 	t.Run("Should successfully submit transaction using first of two ArcClients", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(successfulSubmitResponse))}
-		httpResponse2 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(successfulSubmitResponse))}
-
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse1, nil).Once()
+		httpmock.RegisterResponder("POST", submitUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, successfulSubmitResponse),
+		)
 		// first miner responded successfully, next one should be skipped
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Times(0)
+		httpmock.RegisterResponder("GET", submitUrl(urls[1]),
+			httpmock.NewStringResponder(http.StatusOK, successfulSubmitResponse),
+		)
 
 		// when
 		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, 1, httpmock.GetTotalCallCount())
+
+		assert.Equal(t, 1, callCount(submitUrl(urls[0])))
+		assert.Equal(t, 0, callCount(submitUrl(urls[1])))
 	})
 
 	t.Run("Should return error if both ArcClients return errors", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse := &http.Response{}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
+		httpmock.RegisterResponder("POST", submitUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
+
+		httpmock.RegisterResponder("POST", submitUrl(urls[1]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
 
 		// when
 		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.Error(t, err)
 		assert.Nil(t, result)
 		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
+		assert.Equal(t, 1, callCount(submitUrl(urls[0])))
+		assert.Equal(t, 1, callCount(submitUrl(urls[1])))
 	})
 
 	t.Run("Should return error if one ArcClient returns error and the other returns invalid response", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader("invalid-response"))}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, nil).Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
+		httpmock.RegisterResponder("POST", submitUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
+
+		httpmock.RegisterResponder("POST", submitUrl(urls[1]),
+			httpmock.NewErrorResponder(errors.New("http error")),
+		)
 
 		// when
 		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.Error(t, err)
 		assert.Nil(t, result)
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 	})
 
 	t.Run("Should successfully submit transaction if one ArcClient returns missing status and the other is successful", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(`{"blockHash": "hash"}`))}
-		httpResponse2 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(successfulSubmitResponse))}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse1, nil).Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Once()
+		httpmock.RegisterResponder("POST", submitUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, missingStatusSubmitResponse),
+		)
+
+		httpmock.RegisterResponder("POST", submitUrl(urls[1]),
+			httpmock.NewStringResponder(http.StatusOK, successfulSubmitResponse),
+		)
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: mockHex})
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
+		assert.Equal(t, urls[1], result.Miner)
 	})
 }
 
 func TestSubmitBatchTransactions(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
 	t.Run("Should successfully submit batch of transactions using first of few ArcClients", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := buildBroadcastClient(2, httpClientMock)
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(successfulSubmitBatchResponse))}
-		httpResponse2 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(successfulSubmitBatchResponse))}
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, successfulSubmitBatchResponse),
+		)
 
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse1, nil).Once()
-		// first miner responded successfully, next one should be skipped
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Times(0)
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[1]),
+			httpmock.NewStringResponder(http.StatusOK, successfulSubmitBatchResponse),
+		)
 
-		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
-		}
+		batch := mockBatch()
 
 		// when
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), batch)
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, 1, httpmock.GetTotalCallCount())
+		assert.Equal(t, 1, callCount(submitBatchUrl(urls[0])))
 	})
 
 	t.Run("Should successfully submit batch of transactions if one ArcClient returns missing status and the other is successful", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := buildBroadcastClient(2, httpClientMock)
+		broadcaster, urls := getBroadcaster(2)
 
-		// response without status field
-		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(`[{"blockHash": "hash"}, {"txStatus": "MINED"}`))}
-		// valid response
-		httpResponse2 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(successfulSubmitBatchResponse))}
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, `[{"blockHash": "hash"}, {"txStatus": "MINED"}`),
+		)
 
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse1, nil).Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Once()
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[1]),
+			httpmock.NewStringResponder(http.StatusOK, successfulSubmitBatchResponse),
+		)
 
-		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
-		}
+		batch := mockBatch()
 
 		// when
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), batch)
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
+		assert.Equal(t, 1, callCount(submitBatchUrl(urls[1])))
+		assert.Equal(t, urls[1], result.Miner)
 	})
 
 	t.Run("Should return error if every ArcClients return errors", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := buildBroadcastClient(2, httpClientMock)
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse := &http.Response{}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[0]),
+			httpmock.NewErrorResponder(errors.New("http error")),
+		)
 
-		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
-		}
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[1]),
+			httpmock.NewErrorResponder(errors.New("http error")),
+		)
+
+		batch := mockBatch()
 
 		// when
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), batch)
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.Error(t, err)
 		assert.Nil(t, result)
 		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 	})
 
 	t.Run("Should return error if one ArcClient returns error and the other returns invalid response", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := buildBroadcastClient(2, httpClientMock)
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader("invalid-response"))}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, nil).Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
 
-		batch := []*broadcast.Transaction{
-			{Hex: "transaction-0-data"},
-			{Hex: "transaction-1-data"},
-		}
+		httpmock.RegisterResponder("POST", submitBatchUrl(urls[1]),
+			httpmock.NewErrorResponder(errors.New("http error")),
+		)
+
+		batch := mockBatch()
 
 		// when
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), batch)
 
 		// then
-		httpClientMock.AssertExpectations(t)
-
 		assert.Error(t, err)
 		assert.Nil(t, result)
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 	})
-}
-
-func buildBroadcastClient(acrClients uint, httpClient *arc.MockHttpClient) broadcast.Client {
-	builder := broadcast_client.Builder().
-		WithHttpClient(httpClient)
-	testLogger := zerolog.Nop()
-
-	for i := uint(0); i < acrClients; i++ {
-		arc := broadcast_client.ArcClientConfig{
-			APIUrl: fmt.Sprintf("http://arc%d-api-url", i),
-			Token:  fmt.Sprintf("arc%d-token", i),
-		}
-		builder = builder.WithArc(arc, &testLogger)
-	}
-
-	return builder.Build()
 }

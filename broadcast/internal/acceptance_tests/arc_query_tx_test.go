@@ -2,94 +2,144 @@ package acceptancetests
 
 import (
 	"context"
-	"errors"
-	"github.com/rs/zerolog"
-	"io"
 	"net/http"
-	"strings"
 	"testing"
 
+	"github.com/jarcoal/httpmock"
+
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-var firstSuccessfulResponse = `
+const firstSuccessfulTxResponse = `
 {
     "blockHash": "hash",
     "txStatus": "MINED",
-	"txid": "abc123"
+    "txid": "abc123"
 }
 `
 
-var secondSuccessfulResponse = `
+const secondSuccessfulTxResponse = `
 {
     "blockHash": "hash",
-    "txStatus": "CONFIRMED"
-	"txid": "abc123"
+    "txStatus": "CONFIRMED",
+    "txid": "abc123"
 }
 `
 
-func TestQueryTransaction(t *testing.T) {
-	testLogger := zerolog.Nop()
-	t.Run("Should successfully query from multiple ArcClients", func(t *testing.T) {
-		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+const mockTxID = "txID"
 
-		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(firstSuccessfulResponse))}
-		httpResponse2 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(secondSuccessfulResponse))}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse1, nil).Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse2, nil).Once()
+func txUrl(base string) string {
+	return requestUrl(base, "/v1/tx/"+mockTxID)
+}
+
+func TestQueryTransaction(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	t.Run("Should successfully query when both can return success", func(t *testing.T) {
+		httpmock.Reset()
+		// given
+		broadcaster, urls := getBroadcaster(2)
+
+		httpmock.RegisterResponder("GET", txUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulTxResponse),
+		)
+		// first miner responded successfully, next one should be skipped
+		httpmock.RegisterResponder("GET", txUrl(urls[1]),
+			httpmock.NewStringResponder(http.StatusOK, secondSuccessfulTxResponse),
+		)
 
 		// when
-		result, err := broadcaster.QueryTransaction(context.Background(), "txID")
+		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, 1, httpmock.GetTotalCallCount())
+		assert.Equal(t, "MINED", string(result.TxStatus))
+	})
+
+	t.Run("Should successfully query when first one can return success", func(t *testing.T) {
+		httpmock.Reset()
+		// given
+		broadcaster, urls := getBroadcaster(2)
+
+		httpmock.RegisterResponder("GET", txUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulTxResponse),
+		)
+		// first miner responded successfully, next one should be skipped
+		httpmock.RegisterResponder("GET", txUrl(urls[1]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
+
+		// when
+		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
+
+		// then
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		assert.Equal(t, 1, httpmock.GetTotalCallCount())
+		assert.Equal(t, "MINED", string(result.TxStatus))
+	})
+
+	t.Run("Should successfully query when second one can return success", func(t *testing.T) {
+		httpmock.Reset()
+		// given
+		broadcaster, urls := getBroadcaster(2)
+
+		httpmock.RegisterResponder("GET", txUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
+		// this time, first miner responded with error, second one should be queried
+		httpmock.RegisterResponder("GET", txUrl(urls[1]),
+			httpmock.NewStringResponder(http.StatusOK, secondSuccessfulTxResponse),
+		)
+
+		// when
+		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
+
+		// then
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
+		assert.Equal(t, "CONFIRMED", string(result.TxStatus))
 	})
 
 	t.Run("Should return error if all ArcClients return errors", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse := &http.Response{}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Twice()
+		httpmock.RegisterResponder("GET", txUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
+
+		httpmock.RegisterResponder("GET", txUrl(urls[1]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
 
 		// when
-		result, err := broadcaster.QueryTransaction(context.Background(), "txID")
+		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
 		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 	})
 
 	t.Run("Should successfully query from single ArcClient", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse1 := &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(firstSuccessfulResponse))}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse1, nil).Once()
+		httpmock.RegisterResponder("GET", txUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulTxResponse),
+		)
 
 		// when
-		result, err := broadcaster.QueryTransaction(context.Background(), "txID")
+		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
 		assert.NoError(t, err)
@@ -97,18 +147,16 @@ func TestQueryTransaction(t *testing.T) {
 	})
 
 	t.Run("Should return error if single ArcClient returns error", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		httpResponse := &http.Response{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(1)
 
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).Return(httpResponse, errors.New("http error")).Once()
+		httpmock.RegisterResponder("GET", txUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
 
 		// when
-		result, err := broadcaster.QueryTransaction(context.Background(), "txID")
+		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
 		assert.Error(t, err)

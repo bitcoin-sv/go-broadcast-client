@@ -105,20 +105,13 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 	)
 	appendSubmitTxHeaders(&pld, opts)
 
-	resp, err := arc.HTTPClient.DoRequest(
+	return httpclient.RequestModel(
 		ctx,
+		arc.HTTPClient.DoRequest,
 		pld,
+		decodeSubmitResponseBody,
+		parseArcError,
 	)
-	if err != nil {
-		return nil, arc_utils.HandleHttpError(err)
-	}
-
-	model, err := decodeSubmitResponseBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return model, nil
 }
 
 func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
@@ -136,20 +129,13 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 	)
 	appendSubmitTxHeaders(&pld, opts)
 
-	resp, err := arc.HTTPClient.DoRequest(
+	return httpclient.RequestModel(
 		ctx,
+		arc.HTTPClient.DoRequest,
 		pld,
+		decodeSubmitBatchResponseBody,
+		parseArcError,
 	)
-	if err != nil {
-		return nil, arc_utils.HandleHttpError(err)
-	}
-
-	model, err := decodeSubmitBatchResponseBody(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return model, nil
 }
 
 func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
@@ -307,6 +293,16 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	return request, nil
 }
 
+func decodeJunblebusTransaction(resp *http.Response) (*junglebusTransaction, error) {
+	tx := &junglebusTransaction{}
+	err := arc_utils.DecodeResponseBody(resp.Body, &tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return tx, nil
+}
+
 func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 	txid := input.PreviousTxIDStr()
 
@@ -316,13 +312,15 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 		"",
 		nil,
 	)
-	resp, err := arc.HTTPClient.DoRequest(context.Background(), pld)
-	if err != nil {
-		return err
-	}
 
-	var tx *junglebusTransaction
-	err = arc_utils.DecodeResponseBody(resp.Body, &tx)
+	tx, err := httpclient.RequestModel(
+		context.Background(),
+		arc.HTTPClient.DoRequest,
+		pld,
+		decodeJunblebusTransaction,
+		parseArcError,
+	)
+
 	if err != nil {
 		return err
 	}
