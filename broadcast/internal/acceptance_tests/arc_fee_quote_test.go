@@ -2,147 +2,103 @@ package acceptancetests
 
 import (
 	"context"
-	"errors"
-	"github.com/rs/zerolog"
-	"io"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+
+	"github.com/jarcoal/httpmock"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	broadcast_client "github.com/bitcoin-sv/go-broadcast-client/broadcast/broadcast-client"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc"
 )
 
-var firstSuccessfulFeeQuoteResponse = `
-{
-	"policy": {
-		"maxscriptsizepolicy": 100000000,
-		"maxtxsigopscountspolicy": 4294967295,
-		"maxtxsizepolicy": 100000000,
-		"miningFee": {
-			"bytes": 1000,
-			"satoshis": 1
-		}
-	},
-	"timestamp": "2023-08-10T13:49:07.308687569Z"
+func policyUrl(base string) string {
+	return requestUrl(base, "/v1/policy")
 }
-`
-
-var secondSuccessfulFeeQuoteResponse = `
-{
-	"policy": {
-		"maxscriptsizepolicy": 100000000,
-		"maxtxsigopscountspolicy": 4294967295,
-		"maxtxsizepolicy": 100000000,
-		"miningFee": {
-			"bytes": 1000,
-			"satoshis": 2
-		}
-	},
-	"timestamp": "2023-08-10T13:49:07.308687569Z"
-}
-`
 
 func TestFeeQuote(t *testing.T) {
-	testLogger := zerolog.Nop()
-	t.Run("Should successfully query from multiple ArcClients", func(t *testing.T) {
-		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 
-		httpResponse1 := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(firstSuccessfulFeeQuoteResponse)),
-		}
-		httpResponse2 := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(secondSuccessfulFeeQuoteResponse)),
-		}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).
-			Return(httpResponse1, nil).
-			Once()
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).
-			Return(httpResponse2, nil).
-			Once()
+	t.Run("Should successfully query from multiple ArcClients", func(t *testing.T) {
+		httpmock.Reset()
+		// given
+		broadcaster, urls := getBroadcaster(2)
+
+		httpmock.RegisterResponder("GET", policyUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulPolicyResponse),
+		)
+
+		httpmock.RegisterResponder("GET", policyUrl(urls[1]),
+			httpmock.NewStringResponder(http.StatusOK, secondSuccessfulPolicyResponse),
+		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
+		assert.Equal(t, int64(1), result[0].MiningFee.Satoshis)
+		assert.Equal(t, urls[0], result[0].Miner)
+		assert.Equal(t, int64(2), result[1].MiningFee.Satoshis)
+		assert.Equal(t, urls[1], result[1].Miner)
 	})
 
 	t.Run("Should return error if all ArcClients return errors", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc2-api-url", Token: "arc2-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(2)
 
-		httpResponse := &http.Response{}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).
-			Return(httpResponse, errors.New("http error")).
-			Twice()
+		httpmock.RegisterResponder("GET", policyUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
+
+		httpmock.RegisterResponder("GET", policyUrl(urls[1]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
+		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 		assert.EqualError(t, err, broadcast.ErrNoMinerResponse.Error())
 	})
 
 	t.Run("Should successfully query from single ArcClient", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(1)
 
-		httpResponse1 := &http.Response{
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(strings.NewReader(firstSuccessfulFeeQuoteResponse)),
-		}
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).
-			Return(httpResponse1, nil).
-			Once()
+		httpmock.RegisterResponder("GET", policyUrl(urls[0]),
+			httpmock.NewStringResponder(http.StatusOK, firstSuccessfulPolicyResponse),
+		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.Equal(t, 1, httpmock.GetTotalCallCount())
+		assert.Equal(t, int64(1), result[0].MiningFee.Satoshis)
 	})
 
 	t.Run("Should return error if single ArcClient returns error", func(t *testing.T) {
+		httpmock.Reset()
 		// given
-		httpClientMock := &arc.MockHttpClient{}
-		httpResponse := &http.Response{}
-		broadcaster := broadcast_client.Builder().
-			WithHttpClient(httpClientMock).
-			WithArc(broadcast_client.ArcClientConfig{APIUrl: "http://arc1-api-url", Token: "arc1-token"}, &testLogger).
-			Build()
+		broadcaster, urls := getBroadcaster(1)
 
-		httpClientMock.On("DoRequest", mock.Anything, mock.Anything).
-			Return(httpResponse, errors.New("http error")).
-			Once()
+		httpmock.RegisterResponder("GET", policyUrl(urls[0]),
+			httpmock.NewStringResponder(409, errorResponse409),
+		)
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
 		assert.Error(t, err)
