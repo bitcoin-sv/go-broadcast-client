@@ -25,6 +25,8 @@ const (
 	SeenOnNetwork TxStatus = "SEEN_ON_NETWORK" // 8
 	// Mined status means that transaction has been mined into a block by a mining node.
 	Mined TxStatus = "MINED" // 9
+	// SeenInOrphanMempool means that transaction has been sent to at least 1 Bitcoin node but parent transaction was not found.
+	SeenInOrphanMempool TxStatus = "SEEN_IN_ORPHAN_MEMPOOL" // 10
 	// Confirmed status means that transaction is marked as confirmed when it is in a block with 100 blocks built on top of that block.
 	Confirmed TxStatus = "CONFIRMED" // 108
 	// Rejected status means that transaction has been rejected by the Bitcoin network.
@@ -62,6 +64,8 @@ func MapTxStatusToInt(status TxStatus) (int, bool) {
 		value = 8
 	case Mined:
 		value = 9
+	case SeenInOrphanMempool:
+		value = 10
 	case Confirmed:
 		value = 108
 	case Rejected:
