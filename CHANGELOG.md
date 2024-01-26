@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.16.0...v0.16.1) (2024-01-26)
+
+
+### Bug Fixes
+
+* **BUX-368:** arc callback fixes  ([#81](https://github.com/bitcoin-sv/go-broadcast-client/issues/81)) ([ebbf010](https://github.com/bitcoin-sv/go-broadcast-client/commit/ebbf0105bfb259aa64c8246754986caa5f8373d5))
+
 ## [0.16.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.15.0...v0.16.0) (2024-01-12)
 
 
