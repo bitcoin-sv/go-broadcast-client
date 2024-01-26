@@ -38,7 +38,7 @@ func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFun
 	}
 }
 
-// WithMerkleProofFromCallback will return merkle proof from Arc.
+// WithMerkleProofFromCallback it's an option that indicates if the merkle proof should be returned in callback.
 func WithMerkleProofFromCallback() TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.MerkleProof = true
