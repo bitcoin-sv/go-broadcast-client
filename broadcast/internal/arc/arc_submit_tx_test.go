@@ -103,7 +103,7 @@ func TestSubmitTransaction(t *testing.T) {
 
 			// then
 			assert.Equal(t, tc.expectedResult, result)
-			assert.Equal(t, tc.expectedError, err)
+			assert.Equal(t, tc.expectedError, errors.Unwrap(err))
 
 			// assert Expectations on the mock
 			mockHttpClient.AssertExpectations(t)

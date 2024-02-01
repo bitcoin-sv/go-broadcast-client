@@ -34,7 +34,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 
 	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
-		return nil, outter_errors.New("SubmitTransaction: submiting failed", err)
+		return nil, outter_errors.New("SubmitTransaction: submitting failed", err)
 	}
 
 	if err := validateSubmitTxResponse(result); err != nil {
@@ -67,7 +67,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 	result, err := submitBatchTransactions(ctx, a, txs, options)
 	if err != nil {
-		return nil, outter_errors.New("SubmitBatchTransactions: submiting failed", err)
+		return nil, outter_errors.New("SubmitBatchTransactions: submitting failed", err)
 	}
 
 	if err := validateBatchResponse(result); err != nil {
