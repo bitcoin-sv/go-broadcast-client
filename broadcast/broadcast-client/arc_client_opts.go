@@ -12,7 +12,7 @@ type ArcClientOpts struct {
 func (c *ArcClientOpts) GetArcClientHeaders() map[string]string {
 	headers := make(map[string]string)
 	if c.XDeploymentID != "" {
-		headers["X-Deployment-ID"] = c.XDeploymentID
+		headers["XDeployment-ID"] = c.XDeploymentID
 	}
 
 	return headers
