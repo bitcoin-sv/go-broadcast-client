@@ -93,7 +93,7 @@ func TestSubmitTransaction(t *testing.T) {
 				"someToken",
 				body,
 			)
-			appendSubmitTxHeaders(&expectedPayload, nil)
+			appendSubmitTxHeaders(&expectedPayload, nil, client.headers)
 
 			mockHttpClient.On("DoRequest", context.Background(), expectedPayload).
 				Return(tc.httpResponse, tc.httpError).Once()

@@ -103,7 +103,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 		arc.token,
 		data,
 	)
-	appendSubmitTxHeaders(&pld, opts)
+	appendSubmitTxHeaders(&pld, opts, arc.headers)
 
 	return httpclient.RequestModel(
 		ctx,
@@ -127,7 +127,7 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		arc.token,
 		data,
 	)
-	appendSubmitTxHeaders(&pld, opts)
+	appendSubmitTxHeaders(&pld, opts, arc.headers)
 
 	return httpclient.RequestModel(
 		ctx,
@@ -170,7 +170,7 @@ func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction, txFo
 	return data, nil
 }
 
-func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts) {
+func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts, clientHeaders map[string]string) {
 	if opts == nil {
 		return
 	}
@@ -189,6 +189,12 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.Transact
 
 	if statusCode, ok := broadcast.MapTxStatusToInt(opts.WaitForStatus); ok {
 		pld.AddHeader("X-WaitForStatus", strconv.Itoa(statusCode))
+	}
+
+	if len(clientHeaders) > 0 {
+		for key, value := range clientHeaders {
+			pld.AddHeader(key, value)
+		}
 	}
 }
 
