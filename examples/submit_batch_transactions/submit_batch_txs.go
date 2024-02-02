@@ -29,7 +29,7 @@ func main() {
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(cfg, &logger).
+		WithArc(cfg, &logger, broadcast_client.WithXDeploymentID("broadcast-client-example")).
 		Build()
 
 	result, err := client.SubmitBatchTransactions(context.Background(), txs, broadcast.WithRawFormat())

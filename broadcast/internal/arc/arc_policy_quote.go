@@ -45,6 +45,10 @@ func getPolicyQuote(ctx context.Context, arc *ArcClient) (*broadcast.PolicyQuote
 		nil,
 	)
 
+	if arc.headers != nil {
+		pld.Headers = arc.headers
+	}
+
 	return httpclient.RequestModel(
 		ctx,
 		arc.HTTPClient.DoRequest,

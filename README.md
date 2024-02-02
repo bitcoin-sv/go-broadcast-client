@@ -44,9 +44,12 @@ custom features to work with multiple nodes and retry logic.
  }
 
  client := broadcast_client.Builder().
-  WithArc(cfg).
+  WithArc(cfg, &logger, broadcast_client.WithXDeploymentID("broadcast-client-example")).
   Build()
 ```
+
+As you can see, you can inject the logger and set the deployment id for the client.
+DeploymentID is a header that will be added to each request to the node - it is used for monitoring purposes.
 
 ### Use the method exposed by the interface
 
