@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.16.1...v0.17.0) (2024-02-02)
+
+
+### Features
+
+* **BUX-500:** add X-DeploymentID header Arc client option ([#84](https://github.com/bitcoin-sv/go-broadcast-client/issues/84)) ([f14864f](https://github.com/bitcoin-sv/go-broadcast-client/commit/f14864f8b56eb7a42d330946c520bbbada5edcb5))
+
 ## [0.16.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.16.0...v0.16.1) (2024-01-26)
 
 
