@@ -31,15 +31,15 @@ type TransactionOpts struct {
 // and receive the transaction details and status.
 func WithCallback(callbackURL string, callbackToken ...string) TransactionOptFunc {
 	return func(o *TransactionOpts) {
-		o.CallbackToken = callbackURL
+		o.CallbackURL = callbackURL
 		if len(callbackToken) > 0 {
 			o.CallbackToken = callbackToken[0]
 		}
 	}
 }
 
-// WithMerkleProof will return merkle proof from Arc.
-func WithMerkleProof() TransactionOptFunc {
+// WithMerkleProofFromCallback it's an option that indicates if the merkle proof should be returned in callback.
+func WithMerkleProofFromCallback() TransactionOptFunc {
 	return func(o *TransactionOpts) {
 		o.MerkleProof = true
 	}

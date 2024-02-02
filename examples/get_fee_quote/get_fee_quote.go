@@ -20,7 +20,7 @@ func main() {
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(gorillaCfg, &logger).
+		WithArc(gorillaCfg, &logger, broadcast_client.WithXDeploymentID("broadcast-client-example")).
 		Build()
 
 	feeQuotes, err := client.GetFeeQuote(context.Background())

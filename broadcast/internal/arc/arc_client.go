@@ -13,6 +13,10 @@ const (
 	arcSubmitBatchTxsRoute = "/v1/txs"
 )
 
+type ClientOptions interface {
+	GetArcClientHeaders() map[string]string
+}
+
 type Config interface {
 	GetApiUrl() string
 	GetToken() string
@@ -21,16 +25,18 @@ type Config interface {
 type ArcClient struct {
 	apiURL     string
 	token      string
+	headers    map[string]string
 	HTTPClient httpclient.HTTPInterface
 	Logger     *zerolog.Logger
 }
 
-func NewArcClient(config Config, client httpclient.HTTPInterface, log *zerolog.Logger) broadcast_api.Client {
+func NewArcClient(config Config, client httpclient.HTTPInterface, log *zerolog.Logger, opts ClientOptions) broadcast_api.Client {
 	if client == nil {
 		client = httpclient.NewHttpClient()
 	}
 
 	arcClient := &ArcClient{
+		headers:    opts.GetArcClientHeaders(),
 		apiURL:     config.GetApiUrl(),
 		token:      config.GetToken(),
 		HTTPClient: client,

@@ -26,9 +26,14 @@ func (cb *builder) WithHttpClient(client httpclient.HTTPInterface) *builder {
 
 // WithArc sets up the connection of the broadcast client to the Arc service using the provided ArcClientConfig.
 // This method can be called multiple times with different ArcClientConfigurations to establish connections to multiple Arc instances.
-func (cb *builder) WithArc(config ArcClientConfig, log *zerolog.Logger) *builder {
+func (cb *builder) WithArc(config ArcClientConfig, log *zerolog.Logger, opts ...ArcClientOptFunc) *builder {
+	options := &ArcClientOpts{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
 	cb.factories = append(cb.factories, func() broadcast_api.Client {
-		return arc.NewArcClient(&config, cb.client, log)
+		return arc.NewArcClient(&config, cb.client, log, options)
 	})
 	return cb
 }
