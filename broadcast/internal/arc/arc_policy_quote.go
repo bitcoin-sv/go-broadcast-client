@@ -2,6 +2,7 @@ package arc
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
@@ -16,8 +17,7 @@ func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuot
 
 	model, err := getPolicyQuote(ctx, a)
 	if err != nil {
-		a.Logger.Error().Msgf("Failed to get policy quote: %s", err.Error())
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("GetPolicyQuote: request failed"), err)
 	}
 
 	model.Miner = a.apiURL

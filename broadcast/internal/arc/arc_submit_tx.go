@@ -10,7 +10,6 @@ import (
 	"strconv"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	outter_errors "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 	"github.com/libsv/go-bt/v2"
@@ -34,11 +33,11 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 
 	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
-		return nil, outter_errors.New("SubmitTransaction: submitting failed", err)
+		return nil, arc_utils.WithCause(errors.New("SubmitTransaction: submitting failed"), err)
 	}
 
 	if err := validateSubmitTxResponse(result); err != nil {
-		return nil, outter_errors.New("SubmitTransaction: validation of submit tx response failed", err)
+		return nil, arc_utils.WithCause(errors.New("SubmitTransaction: validation of submit tx response failed"), err)
 	}
 
 	response := &broadcast.SubmitTxResponse{
@@ -57,7 +56,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 	if len(txs) == 0 {
 		err := errors.New("invalid request, no transactions to submit")
-		return nil, outter_errors.New("SubmitBatchTransactions: bad request", err)
+		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: bad request"), err)
 	}
 
 	options := &broadcast.TransactionOpts{}
@@ -67,11 +66,11 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 	result, err := submitBatchTransactions(ctx, a, txs, options)
 	if err != nil {
-		return nil, outter_errors.New("SubmitBatchTransactions: submitting failed", err)
+		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: submitting failed"), err)
 	}
 
 	if err := validateBatchResponse(result); err != nil {
-		return nil, outter_errors.New("SubmitBatchTransactions: validation of batch submit tx response failed", err)
+		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: validation of batch submit tx response failed"), err)
 	}
 
 	response := &broadcast.SubmitBatchTxResponse{
@@ -271,12 +270,12 @@ func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
 func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	transaction, err := bt.NewTxFromString(rawTx)
 	if err != nil {
-		return nil, outter_errors.New("rawTxRequest: bt.NewTxFromString failed", err)
+		return nil, arc_utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
 	}
 
 	for _, input := range transaction.Inputs {
 		if err = updateUtxoWithMissingData(arc, input); err != nil {
-			return nil, outter_errors.New("rawTxRequest: updateUtxoWithMissingData() failed", err)
+			return nil, arc_utils.WithCause(errors.New("rawTxRequest: updateUtxoWithMissingData() failed"), err)
 		}
 	}
 
@@ -313,7 +312,7 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 
 	actualTx, err := bt.NewTxFromBytes(tx.Transaction)
 	if err != nil {
-		return outter_errors.New("converting junglebusTransaction.Transaction to bt.Tx failed", err)
+		return arc_utils.WithCause(errors.New("converting junglebusTransaction.Transaction to bt.Tx failed"), err)
 	}
 
 	o := actualTx.Outputs[input.PreviousTxOutIndex]

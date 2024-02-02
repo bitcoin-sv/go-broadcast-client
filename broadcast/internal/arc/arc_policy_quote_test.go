@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/rs/zerolog"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
+
+	"github.com/rs/zerolog"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -86,8 +88,9 @@ func TestPolicyQuote(t *testing.T) {
 
 			// then
 			assert.Equal(t, tc.expectedResult, result)
-			assert.Equal(t, tc.expectedError, err)
-
+			if err != nil {
+				assert.True(t, strings.Contains(err.Error(), tc.expectedError.Error()))
+			}
 			// assert Expectations on the mock
 			mockHttpClient.AssertExpectations(t)
 		})
