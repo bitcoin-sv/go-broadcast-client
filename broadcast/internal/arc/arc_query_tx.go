@@ -40,6 +40,10 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 		nil,
 	)
 
+	if arc.headers != nil {
+		pld.Headers = arc.headers
+	}
+
 	parseResponse := func(resp *http.Response) (*broadcast.QueryTxResponse, error) {
 		return decodeQueryResponseBody(resp, arc)
 	}
