@@ -15,15 +15,17 @@ func main() {
 	logger := zerolog.Nop()
 	token := ""
 	apiURL := "https://arc.gorillapool.io"
+	deploymentID := "broadcast-client-example"
 	txID := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
 
 	cfg := broadcast_client.ArcClientConfig{
-		Token:  token,
-		APIUrl: apiURL,
+		Token:        token,
+		APIUrl:       apiURL,
+		DeploymentID: deploymentID,
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(cfg, &logger, broadcast_client.WithXDeploymentID("broadcast-client-example")).
+		WithArc(cfg, &logger).
 		Build()
 
 	result, err := client.QueryTransaction(context.Background(), txID)

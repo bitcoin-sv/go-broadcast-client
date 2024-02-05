@@ -13,14 +13,16 @@ import (
 // This example shows how to get a policy quote.
 func main() {
 	logger := zerolog.Nop()
+	deploymentID := "broadcast-client-example"
 
 	gorillaCfg := broadcast_client.ArcClientConfig{
-		Token:  "",
-		APIUrl: "https://arc.gorillapool.io",
+		Token:        "",
+		APIUrl:       "https://arc.gorillapool.io",
+		DeploymentID: deploymentID,
 	}
 
 	client := broadcast_client.Builder().
-		WithArc(gorillaCfg, &logger, broadcast_client.WithXDeploymentID("broadcast-client-example")).
+		WithArc(gorillaCfg, &logger).
 		Build()
 
 	policyQuotes, err := client.GetPolicyQuote(context.Background())
