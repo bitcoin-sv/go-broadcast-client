@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.0...v0.17.1) (2024-02-05)
+
+
+### Bug Fixes
+
+* **BUX-500:** simplify by removing options and placing deploymentID in config instead ([#86](https://github.com/bitcoin-sv/go-broadcast-client/issues/86)) ([af2fd6c](https://github.com/bitcoin-sv/go-broadcast-client/commit/af2fd6c59a20a4bd0204dab6387bef55677b50cc))
+
 ## [0.17.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.16.1...v0.17.0) (2024-02-02)
 
 
