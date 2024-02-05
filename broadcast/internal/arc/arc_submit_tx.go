@@ -95,7 +95,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 		arc.token,
 		data,
 	)
-	appendSubmitTxHeaders(&pld, opts, arc.headers)
+	appendSubmitTxHeaders(&pld, opts, arc.deploymentID)
 
 	return httpclient.RequestModel(
 		ctx,
@@ -119,7 +119,7 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		arc.token,
 		data,
 	)
-	appendSubmitTxHeaders(&pld, opts, arc.headers)
+	appendSubmitTxHeaders(&pld, opts, arc.deploymentID)
 
 	return httpclient.RequestModel(
 		ctx,
@@ -162,7 +162,7 @@ func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction, txFo
 	return data, nil
 }
 
-func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts, clientHeaders map[string]string) {
+func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts, deploymentID string) {
 	if opts == nil {
 		return
 	}
@@ -183,10 +183,8 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.Transact
 		pld.AddHeader("X-WaitForStatus", strconv.Itoa(statusCode))
 	}
 
-	if len(clientHeaders) > 0 {
-		for key, value := range clientHeaders {
-			pld.AddHeader(key, value)
-		}
+	if deploymentID != "" {
+		pld.AddHeader(XDeploymentIDHeader, deploymentID)
 	}
 }
 

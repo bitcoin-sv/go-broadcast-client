@@ -34,22 +34,22 @@ custom features to work with multiple nodes and retry logic.
 ### Create client
 
 ```go
-    // Set the access token and url for the node
+ // Set the access token and url for the node
  token := ""
  apiURL := "https://tapi.taal.com/arc"
+ // also there is a possibility to set deploymentID which is optional and adds header XDeployment-ID to the request
+ deploymentID := "broadcast-client-example"
 
  cfg := broadcast_client.ArcClientConfig{
-  Token:  token,
-  APIUrl: apiURL,
+    Token:  token,
+    APIUrl: apiURL,
+    DeploymentID: deploymentID,
  }
 
  client := broadcast_client.Builder().
-  WithArc(cfg, &logger, broadcast_client.WithXDeploymentID("broadcast-client-example")).
+  WithArc(cfg, &logger).
   Build()
 ```
-
-As you can see, you can inject the logger and set the deployment id for the client.
-DeploymentID is a header that will be added to each request to the node - it is used for monitoring purposes.
 
 ### Use the method exposed by the interface
 
