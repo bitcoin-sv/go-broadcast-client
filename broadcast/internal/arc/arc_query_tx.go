@@ -44,7 +44,7 @@ func queryTransaction(ctx context.Context, arc *ArcClient, txHash string) (*broa
 	)
 
 	if arc.deploymentID != "" {
-		pld.AddHeader("XDeployment-ID", arc.deploymentID)
+		pld.AddHeader(XDeploymentIDHeader, arc.deploymentID)
 	}
 
 	parseResponse := func(resp *http.Response) (*broadcast.QueryTxResponse, error) {

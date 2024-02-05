@@ -192,7 +192,7 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.Transact
 	}
 
 	if deploymentID != "" {
-		pld.AddHeader("XDeployment-ID", deploymentID)
+		pld.AddHeader(XDeploymentIDHeader, deploymentID)
 	}
 }
 

@@ -13,6 +13,8 @@ const (
 	arcSubmitBatchTxsRoute = "/v1/txs"
 )
 
+const XDeploymentIDHeader = "XDeployment-ID"
+
 type Config interface {
 	GetApiUrl() string
 	GetToken() string

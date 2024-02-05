@@ -46,7 +46,7 @@ func getPolicyQuote(ctx context.Context, arc *ArcClient) (*broadcast.PolicyQuote
 	)
 
 	if arc.deploymentID != "" {
-		pld.AddHeader("XDeployment-ID", arc.deploymentID)
+		pld.AddHeader(XDeploymentIDHeader, arc.deploymentID)
 	}
 
 	return httpclient.RequestModel(
