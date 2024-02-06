@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.2](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.1...v0.17.2) (2024-02-06)
+
+
+### Bug Fixes
+
+* return submit errors with context information ([#83](https://github.com/bitcoin-sv/go-broadcast-client/issues/83)) ([04e4448](https://github.com/bitcoin-sv/go-broadcast-client/commit/04e4448ba1d6b35b8a3a40a3df7fb74d8c9ba4f5))
+
 ## [0.17.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.0...v0.17.1) (2024-02-05)
 
 
