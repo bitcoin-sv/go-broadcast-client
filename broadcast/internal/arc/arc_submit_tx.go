@@ -23,7 +23,6 @@ var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
 func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
-		a.Logger.Error().Msgf("Failed to submit tx: %s", broadcast.ErrClientUndefined.Error())
 		return nil, broadcast.ErrClientUndefined
 	}
 
@@ -34,13 +33,11 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 
 	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
-		a.Logger.Error().Msgf("Failed to submit tx: %s", err.Error())
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("SubmitTransaction: submitting failed"), err)
 	}
 
 	if err := validateSubmitTxResponse(result); err != nil {
-		a.Logger.Error().Msgf("Failed to validate submit tx response: %s", err.Error())
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("SubmitTransaction: validation of submit tx response failed"), err)
 	}
 
 	response := &broadcast.SubmitTxResponse{
@@ -49,20 +46,17 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 	}
 
 	a.Logger.Debug().Msgf("Got submit tx response from miner: %s", response.Miner)
-
 	return response, nil
 }
 
 func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, error) {
 	if a == nil {
-		a.Logger.Error().Msgf("Failed to submit batch txs: %s", broadcast.ErrClientUndefined.Error())
 		return nil, broadcast.ErrClientUndefined
 	}
 
 	if len(txs) == 0 {
 		err := errors.New("invalid request, no transactions to submit")
-		a.Logger.Error().Msgf("Failed to submit batch txs: %s", err.Error())
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: bad request"), err)
 	}
 
 	options := &broadcast.TransactionOpts{}
@@ -72,13 +66,11 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 	result, err := submitBatchTransactions(ctx, a, txs, options)
 	if err != nil {
-		a.Logger.Error().Msgf("Failed to submit batch txs: %s", err.Error())
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: submitting failed"), err)
 	}
 
 	if err := validateBatchResponse(result); err != nil {
-		a.Logger.Error().Msgf("Failed to validate batch txs response: %s", err.Error())
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: validation of batch submit tx response failed"), err)
 	}
 
 	response := &broadcast.SubmitBatchTxResponse{
@@ -276,18 +268,18 @@ func efTxRequest(rawTx string) (*SubmitTxRequest, error) {
 }
 
 func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
-	return nil, fmt.Errorf("submitting transactions in BEEF format is unimplemented yet...")
+	return nil, errors.New("submitting transactions in BEEF format is unimplemented yet...")
 }
 
 func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	transaction, err := bt.NewTxFromString(rawTx)
 	if err != nil {
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
 	}
 
 	for _, input := range transaction.Inputs {
 		if err = updateUtxoWithMissingData(arc, input); err != nil {
-			return nil, err
+			return nil, arc_utils.WithCause(errors.New("rawTxRequest: updateUtxoWithMissingData() failed"), err)
 		}
 	}
 
@@ -297,19 +289,8 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	return request, nil
 }
 
-func decodeJunblebusTransaction(resp *http.Response) (*junglebusTransaction, error) {
-	tx := &junglebusTransaction{}
-	err := arc_utils.DecodeResponseBody(resp.Body, &tx)
-	if err != nil {
-		return nil, err
-	}
-
-	return tx, nil
-}
-
 func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 	txid := input.PreviousTxIDStr()
-
 	pld := httpclient.NewPayload(
 		httpclient.GET,
 		fmt.Sprintf("https://junglebus.gorillapool.io/v1/transaction/get/%s", txid),
@@ -322,22 +303,37 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 		arc.HTTPClient.DoRequest,
 		pld,
 		decodeJunblebusTransaction,
-		parseArcError,
+		nil,
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("junglebus request failed: %w", err)
+	}
+
+	if len(tx.Transaction) == 0 {
+		return errors.New("junglebus responded with empty tx.Transaction[]")
 	}
 
 	actualTx, err := bt.NewTxFromBytes(tx.Transaction)
 	if err != nil {
-		return err
+		return arc_utils.WithCause(errors.New("converting junglebusTransaction.Transaction to bt.Tx failed"), err)
 	}
 
 	o := actualTx.Outputs[input.PreviousTxOutIndex]
 	input.PreviousTxScript = o.LockingScript
 	input.PreviousTxSatoshis = o.Satoshis
 	return nil
+}
+
+func decodeJunblebusTransaction(resp *http.Response) (*junglebusTransaction, error) {
+	tx := &junglebusTransaction{}
+	err := arc_utils.DecodeResponseBody(resp.Body, &tx)
+	if err != nil {
+		return nil, fmt.Errorf("decodeJunblebusTransaction: %w", err)
+	}
+
+	fmt.Println(tx)
+	return tx, nil
 }
 
 type junglebusTransaction struct {
