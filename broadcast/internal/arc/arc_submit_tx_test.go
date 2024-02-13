@@ -3,6 +3,7 @@ package arc
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -87,7 +88,7 @@ func TestSubmitTransaction(t *testing.T) {
 				Logger:     &testLogger,
 			}
 
-			body, _ := createSubmitTxBody(client, tc.transaction, broadcast.EfFormat)
+			body, _ := json.Marshal(&SubmitTxRequest{RawTx: tc.transaction.Hex})
 			expectedPayload := httpclient.NewPayload(
 				httpclient.POST,
 				"http://example.com"+arcSubmitTxRoute,

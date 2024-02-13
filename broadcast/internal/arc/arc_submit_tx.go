@@ -31,7 +31,8 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 		opt(options)
 	}
 
-	result, err := submitTransaction(ctx, a, tx, options)
+	sumbiter := getSubmiter(options)
+	result, err := sumbiter.submit(ctx, a, tx, options)
 	if err != nil {
 		return nil, arc_utils.WithCause(errors.New("SubmitTransaction: submitting failed"), err)
 	}
@@ -64,7 +65,8 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 		opt(options)
 	}
 
-	result, err := submitBatchTransactions(ctx, a, txs, options)
+	sumbiter := getSubmiter(options)
+	result, err := sumbiter.batchSubmit(ctx, a, txs, options)
 	if err != nil {
 		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: submitting failed"), err)
 	}
@@ -82,11 +84,136 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 	return response, nil
 }
 
-func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
-	url := arc.apiURL + arcSubmitTxRoute
-	data, err := createSubmitTxBody(arc, tx, opts.TransactionFormat)
+type submitFormatStrategy interface {
+	submit(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error)
+	batchSubmit(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error)
+}
+
+func getSubmiter(opts *broadcast.TransactionOpts) submitFormatStrategy {
+	switch opts.TransactionFormat {
+	case broadcast.RawTxFormat:
+		return &rawtxSubmitStrategy{}
+	case broadcast.EfFormat:
+		return &efSubmitStrategy{}
+	case broadcast.BeefFormat:
+		return &beefSubmitStrategy{}
+	default:
+		return &efSubmitStrategy{}
+	}
+}
+
+type beefSubmitStrategy struct{}
+
+func (s *beefSubmitStrategy) submit(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
+	return nil, errors.New("submitting transactions in BEEF format is unimplemented yet...")
+}
+
+func (s *beefSubmitStrategy) batchSubmit(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
+	return nil, errors.New("submitting transactions in BEEF format is unimplemented yet...")
+}
+
+type efSubmitStrategy struct{}
+
+func (s *efSubmitStrategy) submit(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
+	body := &SubmitTxRequest{RawTx: tx.Hex}
+	return submit(ctx, arc, body, opts)
+}
+
+func (s *efSubmitStrategy) batchSubmit(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
+	body := make([]*SubmitTxRequest, 0, len(txs))
+	for _, tx := range txs {
+		requestTx := &SubmitTxRequest{RawTx: tx.Hex}
+		body = append(body, requestTx)
+	}
+
+	return batchSubmit(ctx, arc, body, opts)
+}
+
+type rawtxSubmitStrategy struct{}
+
+func (s *rawtxSubmitStrategy) submit(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
+	body := &SubmitTxRequest{RawTx: tx.Hex}
+	// send raw tx directly to arc
+	res, rawTxSubmitErr := submit(ctx, arc, body, opts)
+
+	if rawTxSubmitErr != nil {
+		if arcErr, ok := rawTxSubmitErr.(broadcast.ArcError); ok && arcErr.Status == 460 { // no extended format error
+			return s.submitAsEf(ctx, arc, tx, opts)
+		}
+		return nil, rawTxSubmitErr
+	}
+
+	return res, nil
+}
+
+func (s *rawtxSubmitStrategy) batchSubmit(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
+	body := make([]*SubmitTxRequest, 0, len(txs))
+	for _, tx := range txs {
+		requestTx := &SubmitTxRequest{RawTx: tx.Hex}
+		body = append(body, requestTx)
+	}
+	// send raw tx directly to arc
+	res, rawTxSubmitErr := batchSubmit(ctx, arc, body, opts)
+
+	if rawTxSubmitErr != nil {
+		if arcErr, ok := rawTxSubmitErr.(broadcast.ArcError); ok {
+			if arcErr.Status == 460 { // no extended format error
+				return s.batchSubmitAsEf(ctx, arc, txs, opts)
+			}
+		}
+		return nil, rawTxSubmitErr
+	}
+
+	return res, nil
+}
+
+func (s *rawtxSubmitStrategy) submitAsEf(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
+	efBody, convertErr := s.convertToEf(ctx, arc, tx)
+	if convertErr != nil {
+		return nil, convertErr
+	}
+
+	return submit(ctx, arc, efBody, opts)
+}
+
+func (s *rawtxSubmitStrategy) batchSubmitAsEf(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
+	efBody := make([]*SubmitTxRequest, 0, len(txs))
+	for _, tx := range txs {
+		efTx, convertErr := s.convertToEf(ctx, arc, tx)
+		if convertErr != nil {
+			return nil, convertErr
+		}
+
+		efBody = append(efBody, efTx)
+	}
+
+	return batchSubmit(ctx, arc, efBody, opts)
+}
+
+func (s *rawtxSubmitStrategy) convertToEf(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction) (*SubmitTxRequest, error) {
+	transaction, err := bt.NewTxFromString(tx.Hex)
 	if err != nil {
-		return nil, err
+		return nil, arc_utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
+	}
+
+	for _, input := range transaction.Inputs {
+		if err = updateUtxoWithMissingData(arc, input); err != nil {
+			return nil, arc_utils.WithCause(errors.New("rawTxRequest: updateUtxoWithMissingData() failed"), err)
+		}
+	}
+
+	request := &SubmitTxRequest{
+		RawTx: hex.EncodeToString(transaction.ExtendedBytes()),
+	}
+	return request, nil
+}
+
+func submit(ctx context.Context, arc *ArcClient, body *SubmitTxRequest, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
+	url := arc.apiURL + arcSubmitTxRoute
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return nil, ErrSubmitTxMarshal
 	}
 
 	pld := httpclient.NewPayload(
@@ -106,11 +233,12 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 	)
 }
 
-func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
+func batchSubmit(ctx context.Context, arc *ArcClient, body []*SubmitTxRequest, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitBatchTxsRoute
-	data, err := createSubmitBatchTxsBody(arc, txs, opts.TransactionFormat)
+
+	data, err := json.Marshal(body)
 	if err != nil {
-		return nil, err
+		return nil, ErrSubmitTxMarshal
 	}
 
 	pld := httpclient.NewPayload(
@@ -128,38 +256,6 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 		decodeSubmitBatchResponseBody,
 		parseArcError,
 	)
-}
-
-func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
-	body, err := formatTxRequest(arc, tx, txFormat)
-	if err != nil {
-		return nil, err
-	}
-
-	data, err := json.Marshal(body)
-	if err != nil {
-		return nil, ErrSubmitTxMarshal
-	}
-
-	return data, nil
-}
-
-func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
-	rawTxs := make([]*SubmitTxRequest, 0, len(txs))
-	for _, tx := range txs {
-		requestTx, err := formatTxRequest(arc, tx, txFormat)
-		if err != nil {
-			return nil, err
-		}
-		rawTxs = append(rawTxs, requestTx)
-	}
-
-	data, err := json.Marshal(rawTxs)
-	if err != nil {
-		return nil, ErrSubmitTxMarshal
-	}
-
-	return data, nil
 }
 
 func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts, deploymentID string) {
@@ -235,58 +331,6 @@ func validateSubmitTxResponse(model *broadcast.SubmittedTx) error {
 	}
 
 	return nil
-}
-
-func formatTxRequest(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) (*SubmitTxRequest, error) {
-	var (
-		body *SubmitTxRequest
-		err  error
-	)
-
-	switch txFormat {
-	case broadcast.RawTxFormat:
-		body, err = rawTxRequest(arc, tx.Hex)
-	case broadcast.EfFormat:
-		body, err = efTxRequest(tx.Hex)
-	case broadcast.BeefFormat:
-		body, err = beefTxRequest(tx.Hex)
-	default:
-		err = fmt.Errorf("unknown transaction format")
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
-}
-
-func efTxRequest(rawTx string) (*SubmitTxRequest, error) {
-	request := &SubmitTxRequest{RawTx: rawTx}
-
-	return request, nil
-}
-
-func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
-	return nil, errors.New("submitting transactions in BEEF format is unimplemented yet...")
-}
-
-func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
-	transaction, err := bt.NewTxFromString(rawTx)
-	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
-	}
-
-	for _, input := range transaction.Inputs {
-		if err = updateUtxoWithMissingData(arc, input); err != nil {
-			return nil, arc_utils.WithCause(errors.New("rawTxRequest: updateUtxoWithMissingData() failed"), err)
-		}
-	}
-
-	request := &SubmitTxRequest{
-		RawTx: hex.EncodeToString(transaction.ExtendedBytes()),
-	}
-	return request, nil
 }
 
 func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
