@@ -120,12 +120,7 @@ func (s *efSubmitStrategy) submit(ctx context.Context, arc *ArcClient, tx *broad
 }
 
 func (s *efSubmitStrategy) batchSubmit(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
-	body := make([]*SubmitTxRequest, 0, len(txs))
-	for _, tx := range txs {
-		requestTx := &SubmitTxRequest{RawTx: tx.Hex}
-		body = append(body, requestTx)
-	}
-
+	body := convertToSubmittedTxs(txs)
 	return batchSubmit(ctx, arc, body, opts)
 }
 
@@ -147,11 +142,7 @@ func (s *rawtxSubmitStrategy) submit(ctx context.Context, arc *ArcClient, tx *br
 }
 
 func (s *rawtxSubmitStrategy) batchSubmit(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
-	body := make([]*SubmitTxRequest, 0, len(txs))
-	for _, tx := range txs {
-		requestTx := &SubmitTxRequest{RawTx: tx.Hex}
-		body = append(body, requestTx)
-	}
+	body := convertToSubmittedTxs(txs)
 	// send raw tx directly to arc
 	res, rawTxSubmitErr := batchSubmit(ctx, arc, body, opts)
 
@@ -206,6 +197,16 @@ func (s *rawtxSubmitStrategy) convertToEf(ctx context.Context, arc *ArcClient, t
 		RawTx: hex.EncodeToString(transaction.ExtendedBytes()),
 	}
 	return request, nil
+}
+
+func convertToSubmittedTxs(txs []*broadcast.Transaction) []*SubmitTxRequest {
+	body := make([]*SubmitTxRequest, 0, len(txs))
+	for _, tx := range txs {
+		requestTx := &SubmitTxRequest{RawTx: tx.Hex}
+		body = append(body, requestTx)
+	}
+
+	return body
 }
 
 func submit(ctx context.Context, arc *ArcClient, body *SubmitTxRequest, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
