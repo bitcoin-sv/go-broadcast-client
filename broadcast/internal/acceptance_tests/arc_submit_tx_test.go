@@ -35,12 +35,12 @@ const missingStatusSubmitResponse = `
 }
 `
 
-const mockHex = "transaction-data"
+const mockHex = "000000000000000000EFHEXFAKEDATA"
 
 func mockBatch() []*broadcast.Transaction {
 	return []*broadcast.Transaction{
-		{Hex: "transaction-0-data"},
-		{Hex: "transaction-1-data"},
+		{Hex: "000000000000000000EFHEXFAKEDATA01"},
+		{Hex: "000000000000000000EFHEXFAKEDATA02"},
 	}
 }
 
@@ -69,7 +69,7 @@ func TestSubmitTransaction(t *testing.T) {
 		)
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "000000000000000000EFHEXFAKEDATA"})
 
 		// then
 		assert.NoError(t, err)
@@ -94,7 +94,7 @@ func TestSubmitTransaction(t *testing.T) {
 		)
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "000000000000000000EFHEXFAKEDATA"})
 
 		// then
 		assert.Error(t, err)
@@ -119,7 +119,7 @@ func TestSubmitTransaction(t *testing.T) {
 		)
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
+		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "000000000000000000EFHEXFAKEDATA"})
 
 		// then
 		assert.Error(t, err)

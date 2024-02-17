@@ -29,7 +29,7 @@ func TestSubmitTransaction(t *testing.T) {
 		{
 			name: "successful request",
 			transaction: &broadcast.Transaction{
-				Hex: "abc123",
+				Hex: "000000000000000000EFHEXFAKEDATA",
 			},
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
@@ -53,7 +53,7 @@ func TestSubmitTransaction(t *testing.T) {
 		{
 			name: "error in HTTP request",
 			transaction: &broadcast.Transaction{
-				Hex: "abc123",
+				Hex: "000000000000000000EFHEXFAKEDATA",
 			},
 			httpError:     errors.New("some error"),
 			expectedError: errors.New("some error"),
@@ -61,15 +61,15 @@ func TestSubmitTransaction(t *testing.T) {
 		{
 			name: "missing txStatus in response",
 			transaction: &broadcast.Transaction{
-				Hex: "abc123",
+				Hex: "000000000000000000EFHEXFAKEDATA",
 			},
 			httpResponse: &http.Response{
 				StatusCode: http.StatusOK,
 				Body: io.NopCloser(bytes.NewBufferString(`
-                    {
-                        "dummyField": "dummyValue"
-                    }
-                    `)),
+					{
+						"dummyField": "dummyValue"
+					}
+					`)),
 			},
 			expectedError: broadcast.ErrMissingStatus,
 		},
@@ -87,7 +87,7 @@ func TestSubmitTransaction(t *testing.T) {
 				Logger:     &testLogger,
 			}
 
-			body, _ := createSubmitTxBody(client, tc.transaction, broadcast.EfFormat)
+			body, _ := createSubmitTxBody(client, tc.transaction)
 			expectedPayload := httpclient.NewPayload(
 				httpclient.POST,
 				"http://example.com"+arcSubmitTxRoute,

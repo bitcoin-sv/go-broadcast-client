@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
@@ -84,7 +85,7 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transaction, opts *broadcast.TransactionOpts) (*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitTxRoute
-	data, err := createSubmitTxBody(arc, tx, opts.TransactionFormat)
+	data, err := createSubmitTxBody(arc, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +109,7 @@ func submitTransaction(ctx context.Context, arc *ArcClient, tx *broadcast.Transa
 
 func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadcast.Transaction, opts *broadcast.TransactionOpts) ([]*broadcast.SubmittedTx, error) {
 	url := arc.apiURL + arcSubmitBatchTxsRoute
-	data, err := createSubmitBatchTxsBody(arc, txs, opts.TransactionFormat)
+	data, err := createSubmitBatchTxsBody(arc, txs)
 	if err != nil {
 		return nil, err
 	}
@@ -130,8 +131,8 @@ func submitBatchTransactions(ctx context.Context, arc *ArcClient, txs []*broadca
 	)
 }
 
-func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
-	body, err := formatTxRequest(arc, tx, txFormat)
+func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction) ([]byte, error) {
+	body, err := formatTxRequest(arc, tx, recognizeHexFormat(tx))
 	if err != nil {
 		return nil, err
 	}
@@ -144,10 +145,10 @@ func createSubmitTxBody(arc *ArcClient, tx *broadcast.Transaction, txFormat broa
 	return data, nil
 }
 
-func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction, txFormat broadcast.TransactionFormat) ([]byte, error) {
+func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction) ([]byte, error) {
 	rawTxs := make([]*SubmitTxRequest, 0, len(txs))
 	for _, tx := range txs {
-		requestTx, err := formatTxRequest(arc, tx, txFormat)
+		requestTx, err := formatTxRequest(arc, tx, recognizeHexFormat(tx))
 		if err != nil {
 			return nil, err
 		}
@@ -160,6 +161,20 @@ func createSubmitBatchTxsBody(arc *ArcClient, txs []*broadcast.Transaction, txFo
 	}
 
 	return data, nil
+}
+
+func recognizeHexFormat(tx *broadcast.Transaction) broadcast.TransactionFormat {
+	hl := len(tx.Hex)
+
+	if hl > 8 && strings.EqualFold(tx.Hex[4:8], "BEEF") { // https://bsv.brc.dev/transactions/0062
+		return broadcast.BeefFormat
+	}
+
+	if hl > 20 && strings.EqualFold(tx.Hex[8:20], "0000000000EF") { // https://bsv.brc.dev/transactions/0030
+		return broadcast.EfFormat
+	}
+
+	return broadcast.RawTxFormat
 }
 
 func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.TransactionOpts, deploymentID string) {
