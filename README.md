@@ -2,6 +2,7 @@
 
 > Interact with Bitcoin SV ARC exposing the interface [interface.go](https://github.com/bitcoin-sv/go-broadcast-client/blob/main/broadcast/interface.go)
 
+[SPV Wallet GitBook](https://bsvblockchain.gitbook.io/docs)
 ## Features
 
 - Arc API Support [details](https://github.com/bitcoin-sv/arc):
