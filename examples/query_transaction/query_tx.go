@@ -13,8 +13,8 @@ import (
 // This example shows how to query a transaction by its hex.
 func main() {
 	logger := zerolog.Nop()
-	token := ""
-	apiURL := "https://arc.gorillapool.io"
+	token := "mainnet_06770f425eb00298839a24a49cbdc02c"
+	apiURL := "https://arc.taal.com"
 	deploymentID := "broadcast-client-example"
 	txID := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
 
