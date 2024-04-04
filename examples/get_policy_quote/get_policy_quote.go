@@ -16,8 +16,8 @@ func main() {
 	deploymentID := "broadcast-client-example"
 
 	gorillaCfg := broadcast_client.ArcClientConfig{
-		Token:        "",
-		APIUrl:       "https://arc.gorillapool.io",
+		Token:        "mainnet_06770f425eb00298839a24a49cbdc02c",
+		APIUrl:       "https://arc.taal.com",
 		DeploymentID: deploymentID,
 	}
 
