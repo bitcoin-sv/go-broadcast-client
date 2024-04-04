@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.3](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.2...v0.17.3) (2024-04-04)
+
+
+### Bug Fixes
+
+* **BUX-694:** update default urls in go-broadcast-client ([#92](https://github.com/bitcoin-sv/go-broadcast-client/issues/92)) ([d4402d1](https://github.com/bitcoin-sv/go-broadcast-client/commit/d4402d1b82c5ba5515093fe901a3c38a014cc1e0))
+
 ## [0.17.2](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.1...v0.17.2) (2024-02-06)
 
 
