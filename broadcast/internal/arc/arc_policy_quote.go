@@ -2,22 +2,22 @@ package arc
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
+
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
-func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuoteResponse, error) {
+func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuoteResponse, *broadcast.SubmitFailure) {
 	if a == nil {
-		return nil, broadcast.ErrClientUndefined
+		return nil, broadcast.Failure("GetPolicyQuote:", broadcast.ErrClientUndefined)
 	}
 
 	model, err := getPolicyQuote(ctx, a)
 	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("GetPolicyQuote: request failed"), err)
+		return nil, broadcast.Failure("GetPolicyQuote: request failed", err)
 	}
 
 	model.Miner = a.apiURL

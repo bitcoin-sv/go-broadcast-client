@@ -54,7 +54,7 @@ func TestQueryTransaction(t *testing.T) {
 		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 1, httpmock.GetTotalCallCount())
 		assert.Equal(t, "MINED", string(result.TxStatus))
@@ -77,7 +77,7 @@ func TestQueryTransaction(t *testing.T) {
 		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 1, httpmock.GetTotalCallCount())
 		assert.Equal(t, "MINED", string(result.TxStatus))
@@ -100,7 +100,7 @@ func TestQueryTransaction(t *testing.T) {
 		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 		assert.Equal(t, "CONFIRMED", string(result.TxStatus))
@@ -125,7 +125,7 @@ func TestQueryTransaction(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.Contains(t, err.Error(), broadcast.ErrAllBroadcastersFailed.Error())
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 	})
 
@@ -142,7 +142,7 @@ func TestQueryTransaction(t *testing.T) {
 		result, err := broadcaster.QueryTransaction(context.Background(), mockTxID)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 	})
 

@@ -74,7 +74,7 @@ func TestMockClientSuccess(t *testing.T) {
 		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, result.Miner, fixtures.ProviderMain)
 		assert.Equal(t, result.BlockHash, fixtures.TxBlockHash)
@@ -101,7 +101,7 @@ func TestMockClientSuccess(t *testing.T) {
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{Hex: "test-rawtx"}, {Hex: "test2-rawtx"}})
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, expectedResult, result)
 	})
@@ -263,7 +263,7 @@ func TestMockClientTimeout(t *testing.T) {
 		result, err := broadcaster.SubmitTransaction(ctx, &broadcast.Transaction{Hex: "test-rawtx"})
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
 		assert.Equal(t, result.Miner, fixtures.ProviderMain)
@@ -294,7 +294,7 @@ func TestMockClientTimeout(t *testing.T) {
 		result, err := broadcaster.SubmitBatchTransactions(ctx, []*broadcast.Transaction{{Hex: "test-rawtx"}, {Hex: "test2-rawtx"}})
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
 		assert.Equal(t, expectedResult, result)

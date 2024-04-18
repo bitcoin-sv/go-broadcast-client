@@ -31,7 +31,7 @@ func parseArcError(statusCode int, body []byte) error {
 	}
 
 	if resultError.Title != "" {
-		return resultError
+		return &resultError
 	}
 
 	return nil

@@ -72,7 +72,7 @@ func TestSubmitTransaction(t *testing.T) {
 		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "transaction-data"})
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 1, httpmock.GetTotalCallCount())
 
@@ -99,7 +99,7 @@ func TestSubmitTransaction(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.EqualError(t, err, broadcast.Failure("SubmitBatchTransactions", broadcast.ErrAllBroadcastersFailed).Error())
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 		assert.Equal(t, 1, callCount(submitUrl(urls[0])))
 		assert.Equal(t, 1, callCount(submitUrl(urls[1])))
@@ -144,7 +144,7 @@ func TestSubmitTransaction(t *testing.T) {
 		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: mockHex})
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 		assert.Equal(t, urls[1], result.Miner)

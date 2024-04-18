@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
 )
 
 // ErrClientUndefined is returned when the client is undefined.
@@ -76,4 +78,32 @@ func (err ArcError) Error() string {
 
 	sb.WriteString("}")
 	return sb.String()
+}
+
+type SubmitFailure struct {
+	Description      string
+	ArcErrorResponse *ArcError
+}
+
+func (failure SubmitFailure) Error() string {
+	sb := strings.Builder{}
+	sb.WriteString(failure.Description)
+
+	if failure.ArcErrorResponse != nil {
+		sb.WriteString(", ")
+		sb.WriteString(failure.ArcErrorResponse.Error())
+	}
+
+	return sb.String()
+}
+
+func Failure(description string, err error) *SubmitFailure {
+	if arcErr, ok := err.(ArcError); ok {
+		return &SubmitFailure{
+			Description:      description,
+			ArcErrorResponse: &arcErr,
+		}
+	}
+
+	return &SubmitFailure{Description: utils.WithCause(errors.New(description), err).Error()}
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 	"github.com/libsv/go-bt/v2"
 )
@@ -21,9 +22,9 @@ type SubmitTxRequest struct {
 
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
-func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
+func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, *broadcast.SubmitFailure) {
 	if a == nil {
-		return nil, broadcast.ErrClientUndefined
+		return nil, broadcast.Failure("SubmitTransaction:", broadcast.ErrClientUndefined)
 	}
 
 	options := &broadcast.TransactionOpts{}
@@ -33,11 +34,11 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 
 	result, err := submitTransaction(ctx, a, tx, options)
 	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("SubmitTransaction: submitting failed"), err)
+		return nil, broadcast.Failure("SubmitTransaction: submitting failed", err)
 	}
 
 	if err := validateSubmitTxResponse(result); err != nil {
-		return nil, arc_utils.WithCause(errors.New("SubmitTransaction: validation of submit tx response failed"), err)
+		return nil, broadcast.Failure("SubmitTransaction: validation of submit tx response failed", err)
 	}
 
 	response := &broadcast.SubmitTxResponse{
@@ -49,14 +50,13 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 	return response, nil
 }
 
-func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, error) {
+func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, *broadcast.SubmitFailure) {
 	if a == nil {
-		return nil, broadcast.ErrClientUndefined
+		return nil, broadcast.Failure("SubmitBatchTransactions:", broadcast.ErrClientUndefined)
 	}
 
 	if len(txs) == 0 {
-		err := errors.New("invalid request, no transactions to submit")
-		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: bad request"), err)
+		return nil, broadcast.Failure("SubmitBatchTransactions: bad request", errors.New("invalid request, no transactions to submit"))
 	}
 
 	options := &broadcast.TransactionOpts{}
@@ -66,11 +66,11 @@ func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcas
 
 	result, err := submitBatchTransactions(ctx, a, txs, options)
 	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: submitting failed"), err)
+		return nil, broadcast.Failure("SubmitBatchTransactions: submitting failed", err)
 	}
 
 	if err := validateBatchResponse(result); err != nil {
-		return nil, arc_utils.WithCause(errors.New("SubmitBatchTransactions: validation of batch submit tx response failed"), err)
+		return nil, broadcast.Failure("SubmitBatchTransactions: validation of batch submit tx response failed", err)
 	}
 
 	response := &broadcast.SubmitBatchTxResponse{
@@ -189,31 +189,20 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.Transact
 }
 
 func decodeSubmitResponseBody(resp *http.Response) (*broadcast.SubmittedTx, error) {
-	base := broadcast.BaseSubmitTxResponse{}
-	err := arc_utils.DecodeResponseBody(resp.Body, &base)
+	model := &broadcast.SubmittedTx{}
+	err := arc_utils.DecodeResponseBody(resp.Body, &model)
 	if err != nil {
-		return nil, broadcast.ErrUnableToDecodeMerklePath
-	}
-
-	model := &broadcast.SubmittedTx{
-		BaseSubmitTxResponse: base,
+		return nil, err
 	}
 
 	return model, nil
 }
 
 func decodeSubmitBatchResponseBody(resp *http.Response) ([]*broadcast.SubmittedTx, error) {
-	base := make([]broadcast.BaseSubmitTxResponse, 0)
-	err := arc_utils.DecodeResponseBody(resp.Body, &base)
+	model := make([]*broadcast.SubmittedTx, 0)
+	err := arc_utils.DecodeResponseBody(resp.Body, &model)
 	if err != nil {
 		return nil, err
-	}
-
-	model := make([]*broadcast.SubmittedTx, 0)
-	for _, tx := range base {
-		model = append(model, &broadcast.SubmittedTx{
-			BaseSubmitTxResponse: tx,
-		})
 	}
 
 	return model, nil
@@ -268,18 +257,18 @@ func efTxRequest(rawTx string) (*SubmitTxRequest, error) {
 }
 
 func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
-	return nil, errors.New("submitting transactions in BEEF format is unimplemented yet...")
+	return nil, errors.New("submitting transactions in BEEF format is unimplemented yet")
 }
 
 func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	transaction, err := bt.NewTxFromString(rawTx)
 	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
+		return nil, utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
 	}
 
 	for _, input := range transaction.Inputs {
 		if err = updateUtxoWithMissingData(arc, input); err != nil {
-			return nil, arc_utils.WithCause(errors.New("rawTxRequest: updateUtxoWithMissingData() failed"), err)
+			return nil, utils.WithCause(errors.New("rawTxRequest: updateUtxoWithMissingData() failed"), err)
 		}
 	}
 
@@ -316,7 +305,7 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 
 	actualTx, err := bt.NewTxFromBytes(tx.Transaction)
 	if err != nil {
-		return arc_utils.WithCause(errors.New("converting junglebusTransaction.Transaction to bt.Tx failed"), err)
+		return utils.WithCause(errors.New("converting junglebusTransaction.Transaction to bt.Tx failed"), err)
 	}
 
 	o := actualTx.Outputs[input.PreviousTxOutIndex]

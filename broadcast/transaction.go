@@ -30,18 +30,13 @@ type QueryTxResponse struct {
 	BaseTxResponse
 }
 
-// BaseSubmitTxResponse is the internal response returned by the miner from submitting transaction(s).
-type BaseSubmitTxResponse struct {
+// SubmittedTx is the submit response.
+type SubmittedTx struct {
 	BaseTxResponse
 	// Status is the status of the response.
 	Status int `json:"status,omitempty"`
 	// Title is the title of the response.
 	Title string `json:"title,omitempty"`
-}
-
-// SubmittedTx is the submit response with decoded Merkl Path.
-type SubmittedTx struct {
-	BaseSubmitTxResponse
 }
 
 // SubmitTxResponse is the response returned by the SubmitTransaction method.
