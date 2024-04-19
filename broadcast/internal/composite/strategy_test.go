@@ -14,7 +14,7 @@ type mockExecutionFunc struct {
 	err    error
 }
 
-func (m mockExecutionFunc) Execute(_ context.Context) (Result, *broadcast.SubmitFailure) {
+func (m mockExecutionFunc) Execute(_ context.Context) (Result, *broadcast.FailureResponse) {
 	if m.err != nil {
 		return m.result, broadcast.Failure("", m.err)
 	}

@@ -11,7 +11,7 @@ import (
 type ArcClientMockTimeout struct{}
 
 // GetFeeQuote returns a successful FeeQuote response.
-func (*ArcClientMockTimeout) GetFeeQuote(ctx context.Context) ([]*broadcast_api.FeeQuote, *broadcast_api.SubmitFailure) {
+func (*ArcClientMockTimeout) GetFeeQuote(ctx context.Context) ([]*broadcast_api.FeeQuote, *broadcast_api.FailureResponse) {
 	if deadline, ok := ctx.Deadline(); ok {
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}
@@ -24,7 +24,7 @@ func (*ArcClientMockTimeout) GetFeeQuote(ctx context.Context) ([]*broadcast_api.
 }
 
 // GetPolicyQuote return a successful PolicyQuoteResponse.
-func (*ArcClientMockTimeout) GetPolicyQuote(ctx context.Context) ([]*broadcast_api.PolicyQuoteResponse, *broadcast_api.SubmitFailure) {
+func (*ArcClientMockTimeout) GetPolicyQuote(ctx context.Context) ([]*broadcast_api.PolicyQuoteResponse, *broadcast_api.FailureResponse) {
 	if deadline, ok := ctx.Deadline(); ok {
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}
@@ -37,7 +37,7 @@ func (*ArcClientMockTimeout) GetPolicyQuote(ctx context.Context) ([]*broadcast_a
 }
 
 // QueryTransaction returns a successful QueryTxResponse.
-func (*ArcClientMockTimeout) QueryTransaction(ctx context.Context, txID string) (*broadcast_api.QueryTxResponse, *broadcast_api.SubmitFailure) {
+func (*ArcClientMockTimeout) QueryTransaction(ctx context.Context, txID string) (*broadcast_api.QueryTxResponse, *broadcast_api.FailureResponse) {
 	if deadline, ok := ctx.Deadline(); ok {
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}
@@ -46,7 +46,7 @@ func (*ArcClientMockTimeout) QueryTransaction(ctx context.Context, txID string) 
 }
 
 // SubmitTransaction returns a successful SubmitTxResponse.
-func (*ArcClientMockTimeout) SubmitTransaction(ctx context.Context, tx *broadcast_api.Transaction, opts ...broadcast_api.TransactionOptFunc) (*broadcast_api.SubmitTxResponse, *broadcast_api.SubmitFailure) {
+func (*ArcClientMockTimeout) SubmitTransaction(ctx context.Context, tx *broadcast_api.Transaction, opts ...broadcast_api.TransactionOptFunc) (*broadcast_api.SubmitTxResponse, *broadcast_api.FailureResponse) {
 	if deadline, ok := ctx.Deadline(); ok {
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}
@@ -58,7 +58,7 @@ func (*ArcClientMockTimeout) SubmitTransaction(ctx context.Context, tx *broadcas
 }
 
 // SubmitBatchTransactions returns a successful SubmitBatchTxResponse.
-func (*ArcClientMockTimeout) SubmitBatchTransactions(ctx context.Context, tx []*broadcast_api.Transaction, opts ...broadcast_api.TransactionOptFunc) (*broadcast_api.SubmitBatchTxResponse, *broadcast_api.SubmitFailure) {
+func (*ArcClientMockTimeout) SubmitBatchTransactions(ctx context.Context, tx []*broadcast_api.Transaction, opts ...broadcast_api.TransactionOptFunc) (*broadcast_api.SubmitBatchTxResponse, *broadcast_api.FailureResponse) {
 	if deadline, ok := ctx.Deadline(); ok {
 		time.Sleep(time.Until(deadline) + 10*time.Millisecond)
 	}

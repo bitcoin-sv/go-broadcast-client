@@ -17,9 +17,9 @@ const (
 
 type Result interface{}
 
-type executionFunc func(context.Context) (Result, *broadcast.SubmitFailure)
+type executionFunc func(context.Context) (Result, *broadcast.FailureResponse)
 
-type StrategyExecutionFunc func(context.Context, []executionFunc) (Result, *broadcast.SubmitFailure)
+type StrategyExecutionFunc func(context.Context, []executionFunc) (Result, *broadcast.FailureResponse)
 
 // Strategy is a component designed to offer flexibility in selecting a communication approach
 // for interacting with multiple broadcasting services, such as multiple Arc services.
@@ -37,12 +37,12 @@ func New(name StrategyName) (*Strategy, error) {
 	}
 }
 
-func (s *Strategy) Execute(ctx context.Context, executionFuncs []executionFunc) (Result, *broadcast.SubmitFailure) {
+func (s *Strategy) Execute(ctx context.Context, executionFuncs []executionFunc) (Result, *broadcast.FailureResponse) {
 	return s.executionFunc(ctx, executionFuncs)
 }
 
 var (
-	OneByOne = &Strategy{name: OneByOneStrategy, executionFunc: func(ctx context.Context, executionFuncs []executionFunc) (Result, *broadcast.SubmitFailure) {
+	OneByOne = &Strategy{name: OneByOneStrategy, executionFunc: func(ctx context.Context, executionFuncs []executionFunc) (Result, *broadcast.FailureResponse) {
 		for _, executionFunc := range executionFuncs {
 			result, err := executionFunc(ctx)
 			if err != nil {

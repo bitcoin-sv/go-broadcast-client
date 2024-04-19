@@ -6,7 +6,7 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 )
 
-func (a *ArcClient) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, *broadcast.SubmitFailure) {
+func (a *ArcClient) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, *broadcast.FailureResponse) {
 	if a == nil {
 		return nil, broadcast.Failure("GetFeeQuote:", broadcast.ErrClientUndefined)
 	}

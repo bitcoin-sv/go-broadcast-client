@@ -80,12 +80,12 @@ func (err ArcError) Error() string {
 	return sb.String()
 }
 
-type SubmitFailure struct {
+type FailureResponse struct {
 	Description      string
 	ArcErrorResponse *ArcError
 }
 
-func (failure SubmitFailure) Error() string {
+func (failure FailureResponse) Error() string {
 	sb := strings.Builder{}
 	sb.WriteString(failure.Description)
 
@@ -97,13 +97,13 @@ func (failure SubmitFailure) Error() string {
 	return sb.String()
 }
 
-func Failure(description string, err error) *SubmitFailure {
+func Failure(description string, err error) *FailureResponse {
 	if arcErr, ok := err.(ArcError); ok {
-		return &SubmitFailure{
+		return &FailureResponse{
 			Description:      description,
 			ArcErrorResponse: &arcErr,
 		}
 	}
 
-	return &SubmitFailure{Description: utils.WithCause(errors.New(description), err).Error()}
+	return &FailureResponse{Description: utils.WithCause(errors.New(description), err).Error()}
 }

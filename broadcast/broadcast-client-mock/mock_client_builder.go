@@ -20,7 +20,7 @@ type builder struct {
 	factories []composite.BroadcastFactory
 }
 
-// Builder is used to prepare the mock broadcast client. It is recommended 
+// Builder is used to prepare the mock broadcast client. It is recommended
 // to use that builder for creating the mock broadcast client.
 func Builder() *builder {
 	return &builder{}

@@ -13,7 +13,7 @@ import (
 
 var ErrMissingTxID = errors.New("missing tx id")
 
-func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, *broadcast.SubmitFailure) {
+func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, *broadcast.FailureResponse) {
 	if a == nil {
 		return nil, broadcast.Failure("QueryTransaction:", broadcast.ErrClientUndefined)
 	}
