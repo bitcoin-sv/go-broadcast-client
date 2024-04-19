@@ -190,7 +190,7 @@ func appendSubmitTxHeaders(pld *httpclient.HTTPRequest, opts *broadcast.Transact
 
 func decodeSubmitResponseBody(resp *http.Response) (*broadcast.SubmittedTx, error) {
 	model := &broadcast.SubmittedTx{}
-	err := arc_utils.DecodeResponseBody(resp.Body, &model)
+	err := arc_utils.DecodeResponseBody(resp.Body, model)
 	if err != nil {
 		return nil, err
 	}
