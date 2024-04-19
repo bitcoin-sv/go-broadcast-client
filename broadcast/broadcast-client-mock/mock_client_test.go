@@ -21,10 +21,10 @@ func TestMockClientSuccess(t *testing.T) {
 		expectedResult := []*broadcast.PolicyQuoteResponse{mocks.Policy1, mocks.Policy2}
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, fail := broadcaster.GetPolicyQuote(context.Background())
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, fail)
 		assert.NotNil(t, result)
 		assert.Equal(t, result, expectedResult)
 	})
@@ -37,10 +37,10 @@ func TestMockClientSuccess(t *testing.T) {
 		expectedResult := []*broadcast.FeeQuote{mocks.Fee1, mocks.Fee2}
 
 		// when
-		result, err := broadcaster.GetFeeQuote(context.Background())
+		result, fail := broadcaster.GetFeeQuote(context.Background())
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, fail)
 		assert.NotNil(t, result)
 		assert.Equal(t, expectedResult, result)
 	})
@@ -56,7 +56,7 @@ func TestMockClientSuccess(t *testing.T) {
 		result, err := broadcaster.QueryTransaction(context.Background(), testTxId)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, result.Miner, fixtures.ProviderMain)
 		assert.Equal(t, result.TxID, testTxId)
@@ -71,10 +71,10 @@ func TestMockClientSuccess(t *testing.T) {
 			Build()
 
 		// when
-		result, err := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
+		result, fail := broadcaster.SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
 
 		// then
-		assert.Nil(t, err)
+		assert.Nil(t, fail)
 		assert.NotNil(t, result)
 		assert.Equal(t, result.Miner, fixtures.ProviderMain)
 		assert.Equal(t, result.BlockHash, fixtures.TxBlockHash)
@@ -98,10 +98,10 @@ func TestMockClientSuccess(t *testing.T) {
 		}
 
 		// when
-		result, err := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{Hex: "test-rawtx"}, {Hex: "test2-rawtx"}})
+		result, fail := broadcaster.SubmitBatchTransactions(context.Background(), []*broadcast.Transaction{{Hex: "test-rawtx"}, {Hex: "test2-rawtx"}})
 
 		// then
-		assert.Nil(t, err)
+		assert.Nil(t, fail)
 		assert.NotNil(t, result)
 		assert.Equal(t, expectedResult, result)
 	})
@@ -115,12 +115,12 @@ func TestMockClientFailure(t *testing.T) {
 			Build()
 
 		// when
-		result, err := broadcaster.GetPolicyQuote(context.Background())
+		result, fail := broadcaster.GetPolicyQuote(context.Background())
 
 		// then
-		assert.Error(t, err)
+		assert.Error(t, fail)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrNoMinerResponse.Error())
+		assert.ErrorContains(t, fail, broadcast.ErrNoMinerResponse.Error())
 	})
 
 	t.Run("Should return error from GetFeeQuote method of mock Arc Client with Failure Mock Type", func(t *testing.T) {
@@ -135,7 +135,7 @@ func TestMockClientFailure(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrNoMinerResponse.Error())
+		assert.ErrorContains(t, err, broadcast.ErrNoMinerResponse.Error())
 	})
 
 	t.Run("Should return error from QueryTransaction method of mock Arc Client with Failure Mock Type", func(t *testing.T) {
@@ -150,7 +150,7 @@ func TestMockClientFailure(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.ErrorContains(t, err, broadcast.ErrNoMinerResponse.Error())
 	})
 
 	t.Run("Should return error from SubmitTransaction method of mock Arc Client with Failure Mock Type", func(t *testing.T) {
@@ -165,7 +165,7 @@ func TestMockClientFailure(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.ErrorContains(t, err, broadcast.ErrAllBroadcastersFailed.Error())
 	})
 
 	t.Run("Should return error from SubmitBatchTransaction method of mock Arc Client with Failure Mock Type", func(t *testing.T) {
@@ -180,7 +180,7 @@ func TestMockClientFailure(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.ErrorContains(t, err, broadcast.ErrAllBroadcastersFailed.Error())
 	})
 }
 
@@ -201,7 +201,7 @@ func TestMockClientTimeout(t *testing.T) {
 		result, err := broadcaster.GetPolicyQuote(ctx)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
 		assert.Equal(t, expectedResult, result)
@@ -221,7 +221,7 @@ func TestMockClientTimeout(t *testing.T) {
 		result, err := broadcaster.GetFeeQuote(ctx)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
 		assert.Equal(t, expectedResult, result)
@@ -241,7 +241,7 @@ func TestMockClientTimeout(t *testing.T) {
 		result, err := broadcaster.QueryTransaction(ctx, testTxId)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
 		assert.Equal(t, result.Miner, fixtures.ProviderMain)

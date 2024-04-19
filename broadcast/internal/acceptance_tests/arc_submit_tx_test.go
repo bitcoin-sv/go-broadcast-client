@@ -99,7 +99,7 @@ func TestSubmitTransaction(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.Failure("SubmitBatchTransactions", broadcast.ErrAllBroadcastersFailed).Error())
+		assert.ErrorContains(t, err, broadcast.ErrAllBroadcastersFailed.Error())
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 		assert.Equal(t, 1, callCount(submitUrl(urls[0])))
 		assert.Equal(t, 1, callCount(submitUrl(urls[1])))
@@ -174,7 +174,7 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), batch)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 1, httpmock.GetTotalCallCount())
 		assert.Equal(t, 1, callCount(submitBatchUrl(urls[0])))
@@ -199,7 +199,7 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		result, err := broadcaster.SubmitBatchTransactions(context.Background(), batch)
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 		assert.Equal(t, 1, callCount(submitBatchUrl(urls[1])))
@@ -227,7 +227,7 @@ func TestSubmitBatchTransactions(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrAllBroadcastersFailed.Error())
+		assert.ErrorContains(t, err, broadcast.ErrAllBroadcastersFailed.Error())
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 	})
 

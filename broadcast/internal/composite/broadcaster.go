@@ -104,9 +104,9 @@ func (c *compositeBroadcaster) SubmitTransaction(
 			return currentBroadcaster.SubmitTransaction(ctx, tx)
 		}
 	}
-	result, err := c.strategy.Execute(ctx, executionFuncs)
-	if err != nil {
-		return nil, err
+	result, fail := c.strategy.Execute(ctx, executionFuncs)
+	if fail != nil {
+		return nil, fail
 	}
 
 	// Convert result to SubmitTxResponse
@@ -131,9 +131,9 @@ func (c *compositeBroadcaster) SubmitBatchTransactions(
 		}
 	}
 
-	result, err := c.strategy.Execute(ctx, executionFuncs)
-	if err != nil {
-		return nil, err
+	result, fail := c.strategy.Execute(ctx, executionFuncs)
+	if fail != nil {
+		return nil, fail
 	}
 
 	// Convert result to []SubmitTxResponse
