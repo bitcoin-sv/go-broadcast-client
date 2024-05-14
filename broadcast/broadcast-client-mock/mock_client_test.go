@@ -24,7 +24,7 @@ func TestMockClientSuccess(t *testing.T) {
 		result, fail := broadcaster.GetPolicyQuote(context.Background())
 
 		// then
-		assert.Nil(t, fail)
+		assert.NoError(t, fail)
 		assert.NotNil(t, result)
 		assert.Equal(t, result, expectedResult)
 	})
