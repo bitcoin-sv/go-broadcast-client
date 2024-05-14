@@ -4,9 +4,8 @@ package broadcast
 import (
 	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
+	"strings"
 )
 
 // ErrClientUndefined is returned when the client is undefined.
@@ -23,7 +22,7 @@ var ErrClientUndefined = errors.New("client is undefined")
 // ErrAllBroadcastersFailed is returned when all configured broadcasters failed to query or broadcast the transaction.
 var ErrAllBroadcastersFailed = errors.New("all broadcasters failed")
 
-// ErrBroadcastFailed is returned when the broadcast failed.
+// ErrBroadcasterFailed is returned when the broadcast failed.
 var ErrBroadcasterFailed = errors.New("broadcaster failed")
 
 // ErrUnableToDecodeResponse is returned when the http response cannot be decoded.
@@ -45,6 +44,12 @@ var ErrStrategyUnkown = errors.New("unknown strategy")
 // ErrNoMinerResponse is returned when no response is received from any miner.
 var ErrNoMinerResponse = errors.New("failed to get reponse from any miner")
 
+// ArcFailure is the interface for the error returned by the ArcClient.
+type ArcFailure interface {
+	error
+	Details() *FailureResponse
+}
+
 // ArcError is general type for the error returned by the ArcClient.
 type ArcError struct {
 	Type      string `json:"type"`
@@ -54,6 +59,11 @@ type ArcError struct {
 	Instance  string `json:"instance,omitempty"`
 	Txid      string `json:"txid,omitempty"`
 	ExtraInfo string `json:"extraInfo,omitempty"`
+}
+
+// Details returns the details of the error it's the implementation of the ArcFailure interface.
+func (failure *FailureResponse) Details() *FailureResponse {
+	return failure
 }
 
 // Error returns the error string it's the implementation of the error interface.
@@ -85,7 +95,7 @@ type FailureResponse struct {
 	ArcErrorResponse *ArcError
 }
 
-func (failure FailureResponse) Error() string {
+func (failure *FailureResponse) Error() string {
 	sb := strings.Builder{}
 	sb.WriteString(failure.Description)
 
@@ -98,7 +108,8 @@ func (failure FailureResponse) Error() string {
 }
 
 func Failure(description string, err error) *FailureResponse {
-	if arcErr, ok := err.(ArcError); ok {
+	var arcErr ArcError
+	if errors.As(err, &arcErr) {
 		return &FailureResponse{
 			Description:      description,
 			ArcErrorResponse: &arcErr,
