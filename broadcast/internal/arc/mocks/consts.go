@@ -47,34 +47,30 @@ var (
 	}
 
 	SubmittedTx = &broadcast_api.SubmittedTx{
-		BaseSubmitTxResponse: broadcast_api.BaseSubmitTxResponse{
-			Status: fixtures.TxResponseStatus,
-			Title:  fixtures.TxResponseTitle,
-			BaseTxResponse: broadcast_api.BaseTxResponse{
-				BlockHash:   fixtures.TxBlockHash,
-				BlockHeight: fixtures.TxBlockHeight,
-				ExtraInfo:   fixtures.TxExtraInfo,
-				MerklePath:  fixtures.TxMerklePath,
-				Timestamp:   fixtures.Timestamp,
-				TxStatus:    fixtures.TxStatus,
-				TxID:        fixtures.TxId,
-			},
+		Status: fixtures.TxResponseStatus,
+		Title:  fixtures.TxResponseTitle,
+		BaseTxResponse: broadcast_api.BaseTxResponse{
+			BlockHash:   fixtures.TxBlockHash,
+			BlockHeight: fixtures.TxBlockHeight,
+			ExtraInfo:   fixtures.TxExtraInfo,
+			MerklePath:  fixtures.TxMerklePath,
+			Timestamp:   fixtures.Timestamp,
+			TxStatus:    fixtures.TxStatus,
+			TxID:        fixtures.TxId,
 		},
 	}
 
 	SubmittedTxSecondary = &broadcast_api.SubmittedTx{
-		BaseSubmitTxResponse: broadcast_api.BaseSubmitTxResponse{
-			Status: fixtures.TxResponseStatus,
-			Title:  fixtures.TxResponseTitle,
-			BaseTxResponse: broadcast_api.BaseTxResponse{
-				BlockHash:   fixtures.TxBlockHashSecondary,
-				BlockHeight: fixtures.TxBlockHeightSecondary,
-				ExtraInfo:   fixtures.TxExtraInfo,
-				MerklePath:  fixtures.TxMerklePath,
-				Timestamp:   fixtures.Timestamp,
-				TxStatus:    fixtures.TxStatus,
-				TxID:        fixtures.TxIdSecondary,
-			},
+		Status: fixtures.TxResponseStatus,
+		Title:  fixtures.TxResponseTitle,
+		BaseTxResponse: broadcast_api.BaseTxResponse{
+			BlockHash:   fixtures.TxBlockHashSecondary,
+			BlockHeight: fixtures.TxBlockHeightSecondary,
+			ExtraInfo:   fixtures.TxExtraInfo,
+			MerklePath:  fixtures.TxMerklePath,
+			Timestamp:   fixtures.Timestamp,
+			TxStatus:    fixtures.TxStatus,
+			TxID:        fixtures.TxIdSecondary,
 		},
 	}
 )

@@ -37,7 +37,7 @@ func TestFeeQuote(t *testing.T) {
 		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
 		assert.Equal(t, int64(1), result[0].MiningFee.Satoshis)
@@ -66,7 +66,7 @@ func TestFeeQuote(t *testing.T) {
 		assert.Error(t, err)
 		assert.Nil(t, result)
 		assert.Equal(t, 2, httpmock.GetTotalCallCount())
-		assert.EqualError(t, err, broadcast.ErrNoMinerResponse.Error())
+		assert.Contains(t, err.Error(), broadcast.ErrNoMinerResponse.Error())
 	})
 
 	t.Run("Should successfully query from single ArcClient", func(t *testing.T) {
@@ -82,7 +82,7 @@ func TestFeeQuote(t *testing.T) {
 		result, err := broadcaster.GetFeeQuote(context.Background())
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 1, httpmock.GetTotalCallCount())
 		assert.Equal(t, int64(1), result[0].MiningFee.Satoshis)

@@ -4,6 +4,7 @@ package broadcast
 import (
 	"errors"
 	"fmt"
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
 	"strings"
 )
 
@@ -21,14 +22,8 @@ var ErrClientUndefined = errors.New("client is undefined")
 // ErrAllBroadcastersFailed is returned when all configured broadcasters failed to query or broadcast the transaction.
 var ErrAllBroadcastersFailed = errors.New("all broadcasters failed")
 
-// ErrBroadcastFailed is returned when the broadcast failed.
-var ErrBroadcasterFailed = errors.New("broadcaster failed")
-
 // ErrUnableToDecodeResponse is returned when the http response cannot be decoded.
 var ErrUnableToDecodeResponse = errors.New("unable to decode response")
-
-// ErrUnableToDecodeMerklePath is returned when merkle path from transaction response cannot be decoded.
-var ErrUnableToDecodeMerklePath = errors.New("unable to decode merkle path from response")
 
 // ErrMissingStatus is returned when the tx status is missing.
 var ErrMissingStatus = errors.New("missing tx status")
@@ -43,6 +38,12 @@ var ErrStrategyUnkown = errors.New("unknown strategy")
 // ErrNoMinerResponse is returned when no response is received from any miner.
 var ErrNoMinerResponse = errors.New("failed to get reponse from any miner")
 
+// ArcFailure is the interface for the error returned by the ArcClient.
+type ArcFailure interface {
+	error
+	Details() *FailureResponse
+}
+
 // ArcError is general type for the error returned by the ArcClient.
 type ArcError struct {
 	Type      string `json:"type"`
@@ -52,6 +53,11 @@ type ArcError struct {
 	Instance  string `json:"instance,omitempty"`
 	Txid      string `json:"txid,omitempty"`
 	ExtraInfo string `json:"extraInfo,omitempty"`
+}
+
+// Details returns the details of the error it's the implementation of the ArcFailure interface.
+func (failure *FailureResponse) Details() *FailureResponse {
+	return failure
 }
 
 // Error returns the error string it's the implementation of the error interface.
@@ -76,4 +82,36 @@ func (err ArcError) Error() string {
 
 	sb.WriteString("}")
 	return sb.String()
+}
+
+// FailureResponse is the response returned by the ArcClient when the request fails.
+type FailureResponse struct {
+	Description      string
+	ArcErrorResponse *ArcError
+}
+
+// Error returns the error string it's the implementation of the error interface.
+func (failure *FailureResponse) Error() string {
+	sb := strings.Builder{}
+	sb.WriteString(failure.Description)
+
+	if failure.ArcErrorResponse != nil {
+		sb.WriteString(", ")
+		sb.WriteString(failure.ArcErrorResponse.Error())
+	}
+
+	return sb.String()
+}
+
+// Failure returns a new FailureResponse with the description and the error.
+func Failure(description string, err error) *FailureResponse {
+	var arcErr ArcError
+	if errors.As(err, &arcErr) {
+		return &FailureResponse{
+			Description:      description,
+			ArcErrorResponse: &arcErr,
+		}
+	}
+
+	return &FailureResponse{Description: utils.WithCause(errors.New(description), err).Error()}
 }

@@ -42,10 +42,8 @@ func TestSubmitTransaction(t *testing.T) {
 			expectedResult: &broadcast.SubmitTxResponse{
 				BaseResponse: broadcast.BaseResponse{Miner: "http://example.com"},
 				SubmittedTx: &broadcast.SubmittedTx{
-					BaseSubmitTxResponse: broadcast.BaseSubmitTxResponse{
-						BaseTxResponse: broadcast.BaseTxResponse{
-							TxStatus: broadcast.Confirmed,
-						},
+					BaseTxResponse: broadcast.BaseTxResponse{
+						TxStatus: broadcast.Confirmed,
 					},
 				},
 			},

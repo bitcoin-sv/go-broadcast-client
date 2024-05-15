@@ -2,16 +2,18 @@ package arc
 
 import (
 	"context"
-	"errors"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
-	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 )
 
-func (a *ArcClient) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, error) {
+func (a *ArcClient) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, broadcast.ArcFailure) {
+	if a == nil {
+		return nil, broadcast.Failure("GetFeeQuote: arc client is nil", nil)
+	}
+
 	policyQuotes, err := a.GetPolicyQuote(ctx)
 	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("GetFeeQuote: request failed"), err)
+		return nil, err
 	}
 
 	feeQuote := &broadcast.FeeQuote{

@@ -78,7 +78,7 @@ func TestPolicyQuote(t *testing.T) {
 		result, err := broadcaster.GetPolicyQuote(context.Background())
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 	})
 
@@ -102,7 +102,7 @@ func TestPolicyQuote(t *testing.T) {
 		// then
 		assert.Error(t, err)
 		assert.Nil(t, result)
-		assert.EqualError(t, err, broadcast.ErrNoMinerResponse.Error())
+		assert.Contains(t, err.Error(), broadcast.ErrNoMinerResponse.Error())
 	})
 
 	t.Run("Should successfully query from single ArcClient", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestPolicyQuote(t *testing.T) {
 		result, err := broadcaster.GetPolicyQuote(context.Background())
 
 		// then
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, result)
 	})
 

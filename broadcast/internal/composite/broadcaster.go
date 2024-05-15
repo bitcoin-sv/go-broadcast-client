@@ -33,7 +33,7 @@ func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.
 
 func (c *compositeBroadcaster) GetPolicyQuote(
 	ctx context.Context,
-) ([]*broadcast.PolicyQuoteResponse, error) {
+) ([]*broadcast.PolicyQuoteResponse, broadcast.ArcFailure) {
 	var policyQuotes []*broadcast.PolicyQuoteResponse
 
 	for _, broadcaster := range c.broadcasters {
@@ -44,13 +44,13 @@ func (c *compositeBroadcaster) GetPolicyQuote(
 	}
 
 	if policyQuotes == nil {
-		return nil, broadcast.ErrNoMinerResponse
+		return nil, broadcast.Failure("GetPolicyQuote: ", broadcast.ErrNoMinerResponse)
 	}
 
 	return policyQuotes, nil
 }
 
-func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, error) {
+func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, broadcast.ArcFailure) {
 	var feeQuotes []*broadcast.FeeQuote
 
 	for _, broadcaster := range c.broadcasters {
@@ -61,7 +61,7 @@ func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) ([]*broadcast.Fe
 	}
 
 	if feeQuotes == nil {
-		return nil, broadcast.ErrNoMinerResponse
+		return nil, broadcast.Failure("GetFeeQuote: ", broadcast.ErrNoMinerResponse)
 	}
 
 	return feeQuotes, nil
@@ -70,11 +70,11 @@ func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) ([]*broadcast.Fe
 func (c *compositeBroadcaster) QueryTransaction(
 	ctx context.Context,
 	txID string,
-) (*broadcast.QueryTxResponse, error) {
+) (*broadcast.QueryTxResponse, broadcast.ArcFailure) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		currentBroadcaster := broadcaster
-		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+		executionFuncs[i] = func(ctx context.Context) (Result, broadcast.ArcFailure) {
 			return currentBroadcaster.QueryTransaction(ctx, txID)
 		}
 	}
@@ -86,7 +86,7 @@ func (c *compositeBroadcaster) QueryTransaction(
 	// Convert result to QueryTxResponse
 	queryTxResponse, ok := result.(*broadcast.QueryTxResponse)
 	if !ok {
-		return nil, fmt.Errorf("unexpected result type: %T", result)
+		return nil, broadcast.Failure(fmt.Sprintf("unexpected result type: %T", result), nil)
 	}
 
 	return queryTxResponse, nil
@@ -96,23 +96,23 @@ func (c *compositeBroadcaster) SubmitTransaction(
 	ctx context.Context,
 	tx *broadcast.Transaction,
 	opts ...broadcast.TransactionOptFunc,
-) (*broadcast.SubmitTxResponse, error) {
+) (*broadcast.SubmitTxResponse, broadcast.ArcFailure) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		currentBroadcaster := broadcaster
-		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+		executionFuncs[i] = func(ctx context.Context) (Result, broadcast.ArcFailure) {
 			return currentBroadcaster.SubmitTransaction(ctx, tx)
 		}
 	}
-	result, err := c.strategy.Execute(ctx, executionFuncs)
-	if err != nil {
-		return nil, err
+	result, fail := c.strategy.Execute(ctx, executionFuncs)
+	if fail != nil {
+		return nil, fail
 	}
 
 	// Convert result to SubmitTxResponse
 	submitTxResponse, ok := result.(*broadcast.SubmitTxResponse)
 	if !ok {
-		return nil, fmt.Errorf("unexpected result type: %T", result)
+		return nil, broadcast.Failure(fmt.Sprintf("unexpected result type: %T", result), nil)
 	}
 
 	return submitTxResponse, nil
@@ -122,24 +122,24 @@ func (c *compositeBroadcaster) SubmitBatchTransactions(
 	ctx context.Context,
 	txs []*broadcast.Transaction,
 	opts ...broadcast.TransactionOptFunc,
-) (*broadcast.SubmitBatchTxResponse, error) {
+) (*broadcast.SubmitBatchTxResponse, broadcast.ArcFailure) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		currentBroadcaster := broadcaster
-		executionFuncs[i] = func(ctx context.Context) (Result, error) {
+		executionFuncs[i] = func(ctx context.Context) (Result, broadcast.ArcFailure) {
 			return currentBroadcaster.SubmitBatchTransactions(ctx, txs)
 		}
 	}
 
-	result, err := c.strategy.Execute(ctx, executionFuncs)
-	if err != nil {
-		return nil, err
+	result, fail := c.strategy.Execute(ctx, executionFuncs)
+	if fail != nil {
+		return nil, fail
 	}
 
 	// Convert result to []SubmitTxResponse
 	submitTxResponse, ok := result.(*broadcast.SubmitBatchTxResponse)
 	if !ok {
-		return nil, fmt.Errorf("unexpected result type: %T", result)
+		return nil, broadcast.Failure(fmt.Sprintf("unexpected result type: %T", result), nil)
 	}
 
 	return submitTxResponse, nil

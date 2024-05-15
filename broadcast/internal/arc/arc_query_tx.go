@@ -7,24 +7,25 @@ import (
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast"
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
+
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
 var ErrMissingTxID = errors.New("missing tx id")
 
-func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, error) {
+func (a *ArcClient) QueryTransaction(ctx context.Context, txID string) (*broadcast.QueryTxResponse, broadcast.ArcFailure) {
 	if a == nil {
-		return nil, broadcast.ErrClientUndefined
+		return nil, broadcast.Failure("QueryTransaction:", broadcast.ErrClientUndefined)
 	}
 
 	result, err := queryTransaction(ctx, a, txID)
 	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("QueryTransaction: querying failed"), err)
+		return nil, broadcast.Failure("QueryTransaction: querying failed", err)
 	}
 
 	err = validateQueryTxResponse(result)
 	if err != nil {
-		return nil, arc_utils.WithCause(errors.New("QueryTransaction: validation of query tx response failed"), err)
+		return nil, broadcast.Failure("QueryTransaction: validation of query tx response failed", err)
 	}
 
 	a.Logger.Debug().Msgf("Got query tx response from miner: %s", result.Miner)

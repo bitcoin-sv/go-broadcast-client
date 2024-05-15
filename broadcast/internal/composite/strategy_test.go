@@ -14,8 +14,12 @@ type mockExecutionFunc struct {
 	err    error
 }
 
-func (m mockExecutionFunc) Execute(_ context.Context) (Result, error) {
-	return m.result, m.err
+func (m mockExecutionFunc) Execute(_ context.Context) (Result, broadcast.ArcFailure) {
+	if m.err != nil {
+		return m.result, broadcast.Failure("", m.err)
+	}
+
+	return m.result, nil
 }
 
 func TestStrategy_Execute(t *testing.T) {
@@ -63,7 +67,12 @@ func TestStrategy_Execute(t *testing.T) {
 			result, err := strategy.Execute(context.Background(), tc.funcs)
 
 			// then
-			assert.Equal(t, tc.err, err)
+			if tc.err == nil {
+				assert.Nil(t, err)
+			} else {
+				assert.NotNil(t, err)
+				assert.Contains(t, err.Error(), tc.err.Error())
+			}
 			assert.Equal(t, tc.expected, result)
 		})
 	}
