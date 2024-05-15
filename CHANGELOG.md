@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.3...v0.18.0) (2024-05-15)
+
+
+### Features
+
+* **spv-642:** return ArcError to prevent infinite broadcasting of invalid transactions ([#94](https://github.com/bitcoin-sv/go-broadcast-client/issues/94)) ([d4594f5](https://github.com/bitcoin-sv/go-broadcast-client/commit/d4594f5c007bee0e30a71731955dd918d687e558))
+
 ## [0.17.3](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.2...v0.17.3) (2024-04-04)
 
 
