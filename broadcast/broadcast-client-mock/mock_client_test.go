@@ -2,6 +2,8 @@ package broadcast_client_mock
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -299,4 +301,33 @@ func TestMockClientTimeout(t *testing.T) {
 		assert.Greater(t, time.Since(startTime), defaultTestTime)
 		assert.Equal(t, expectedResult, result)
 	})
+
+	t.Run("example", func(t *testing.T) {
+
+		// when
+		_, err := SubmitTransaction(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
+
+		// then
+		if err != nil {
+			panic(err.Error())
+		}
+	})
+	t.Run("example 2", func(t *testing.T) {
+
+		// when
+		_, err := SubmitTransactionFail(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
+		var arcErr *broadcast.ArcError
+		if err != nil && errors.Is(err, errors.New("arc error")) {
+			errors.As(err, &arcErr)
+			assert.Equal(t, arcErr.Type, "upad")
+		}
+	})
+}
+
+func SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
+	return nil, nil
+}
+
+func SubmitTransactionFail(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
+	return nil, fmt.Errorf("broacast failed becuase of %w", broadcast.ArcError{Type: "upad"})
 }
