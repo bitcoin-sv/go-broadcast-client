@@ -3,6 +3,7 @@ package broadcast
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
@@ -61,8 +62,32 @@ func (failure *FailureResponse) Details() *FailureResponse {
 }
 
 // Error returns the error string it's the implementation of the error interface.
-func (err ArcError) Error() string {
-	return "arc error"
+func (err *ArcError) Error() string {
+	sb := strings.Builder{}
+
+	sb.WriteString("arc error: {")
+	sb.WriteString(fmt.Sprintf("type: %s, title: %s, status: %d, detail: %s",
+		err.Type, err.Title, err.Status, err.Detail))
+
+	if err.Instance != "" {
+		sb.Write([]byte(fmt.Sprintf(", instance: %s", err.Instance)))
+	}
+
+	if err.Txid != "" {
+		sb.Write([]byte(fmt.Sprintf(", txid: %s", err.Txid)))
+	}
+
+	if err.ExtraInfo != "" {
+		sb.Write([]byte(fmt.Sprintf(", extraInfo: %s", err.ExtraInfo)))
+	}
+
+	sb.WriteString("}")
+	return sb.String()
+}
+
+func (err *ArcError) Is(target error) bool {
+	var arcError *ArcError
+	return errors.As(target, &arcError)
 }
 
 // FailureResponse is the response returned by the ArcClient when the request fails.

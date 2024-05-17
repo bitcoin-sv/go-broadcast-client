@@ -317,9 +317,11 @@ func TestMockClientTimeout(t *testing.T) {
 		// when
 		_, err := SubmitTransactionFail(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
 		var arcErr *broadcast.ArcError
-		if err != nil && errors.Is(err, errors.New("arc error")) {
+		if err != nil && errors.Is(err, arcErr) {
 			errors.As(err, &arcErr)
 			assert.Equal(t, arcErr.Type, "upad")
+		} else {
+			panic("nie weszło §")
 		}
 	})
 }
@@ -329,5 +331,5 @@ func SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...b
 }
 
 func SubmitTransactionFail(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
-	return nil, fmt.Errorf("broacast failed becuase of %w", broadcast.ArcError{Type: "upad"})
+	return nil, fmt.Errorf("broacast failed becuase of %w", &broadcast.ArcError{Type: "upad"})
 }
