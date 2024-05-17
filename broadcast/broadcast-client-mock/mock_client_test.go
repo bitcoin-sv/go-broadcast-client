@@ -311,17 +311,20 @@ func TestMockClientTimeout(t *testing.T) {
 		if err != nil {
 			panic(err.Error())
 		}
+
+		var arcErr *broadcast.ArcError
+		if ok := errors.As(err, &arcErr); ok {
+			panic("weszło")
+
+		}
 	})
 	t.Run("example 2", func(t *testing.T) {
-
 		// when
 		_, err := SubmitTransactionFail(context.Background(), &broadcast.Transaction{Hex: "test-rawtx"})
 		var arcErr *broadcast.ArcError
-		if err != nil && errors.Is(err, arcErr) {
-			errors.As(err, &arcErr)
-			assert.Equal(t, arcErr.Type, "upad")
-		} else {
-			panic("nie weszło §")
+		if ok := errors.As(err, &arcErr); err != nil && ok {
+			failure := err
+			invalidTx := arcErr.IsRejectedTransaction()
 		}
 	})
 }

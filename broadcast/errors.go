@@ -56,6 +56,10 @@ type ArcError struct {
 	ExtraInfo string `json:"extraInfo,omitempty"`
 }
 
+func (err *ArcError) IsRejectedTransaction() bool {
+	return err.Status == 109
+}
+
 // Details returns the details of the error it's the implementation of the ArcFailure interface.
 func (failure *FailureResponse) Details() *FailureResponse {
 	return failure
