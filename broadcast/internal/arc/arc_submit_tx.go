@@ -22,7 +22,7 @@ type SubmitTxRequest struct {
 
 var ErrSubmitTxMarshal = errors.New("error while marshalling submit tx body")
 
-func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, broadcast.ArcFailure) {
+func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.Failure("SubmitTransaction:", broadcast.ErrClientUndefined)
 	}
@@ -50,7 +50,7 @@ func (a *ArcClient) SubmitTransaction(ctx context.Context, tx *broadcast.Transac
 	return response, nil
 }
 
-func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, broadcast.ArcFailure) {
+func (a *ArcClient) SubmitBatchTransactions(ctx context.Context, txs []*broadcast.Transaction, opts ...broadcast.TransactionOptFunc) (*broadcast.SubmitBatchTxResponse, error) {
 	if a == nil {
 		return nil, broadcast.Failure("SubmitBatchTransactions:", broadcast.ErrClientUndefined)
 	}
