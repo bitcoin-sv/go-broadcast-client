@@ -33,7 +33,7 @@ func New(name StrategyName) (*Strategy, error) {
 	case OneByOneStrategy:
 		return &Strategy{name: name, executionFunc: OneByOne.executionFunc}, nil
 	default:
-		return nil, broadcast.ErrStrategyUnkown
+		return nil, broadcast.ErrStrategyUnknown
 	}
 }
 

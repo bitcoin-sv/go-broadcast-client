@@ -28,12 +28,12 @@ var ErrUnableToDecodeResponse = errors.New("unable to decode response")
 // ErrMissingStatus is returned when the tx status is missing.
 var ErrMissingStatus = errors.New("missing tx status")
 
-// ErrStrategyUnkown is returned when the strategy provided is unknown.
+// ErrStrategyUnknown is returned when the strategy provided is unknown.
 // Example:
 //
 // func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.Client
-// Calling NewBroadcaster we need to provide a strategy, if the strategy is unknown (we don't have an implementation for that) we return ErrStrategyUnkown.
-var ErrStrategyUnkown = errors.New("unknown strategy")
+// Calling NewBroadcaster we need to provide a strategy, if the strategy is unknown (we don't have an implementation for that) we return ErrStrategyUnknown.
+var ErrStrategyUnknown = errors.New("unknown strategy")
 
 // ErrNoMinerResponse is returned when no response is received from any miner.
 var ErrNoMinerResponse = errors.New("failed to get reponse from any miner")
@@ -55,13 +55,25 @@ type ArcError struct {
 	ExtraInfo string `json:"extraInfo,omitempty"`
 }
 
+// IsRejectedTransaction returns true if the transaction is in rejected status.
+func (err *ArcError) IsRejectedTransaction() bool {
+	const RejectedStatus = 109
+	return err.Status == RejectedStatus
+}
+
+// Is returns true if the target is an ArcError.
+func (err *ArcError) Is(target error) bool {
+	var arcError *ArcError
+	return errors.As(target, &arcError)
+}
+
 // Details returns the details of the error it's the implementation of the ArcFailure interface.
 func (failure *FailureResponse) Details() *FailureResponse {
 	return failure
 }
 
 // Error returns the error string it's the implementation of the error interface.
-func (err ArcError) Error() string {
+func (err *ArcError) Error() string {
 	sb := strings.Builder{}
 
 	sb.WriteString("arc error: {")
