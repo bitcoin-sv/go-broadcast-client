@@ -55,12 +55,6 @@ func (err *ArcError) IsRejectedTransaction() bool {
 	return err.Status == RejectedStatus
 }
 
-// Is returns true if the target is an ArcError.
-func (err *ArcError) Is(target error) bool {
-	var arcError *ArcError
-	return errors.As(target, &arcError)
-}
-
 // Error returns the error string it's the implementation of the error interface.
 func (err *ArcError) Error() string {
 	sb := strings.Builder{}
