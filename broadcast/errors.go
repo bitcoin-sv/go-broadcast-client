@@ -38,12 +38,6 @@ var ErrStrategyUnknown = errors.New("unknown strategy")
 // ErrNoMinerResponse is returned when no response is received from any miner.
 var ErrNoMinerResponse = errors.New("failed to get reponse from any miner")
 
-// ArcFailure is the interface for the error returned by the ArcClient.
-type ArcFailure interface {
-	error
-	Details() *FailureResponse
-}
-
 // ArcError is general type for the error returned by the ArcClient.
 type ArcError struct {
 	Type      string `json:"type"`
@@ -65,11 +59,6 @@ func (err *ArcError) IsRejectedTransaction() bool {
 func (err *ArcError) Is(target error) bool {
 	var arcError *ArcError
 	return errors.As(target, &arcError)
-}
-
-// Details returns the details of the error it's the implementation of the ArcFailure interface.
-func (failure *FailureResponse) Details() *FailureResponse {
-	return failure
 }
 
 // Error returns the error string it's the implementation of the error interface.
@@ -117,11 +106,11 @@ func (failure *FailureResponse) Error() string {
 
 // Failure returns a new FailureResponse with the description and the error.
 func Failure(description string, err error) *FailureResponse {
-	var arcErr ArcError
+	var arcErr *ArcError
 	if errors.As(err, &arcErr) {
 		return &FailureResponse{
 			Description:      description,
-			ArcErrorResponse: &arcErr,
+			ArcErrorResponse: arcErr,
 		}
 	}
 
