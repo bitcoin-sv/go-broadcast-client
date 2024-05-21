@@ -4,8 +4,9 @@ package broadcast
 import (
 	"errors"
 	"fmt"
-	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
 	"strings"
+
+	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
 )
 
 // ErrClientUndefined is returned when the client is undefined.
@@ -79,34 +80,12 @@ func (err *ArcError) Error() string {
 	return sb.String()
 }
 
-// FailureResponse is the response returned by the ArcClient when the request fails.
-type FailureResponse struct {
-	Description      string
-	ArcErrorResponse *ArcError
-}
-
-// Error returns the error string it's the implementation of the error interface.
-func (failure *FailureResponse) Error() string {
-	sb := strings.Builder{}
-	sb.WriteString(failure.Description)
-
-	if failure.ArcErrorResponse != nil {
-		sb.WriteString(", ")
-		sb.WriteString(failure.ArcErrorResponse.Error())
-	}
-
-	return sb.String()
+func (err *ArcError) Is(target error) bool {
+	var arcError *ArcError
+	return errors.As(target, &arcError)
 }
 
 // Failure returns a new FailureResponse with the description and the error.
-func Failure(description string, err error) *FailureResponse {
-	var arcErr *ArcError
-	if errors.As(err, &arcErr) {
-		return &FailureResponse{
-			Description:      description,
-			ArcErrorResponse: arcErr,
-		}
-	}
-
-	return &FailureResponse{Description: utils.WithCause(errors.New(description), err).Error()}
+func Failure(description string, err error) error {
+	return utils.WithCause(errors.New(description), err)
 }
