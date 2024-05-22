@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.18.0...v0.18.1) (2024-05-22)
+
+
+### Bug Fixes
+
+* **SPV-642:** arc errors - simplification and comparsion for ArcError ([#97](https://github.com/bitcoin-sv/go-broadcast-client/issues/97)) ([0f787a8](https://github.com/bitcoin-sv/go-broadcast-client/commit/0f787a847dc481887176764d6d421146bfd990ae))
+
 ## [0.18.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.17.3...v0.18.0) (2024-05-15)
 
 
