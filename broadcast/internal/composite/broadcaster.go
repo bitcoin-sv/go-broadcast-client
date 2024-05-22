@@ -33,7 +33,7 @@ func NewBroadcaster(strategy Strategy, factories ...BroadcastFactory) broadcast.
 
 func (c *compositeBroadcaster) GetPolicyQuote(
 	ctx context.Context,
-) ([]*broadcast.PolicyQuoteResponse, broadcast.ArcFailure) {
+) ([]*broadcast.PolicyQuoteResponse, error) {
 	var policyQuotes []*broadcast.PolicyQuoteResponse
 
 	for _, broadcaster := range c.broadcasters {
@@ -50,7 +50,7 @@ func (c *compositeBroadcaster) GetPolicyQuote(
 	return policyQuotes, nil
 }
 
-func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, broadcast.ArcFailure) {
+func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) ([]*broadcast.FeeQuote, error) {
 	var feeQuotes []*broadcast.FeeQuote
 
 	for _, broadcaster := range c.broadcasters {
@@ -70,11 +70,11 @@ func (c *compositeBroadcaster) GetFeeQuote(ctx context.Context) ([]*broadcast.Fe
 func (c *compositeBroadcaster) QueryTransaction(
 	ctx context.Context,
 	txID string,
-) (*broadcast.QueryTxResponse, broadcast.ArcFailure) {
+) (*broadcast.QueryTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		currentBroadcaster := broadcaster
-		executionFuncs[i] = func(ctx context.Context) (Result, broadcast.ArcFailure) {
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
 			return currentBroadcaster.QueryTransaction(ctx, txID)
 		}
 	}
@@ -96,11 +96,11 @@ func (c *compositeBroadcaster) SubmitTransaction(
 	ctx context.Context,
 	tx *broadcast.Transaction,
 	opts ...broadcast.TransactionOptFunc,
-) (*broadcast.SubmitTxResponse, broadcast.ArcFailure) {
+) (*broadcast.SubmitTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		currentBroadcaster := broadcaster
-		executionFuncs[i] = func(ctx context.Context) (Result, broadcast.ArcFailure) {
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
 			return currentBroadcaster.SubmitTransaction(ctx, tx)
 		}
 	}
@@ -122,11 +122,11 @@ func (c *compositeBroadcaster) SubmitBatchTransactions(
 	ctx context.Context,
 	txs []*broadcast.Transaction,
 	opts ...broadcast.TransactionOptFunc,
-) (*broadcast.SubmitBatchTxResponse, broadcast.ArcFailure) {
+) (*broadcast.SubmitBatchTxResponse, error) {
 	executionFuncs := make([]executionFunc, len(c.broadcasters))
 	for i, broadcaster := range c.broadcasters {
 		currentBroadcaster := broadcaster
-		executionFuncs[i] = func(ctx context.Context) (Result, broadcast.ArcFailure) {
+		executionFuncs[i] = func(ctx context.Context) (Result, error) {
 			return currentBroadcaster.SubmitBatchTransactions(ctx, txs)
 		}
 	}

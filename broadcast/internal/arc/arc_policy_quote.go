@@ -10,7 +10,7 @@ import (
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
 )
 
-func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuoteResponse, broadcast.ArcFailure) {
+func (a *ArcClient) GetPolicyQuote(ctx context.Context) ([]*broadcast.PolicyQuoteResponse, error) {
 	if a == nil {
 		return nil, broadcast.Failure("GetPolicyQuote:", broadcast.ErrClientUndefined)
 	}
