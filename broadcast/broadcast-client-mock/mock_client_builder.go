@@ -14,7 +14,7 @@ const (
 	MockSuccess MockType = iota
 	MockFailure
 	MockTimeout
-	MockNillQueryTransactionResponse
+	MockNilQueryTxResp
 )
 
 type builder struct {
@@ -41,8 +41,8 @@ func (cb *builder) WithMockArc(mockType MockType) *builder {
 		clientToReturn = mocks.NewArcClientMockFailure()
 	case MockTimeout:
 		clientToReturn = mocks.NewArcClientMockTimeout()
-	case MockNillQueryTransactionResponse:
-		clientToReturn = mocks.NewArcClientMockNillQueryTransactionResponse()
+	case MockNilQueryTxResp:
+		clientToReturn = mocks.NewArcClientMockNilQueryTxResp()
 	default:
 		clientToReturn = mocks.NewArcClientMock()
 	}
