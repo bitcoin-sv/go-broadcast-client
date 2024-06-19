@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.18.1...v0.19.0) (2024-06-19)
+
+
+### Features
+
+* **SPV-778:** adds mock responding with nills for QueryTransacion ([#100](https://github.com/bitcoin-sv/go-broadcast-client/issues/100)) ([c8e052b](https://github.com/bitcoin-sv/go-broadcast-client/commit/c8e052b85ca867727c30e25a1819d3b2106c4aa4))
+
 ## [0.18.1](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.18.0...v0.18.1) (2024-05-22)
 
 
