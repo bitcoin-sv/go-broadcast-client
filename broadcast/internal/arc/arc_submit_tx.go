@@ -16,6 +16,10 @@ import (
 	"github.com/libsv/go-bt/v2"
 )
 
+// TODO: NewTxFromString - No direct replacement
+// TODO: NewTxFromBytes - not found
+// TODO: Input - not found (TransactionInput?)
+
 type SubmitTxRequest struct {
 	RawTx string `json:"rawTx"`
 }
