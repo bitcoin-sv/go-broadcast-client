@@ -2,7 +2,6 @@ package arc
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -273,8 +272,9 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 		}
 	}
 
+	hex, err := transaction.EFHex()
 	request := &SubmitTxRequest{
-		RawTx: hex.EncodeToString(transaction.Bytes()),
+		RawTx: hex,
 	}
 	return request, nil
 }
@@ -310,9 +310,7 @@ func updateUtxoWithMissingData(arc *ArcClient, input *trx.TransactionInput) erro
 	}
 
 	// TODO:
-	o := actualTx.Outputs[input.PreviousTxOutIndex]
-	input.PreviousTxScript = o.LockingScript
-	input.PreviousTxSatoshis = o.Satoshis
+	input.SourceTransaction = actualTx
 	return nil
 }
 
