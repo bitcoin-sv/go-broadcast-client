@@ -13,12 +13,9 @@ import (
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
-	"github.com/libsv/go-bt/v2"
-)
 
-// TODO: NewTxFromString - No direct replacement
-// TODO: NewTxFromBytes - not found
-// TODO: Input - not found (TransactionInput?)
+	trx "github.com/bitcoin-sv/go-sdk/transaction"
+)
 
 type SubmitTxRequest struct {
 	RawTx string `json:"rawTx"`
@@ -265,9 +262,9 @@ func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
 }
 
 func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
-	transaction, err := bt.NewTxFromString(rawTx)
+	transaction, err := trx.NewTransactionFromHex(rawTx)
 	if err != nil {
-		return nil, utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
+		return nil, utils.WithCause(errors.New("rawTxRequest: trx.NewTransactionFromHex failed"), err)
 	}
 
 	for _, input := range transaction.Inputs {
@@ -277,12 +274,12 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	}
 
 	request := &SubmitTxRequest{
-		RawTx: hex.EncodeToString(transaction.ExtendedBytes()),
+		RawTx: hex.EncodeToString(transaction.Bytes()),
 	}
 	return request, nil
 }
 
-func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
+func updateUtxoWithMissingData(arc *ArcClient, input *trx.TransactionInput) error {
 	txid := input.PreviousTxIDStr()
 	pld := httpclient.NewPayload(
 		httpclient.GET,
@@ -307,11 +304,12 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 		return errors.New("junglebus responded with empty tx.Transaction[]")
 	}
 
-	actualTx, err := bt.NewTxFromBytes(tx.Transaction)
+	actualTx, err := trx.NewTransactionFromBytes(tx.Transaction)
 	if err != nil {
-		return utils.WithCause(errors.New("converting junglebusTransaction.Transaction to bt.Tx failed"), err)
+		return utils.WithCause(errors.New("converting junglebusTransaction.Transaction to trx.Transaction failed"), err)
 	}
 
+	// TODO:
 	o := actualTx.Outputs[input.PreviousTxOutIndex]
 	input.PreviousTxScript = o.LockingScript
 	input.PreviousTxSatoshis = o.Satoshis

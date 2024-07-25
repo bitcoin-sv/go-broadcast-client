@@ -1,6 +1,8 @@
 module github.com/bitcoin-sv/go-broadcast-client
 
-go 1.21.5
+go 1.22
+
+toolchain go1.22.5
 
 require (
 	github.com/libsv/go-bt/v2 v2.2.5
@@ -9,6 +11,7 @@ require (
 )
 
 require (
+	github.com/bitcoin-sv/go-sdk v0.0.0-20240723152403-6fa5c8714bb9 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/libsv/go-bk v0.1.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
