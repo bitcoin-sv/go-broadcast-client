@@ -5,17 +5,16 @@ go 1.22
 toolchain go1.22.5
 
 require (
-	github.com/libsv/go-bt/v2 v2.2.5
+	github.com/bitcoin-sv/go-sdk v0.0.0-20240723152403-6fa5c8714bb9
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
 )
 
 require (
-	github.com/bitcoin-sv/go-sdk v0.0.0-20240723152403-6fa5c8714bb9 // indirect
-	github.com/kr/text v0.2.0 // indirect
-	github.com/libsv/go-bk v0.1.6 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/crypto v0.25.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
 require (
