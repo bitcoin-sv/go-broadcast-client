@@ -263,7 +263,7 @@ func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
 func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	transaction, err := trx.NewTransactionFromHex(rawTx)
 	if err != nil {
-		return nil, utils.WithCause(errors.New("rawTxRequest: trx.NewTransactionFromHex failed"), err)
+		return nil, utils.WithCause(errors.New("rawTxRequest: trx.NewTransactionFromHex() failed"), err)
 	}
 
 	for _, input := range transaction.Inputs {
@@ -273,6 +273,10 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 	}
 
 	hex, err := transaction.EFHex()
+	if err != nil {
+		return nil, utils.WithCause(errors.New("rawTxRequest: transaction.EFHex() failed"), err)
+	}
+
 	request := &SubmitTxRequest{
 		RawTx: hex,
 	}
@@ -309,7 +313,6 @@ func updateUtxoWithMissingData(arc *ArcClient, input *trx.TransactionInput) erro
 		return utils.WithCause(errors.New("converting junglebusTransaction.Transaction to trx.Transaction failed"), err)
 	}
 
-	// TODO:
 	input.SourceTransaction = actualTx
 	return nil
 }
