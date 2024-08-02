@@ -16,7 +16,7 @@ func main() {
 	token := "mainnet_06770f425eb00298839a24a49cbdc02c"
 	apiURL := "https://arc.taal.com"
 	deploymentID := "broadcast-client-example"
-	txID := "469dd0f63fe4b3fe972dc72d28057e931abd69d8dfc85bf6e623efa41d50ef73"
+	txID := "c67d504ea27eb225655bdb1f29c3a1a8f2056d675f3a7b17e91638efa30e1665"
 
 	cfg := broadcast_client.ArcClientConfig{
 		Token:        token,
