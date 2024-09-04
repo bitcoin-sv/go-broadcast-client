@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Go
       uses: actions/setup-go@v5
       with:
@@ -19,6 +19,6 @@ jobs:
     - name: Run Tests
       run: task test
     - name: Setup golangci-lint
-      uses: golangci/golangci-lint-action@v2
+      uses: golangci/golangci-lint-action@v6
     - name: Run Lint
       run: task lint
