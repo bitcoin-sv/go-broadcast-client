@@ -284,7 +284,7 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 }
 
 func updateUtxoWithMissingData(arc *ArcClient, input *trx.TransactionInput) error {
-	txid := input.PreviousTxIDStr()
+	txid := input.SourceTXID
 	pld := httpclient.NewPayload(
 		httpclient.GET,
 		fmt.Sprintf("https://junglebus.gorillapool.io/v1/transaction/get/%s", txid),
