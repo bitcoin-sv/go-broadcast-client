@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.20.0...v0.21.0) (2024-09-05)
+
+
+### Features
+
+* **SPV-938:** upgrade to go-sdk ([#102](https://github.com/bitcoin-sv/go-broadcast-client/issues/102)) ([e82b83f](https://github.com/bitcoin-sv/go-broadcast-client/commit/e82b83f654f40110bbb4f3f58038a6df34fca151))
+
 ## [0.19.0](https://github.com/bitcoin-sv/go-broadcast-client/compare/v0.18.1...v0.19.0) (2024-06-19)
 
 
