@@ -2,7 +2,6 @@ package arc
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +12,8 @@ import (
 	arc_utils "github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/arc/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/broadcast/internal/utils"
 	"github.com/bitcoin-sv/go-broadcast-client/httpclient"
-	"github.com/libsv/go-bt/v2"
+
+	trx "github.com/bitcoin-sv/go-sdk/transaction"
 )
 
 type SubmitTxRequest struct {
@@ -261,9 +261,9 @@ func beefTxRequest(rawTx string) (*SubmitTxRequest, error) {
 }
 
 func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
-	transaction, err := bt.NewTxFromString(rawTx)
+	transaction, err := trx.NewTransactionFromHex(rawTx)
 	if err != nil {
-		return nil, utils.WithCause(errors.New("rawTxRequest: bt.NewTxFromString failed"), err)
+		return nil, utils.WithCause(errors.New("rawTxRequest: trx.NewTransactionFromHex() failed"), err)
 	}
 
 	for _, input := range transaction.Inputs {
@@ -272,14 +272,19 @@ func rawTxRequest(arc *ArcClient, rawTx string) (*SubmitTxRequest, error) {
 		}
 	}
 
+	hex, err := transaction.EFHex()
+	if err != nil {
+		return nil, utils.WithCause(errors.New("rawTxRequest: transaction.EFHex() failed"), err)
+	}
+
 	request := &SubmitTxRequest{
-		RawTx: hex.EncodeToString(transaction.ExtendedBytes()),
+		RawTx: hex,
 	}
 	return request, nil
 }
 
-func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
-	txid := input.PreviousTxIDStr()
+func updateUtxoWithMissingData(arc *ArcClient, input *trx.TransactionInput) error {
+	txid := input.SourceTXID
 	pld := httpclient.NewPayload(
 		httpclient.GET,
 		fmt.Sprintf("https://junglebus.gorillapool.io/v1/transaction/get/%s", txid),
@@ -303,14 +308,12 @@ func updateUtxoWithMissingData(arc *ArcClient, input *bt.Input) error {
 		return errors.New("junglebus responded with empty tx.Transaction[]")
 	}
 
-	actualTx, err := bt.NewTxFromBytes(tx.Transaction)
+	actualTx, err := trx.NewTransactionFromBytes(tx.Transaction)
 	if err != nil {
-		return utils.WithCause(errors.New("converting junglebusTransaction.Transaction to bt.Tx failed"), err)
+		return utils.WithCause(errors.New("converting junglebusTransaction.Transaction to trx.Transaction failed"), err)
 	}
 
-	o := actualTx.Outputs[input.PreviousTxOutIndex]
-	input.PreviousTxScript = o.LockingScript
-	input.PreviousTxSatoshis = o.Satoshis
+	input.SourceTransaction = actualTx
 	return nil
 }
 
