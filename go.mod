@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.5
 
 require (
-	github.com/bitcoin-sv/go-sdk v1.1.5
+	github.com/bitcoin-sv/go-sdk v1.1.8
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
 )
