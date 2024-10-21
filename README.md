@@ -1,4 +1,6 @@
 ⚠️ This repository is deprecated. ⚠️
+==================================
+
 We strongly recommend to use instead
 - [go-sdk](https://github.com/bitcoin-sv/go-sdk) instead and the transaction broadcaster there, of coure feel free to create an [issue in go-sdk](https://github.com/bitcoin-sv/go-sdk/issues), if there is any lacking feature in go-sdk that you used from this library 
 - plain requests to ARC or maybe look at the [ARC repository](https://github.com/bitcoin-sv/arc) for some help with creating a client
